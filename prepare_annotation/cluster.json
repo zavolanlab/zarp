@@ -1,0 +1,23 @@
+{
+  "__default__" :
+  {
+    "queue": "6hours",
+    "time": "05:00:00",
+    "threads": "1",
+    "mem": "4G",
+    "name": "{rule}.{wildcards}",
+    "out": "$PWD/logs/cluster_log/{rule}.{wildcards}-%j-%N.out"
+  },
+  "generate_segemehl_index_other_RNAs":
+  {
+    "time": "06:00:00",
+    "threads":"8",
+    "mem":"50G"
+  },
+  "index_genome_STAR":
+  {
+    "time": "06:00:00",
+    "threads":"8",
+    "mem":"50G"
+  }
+}
