@@ -125,15 +125,14 @@ rule index_genome_STAR:
 	log:
 		os.path.join(config["local_log"],"index_genome_STAR.log")
 	shell:
-		"(mkdir -p {output.output}; \
+		"mkdir -p {output.output}; \
 		chmod -R 777 {output.output}; \
-		STAR --runMode genomeGenerate \
+		(STAR --runMode genomeGenerate \
 		--sjdbOverhang {params.sjdbOverhang} \
 		--genomeDir {params.outputdir} \
 		--genomeFastaFiles {input.genome} \
 		--runThreadN {threads} \
 		--sjdbGTFfile {input.annotation}) &> {log}"
-
 
 ##################################################################################
 ### Filter protein coding and lncRNA transcripts
@@ -197,4 +196,4 @@ rule index_salmon:
 		--transcripts {input.transcripts} \
 		--index {output.index} \
 		--kmerLen {params.kmerLen} \
-		--threads {threads}) > {log}"
+		--threads {threads}) &> {log}"
