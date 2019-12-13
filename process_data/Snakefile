@@ -1,4 +1,15 @@
+import pandas as pd
+
 configfile: "config.yaml"
+
+
+
+
+samples = pd.read_table(config['samples_table'], header=0, index_col=0, comment='#', engine='python')
+
+samples['out_name'] = samples['Sample_name'] + samples['Library_Type']
+
+
 
 localrules: finish
 
@@ -8,10 +19,22 @@ localrules: finish
 
 rule finish:
 	input:
-		fastqc = expand(os.path.join(config["output_dir"], "{sample}", "fastqc"), sample=config["sample"]),
-		htseq_qa = expand(os.path.join(config["output_dir"], "{sample}", "htseq_qa", "htseq_quality.pdf"), sample=config["sample"]),
-		gn_estimates = expand(os.path.join(config["output_dir"], "{sample}", "salmon_quant", "quant.genes.sf"), sample=config["sample"]),
-		bam = expand(os.path.join(config["output_dir"], "{sample}", "STAR_Aligned.out.bam"), sample=config["sample"])
+		final_sample = expand(os.path.join(config["output_dir"], "{sample}", "fastqc"), sample=samples['out_name'].values),
+
+		#fastqc = expand(os.path.join(config["output_dir"], "{sample}", "fastqc"), sample=config["sample"]),
+		#htseq_qa = expand(os.path.join(config["output_dir"], "{sample}", "htseq_qa", "htseq_quality.pdf"), sample=config["sample"]),
+		#gn_estimates = expand(os.path.join(config["output_dir"], "{sample}", "salmon_quant", "quant.genes.sf"), sample=config["sample"]),
+		#bam = expand(os.path.join(config["output_dir"], "{sample}", "STAR_Aligned.out.bam"), sample=config["sample"])
+
+
+##################################################################################
+# Execution dependend on sequencing mode
+##################################################################################
+
+
+include: 'paired_end.snakefile'
+include: 'single_end.snakefile'
+
 
 ##################################################################################
 ### Fastqc
