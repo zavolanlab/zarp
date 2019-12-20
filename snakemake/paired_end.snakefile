@@ -1,13 +1,15 @@
 
-rule fastqc:
+rule pe_fastqc:
 	'''A quality control tool for high throughput sequence data'''
 
 	input:
-		reads1 = os.path.join(get_fq_1("{sample}")),
-		reads2 = os.path.join(get_fq_2("{sample}"))
+		reads1 = lambda wildcards: samples_table.loc[wildcards.sample, "fq1"],
+		reads2 = lambda wildcards: samples_table.loc[wildcards.sample, "fq2"]
 	output:
 		outdir1 = directory(os.path.join(config["output_dir"], "paired_end", "{sample}", "mate1_fastqc")),
 		outdir2 = directory(os.path.join(config["output_dir"], "paired_end", "{sample}", "mate2_fastqc"))
+	threads:
+		2
 	singularity:
 		"docker://zavolab/fastqc:0.11.8"
 	log:
@@ -15,15 +17,14 @@ rule fastqc:
 	shell:
 		"(mkdir -p {output.outdir1}; \
 		mkdir -p {output.outdir2}; \
-		fastqc --outdir {output.outdir1} {input.reads1}; \
+		fastqc --outdir {output.outdir1} {input.reads1}; & \
 		fastqc --outdir {output.outdir2} {input.reads2}) &> {log}"
 
-
-rule htseq_qa:
+rule pe_htseq_qa:
 	'''Assess the technical quality of a run'''
 	input:
-		reads1 = os.path.join(get_fq_1("{sample}")),
-		reads2 = os.path.join(get_fq_2("{sample}"))
+		reads1 = lambda wildcards: samples_table.loc[wildcards.sample, "fq1"],
+		reads2 = lambda wildcards: samples_table.loc[wildcards.sample, "fq2"]
 	output:
 		qual_pdf_mate1 = os.path.join(config["output_dir"], "paired_end", "{sample}", "htseq_quality_mate1.pdf"),
 		qual_pdf_mate2 = os.path.join(config["output_dir"], "paired_end", "{sample}", "htseq_quality_mate2.pdf")
@@ -38,11 +39,11 @@ rule htseq_qa:
 		htseq-qa -t fastq -o {output.qual_pdf_mate2} {input.reads2}; ) &> {log}"
 
 
-rule remove_adapters_cutadapt:
+rule pe_remove_adapters_cutadapt:
 	'''Remove adapters'''
 	input:
-		reads1 = os.path.join(get_fq_1("{sample}")),
-		reads2 = os.path.join(get_fq_2("{sample}"))
+		reads1 = lambda wildcards: samples_table.loc[wildcards.sample, "fq1"],
+		reads2 = lambda wildcards: samples_table.loc[wildcards.sample, "fq2"]
 	output:
 		reads1 = os.path.join(
 			config["output_dir"],
@@ -56,13 +57,13 @@ rule remove_adapters_cutadapt:
 			"{sample}.remove_adapters_mate2.fastq.gz")
 	params:
 		adapter_3_mate1 = lambda wildcards:
-			sample_table.loc[wildcards.sample, 'fq1_3p'],
+			samples_table.loc[wildcards.sample, 'fq1_3p'],
 		adapter_5_mate1 = lambda wildcards:
-			sample_table.loc[wildcards.sample, 'fq1_5p'],
+			samples_table.loc[wildcards.sample, 'fq1_5p'],
 		adapter_3_mate2 = lambda wildcards:
-			sample_table.loc[wildcards.sample, 'fq2_3p'],
+			samples_table.loc[wildcards.sample, 'fq2_3p'],
 		adapter_5_mate2 = lambda wildcards:
-			sample_table.loc[wildcards.sample, 'fq2_5p']
+			samples_table.loc[wildcards.sample, 'fq2_5p']
 	singularity:
 		"docker://zavolab/cutadapt:1.16"
 	threads: 8
@@ -85,7 +86,7 @@ rule remove_adapters_cutadapt:
 		{input.reads2}) &> {log}"
 
 
-rule remove_polya_cutadapt:
+rule pe_remove_polya_cutadapt:
 	'''Remove polyA tails'''
 	input:
 		reads1 = os.path.join(
@@ -111,9 +112,9 @@ rule remove_polya_cutadapt:
 			"{sample}.remove_polya_mate2.fastq.gz")
 	params:
 		polya_3_mate1 = lambda wildcards:
-			sample_table.loc[wildcards.sample, 'fq1_polya'],
+			samples_table.loc[wildcards.sample, 'fq1_polya'],
 		polya_3_mate2 = lambda wildcards:
-			sample_table.loc[wildcards.sample, 'fq2_polya'],
+			samples_table.loc[wildcards.sample, 'fq2_polya'],
 	singularity:
 		"docker://zavolab/cutadapt:1.16"
 	threads: 8
@@ -137,65 +138,16 @@ rule remove_polya_cutadapt:
 		{input.reads2}) &> {log}'
 
 
-rule create_index_star:
-	''' Create index using STAR'''
-	input:
-		genome = sample_table.loc["{sample}", 'genome'],
-		gtf = sample_table.loc["{sample}", 'gtf']
-	output:
-		chromosome_info = os.path.join(
-			config["star_indexes"],
-			sample_table.loc[wildcards.sample, "organism"],
-			sample_table.loc["{sample}", "index_size"],
-			"STAR_index",
-			"chrNameLength.txt"),
-		chromosomes_names = os.path.join(
-			config["star_indexes"],
-			sample_table.loc["{sample}", "organism"],
-			sample_table.loc["{sample}", "index_size"],
-			"STAR_index",
-			"chrName.txt")
-	params:
-		output_dir = lambda wildcards:
-			os.path.join(
-				config["star_indexes"],
-				sample_table.loc[wildcards.sample, "organism"],
-				sample_table.loc[wildcards.sample, "index_size"],
-				"STAR_index"),
-		outFileNamePrefix = os.path.join(
-				config["star_indexes"],
-				sample_table.loc[wildcards.sample, "organism"],
-				sample_table.loc[wildcards.sample, "index_size"],
-				"STAR_index/STAR_"),
-		sjdbOverhang = lambda wildcards:
-			sample_table.loc[wildcards.sample, "index_size"]
-	singularity:
-		"docker://zavolab/star:2.6.0a"
-	threads: 12
-	log:
-		os.path.join( config["local_log"], "paired_end", "{sample}", "create_index_star.log")
-	shell:
-		"(mkdir -p {params.output_dir}; \
-		chmod -R 777 {params.output_dir}; \
-		STAR \
-		--runMode genomeGenerate \
-		--sjdbOverhang {params.sjdbOverhang} \
-		--genomeDir {params.output_dir} \
-		--genomeFastaFiles {input.genome} \
-		--runThreadN {threads} \
-		--outFileNamePrefix {params.outFileNamePrefix} \
-		--sjdbGTFfile {input.gtf}) &> {log}"
-
-
-rule map_genome_star:
+rule pe_map_genome_star:
 	'''Map to genome using STAR'''
 	input:
-		index = os.path.join(
-			config["star_indexes"],
-			sample_table.loc["{sample}", "organism"],
-			sample_table.loc["{sample}", "index_size"],
-			"STAR_index",
-			"chrNameLength.txt"),
+		index = lambda wildcards:
+			os.path.join(
+				config["star_indexes"],
+				samples_table.loc[wildcards.sample, "organism"],
+				samples_table.loc[wildcards.sample, "index_size"],
+				"STAR_index",
+				"chrNameLength.txt"),
 		reads1 = os.path.join(
 			config["output_dir"],
 			"paired_end",
@@ -224,7 +176,7 @@ rule map_genome_star:
 		index = lambda wildcards:
 			os.path.join(
 				config["star_indexes"],
-				sample_table.loc[wildcards.sample, "index_size"],
+				samples_table.loc[wildcards.sample, "index_size"],
 				"STAR_index"),
 		outFileNamePrefix = os.path.join(
 			config["output_dir"],
@@ -233,11 +185,11 @@ rule map_genome_star:
 			"map_genome",
 			"{sample}_"),
 		multimappers = lambda wildcards:
-			sample_table.loc[wildcards.sample, "mulitmappers"],
+			samples_table.loc[wildcards.sample, "mulitmappers"],
 		soft_clip = lambda wildcards:
-			sample_table.loc[wildcards.sample, "soft_clip"],
+			samples_table.loc[wildcards.sample, "soft_clip"],
 		pass_mode = lambda wildcards:
-			sample_table.loc[wildcards.sample, "pass_mode"]
+			samples_table.loc[wildcards.sample, "pass_mode"]
 
 	singularity:
 		"docker://zavolab/star:2.6.0a"
@@ -271,7 +223,7 @@ rule map_genome_star:
 		--alignEndsType {params.soft_clip}} > {output.bam};) &> {log}"
 
 
-rule index_genomic_alignment_samtools:
+rule pe_index_genomic_alignment_samtools:
     '''Index the genomic alignment'''
     input:
         bam = os.path.join(
@@ -296,32 +248,7 @@ rule index_genomic_alignment_samtools:
         "(samtools index {input.bam} {output.bai};) &> {log}"
 
 
-rule create_index_salmon:
-	'''Create index for salmon quantification'''
-	input:
-		transcriptome = sample_table.loc["{sample}", 'tr_fasta_filtered']
-	output:
-		index = os.path.join(
-			config["salmon_indexes"],
-			sample_table["{sample}", 'organism'],
-			"salmon.idx")
-	params:
-		kmerLen = lambda wildcards:
-			sample_table.loc[wildcards.sample, 'kmer']
-	singularity:
-		"docker://zavolab/salmon:0.11.0"
-	log:
-		os.path.join(config["local_log"], "paired_end", "{sample}", "create_index_salmon.log")
-	threads:	8
-	shell:
-		"(salmon index \
-		--t {input.transcriptome} \
-		--i {output.index} \
-		--k {params.kmerLen} \
-		--threads {threads}) &> {log}"
-
-
-rule quantification_salmon:
+rule pe_quantification_salmon:
 	'''Quantification at transcript and gene level using Salmon'''
 	input:
 		reads1 = os.path.join(
@@ -334,11 +261,13 @@ rule quantification_salmon:
 			"paired_end",
 			"{sample}",
 			"{sample}.remove_polya_mate2.fastq.gz"),
-		gtf = sample_table["{sample}", 'gtf_filtered'],
-		index = os.path.join(
-			config["salmon_indexes"],
-			sample_table["{sample}", 'organism'],
-			"salmon.idx")
+		gtf = lambda wildcards:
+			samples_table.loc[wildcards.sample, 'gtf_filtered'],
+		index = lambda wildcards:
+			os.path.join(
+				config["salmon_indexes"],
+				samples_table.loc[wildcards.sample, 'organism'],
+				"salmon.idx")
 	output:		
 		gn_estimates = os.path.join(
 			config["output_dir"],
@@ -359,7 +288,7 @@ rule quantification_salmon:
 			"{sample}",
 			"salmon_quant"),
 		libType = lambda wildcards:
-			sample_table.loc[wildcards.sample, 'libtype']
+			samples_table.loc[wildcards.sample, 'libtype']
 	log:
 		os.path.join(config["local_log"], "paired_end", "{sample}", "genome_quantification_salmon.log")
 	threads:	6
@@ -379,31 +308,7 @@ rule quantification_salmon:
         -o {params.output_dir}) &> {log}"
 
 
-rule create_index_kallisto:
-	'''Create index for running Kallisto'''
-	input:
-		transcriptome = sample_table[,"{sample}", 'tr_fasta_filtered']
-	output:
-		index = os.path.join(
-			config["kallisto_indexes"],
-			sample_table["{sample}", 'organism'],
-			"kallisto.idx")
-	params:
-		output_dir = lambda wildcards:
-			os.path.join(
-				config["kallisto_indexes"],
-				sample_table[wildcards.sample, 'organism'])
-	singularity:
-		"docker://zavolab/kallisto:0.9"
-	log:
-		os.path.join(config["local_log"], "paired_end", "{sample}", "create_index_kallisto.log")
-	shell:
-		"(mkdir -p {params.output_dir}; \
-		chmod -R 777 {params.output_dir}; \
-		kallisto index -i {output.index} {input.transcriptome}) &> {log}"
-
-
-rule genome_quantification_kallisto:
+rule pe_genome_quantification_kallisto:
 	'''Quantification at transcript and gene level using Kallisto'''
 	input:
 		reads1 = os.path.join(
@@ -416,10 +321,11 @@ rule genome_quantification_kallisto:
 			"paired_end",
 			"{sample}",
 			"{sample}.remove_polya_mate2.fastq.gz"),
-		index = os.path.join(
-			config["kallisto_indexes"],
-			sample_table["{sample}", 'organism'],
-			"kallisto.idx")
+		index = lambda wildcards:
+			os.path.join(
+				config["kallisto_indexes"],
+				samples_table.loc[wildcards.sample, 'organism'],
+				"kallisto.idx")
 	output:
 		pseudoalignment = os.path.join(
 			config["output_dir"],
@@ -435,7 +341,7 @@ rule genome_quantification_kallisto:
 				wildcards.sample,
 				"quant_kallisto"),
 		directionality = lambda wildcards:
-			sample_table.loc[wildcards.sample, "kallisto_directionality"]
+			samples_table.loc[wildcards.sample, "kallisto_directionality"]
 	singularity:
 		"docker://zavolab/kallisto:0.9"
 	threads:	8

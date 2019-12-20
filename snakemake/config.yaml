@@ -16,12 +16,14 @@
   database_path: "/scicore/home/zavolan/GROUP/Rna_Seq_pipeline/Blabla"
   STAR_idx_folder: "STAR_indices"
   output_dir: "results"
+  star_indexes: "results"
+  salmon_indexes: "results"
+  kallisto_indexes: "results"
   local_log: "logs/local_log"
   cluster_log: "logs/cluster_log"
+  
   ##############################################################################
   ### Sample info
   ##############################################################################
-  input_dir: "samples"
-  sample: ["test"]
-  test: {libType: A, fldMean: 300, fldSD: 100}
+  samples: "../tests/samples.tsv"
 ...

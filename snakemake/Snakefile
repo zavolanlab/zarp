@@ -1,16 +1,18 @@
-import pandas as pd
-
 configfile: "config.yaml"
 
+################################################################################
+### python modules
+################################################################################
+
+import os
+import sys
+import pandas as pd
+
+############################
+
+samples_table = pd.read_csv(config["samples"], header=0, index_col=0, comment='#', engine='python', sep="\t")
+
 localrules: finish
-
-#################################################################################
-### Final rule
-#################################################################################
-
-rule finish:
-	input:
-		final_sample = expand()
 
 ##################################################################################
 # Execution dependend on sequencing mode
@@ -18,3 +20,113 @@ rule finish:
 
 include: 'paired_end.snakefile'
 include: 'single_end.snakefile'
+
+#################################################################################
+### Final rule
+#################################################################################
+
+rule finish:
+	input:
+		outdir1 = expand(os.path.join(config["output_dir"], "paired_end", "{sample}", "mate1_fastqc"), sample=samples_table.index.values),
+		outdir2 = expand(os.path.join(config["output_dir"], "paired_end", "{sample}", "mate2_fastqc"), sample=samples_table.index.values)
+
+
+rule create_index_star:
+	''' Create index using STAR'''
+	input:
+		genome = lambda wildcards: samples_table.loc[wildcards.sample, 'genome'],
+		gtf = lambda wildcards: samples_table.loc[wildcards.sample, 'gtf']
+	output:
+		chromosome_info = os.path.join(
+			config["star_indexes"],
+			"{organism}",
+			"{index_size}",
+			"STAR_index",
+			"chrNameLength.txt"),
+		chromosomes_names = os.path.join(
+			config["star_indexes"],
+			"{organism}",
+			"{index_size}",
+			"STAR_index",
+			"chrName.txt")
+	params:
+		output_dir = os.path.join(
+				config["star_indexes"],
+				"{organism}",
+				"{index_size}",
+				"STAR_index"),
+		outFileNamePrefix = os.path.join(
+				config["star_indexes"],
+				"{organism}",
+				"{index_size}",
+				"STAR_index/STAR_"),
+		sjdbOverhang = lambda wildcards:
+			samples_table[wildcards.sample, "index_size"],
+	singularity:
+		"docker://zavolab/star:2.6.0a"
+	threads: 12
+	log:
+		os.path.join( config["local_log"], "{organism}_{index_size}_create_index_star.log")
+	shell:
+		"(mkdir -p {params.output_dir}; \
+		chmod -R 777 {params.output_dir}; \
+		STAR \
+		--runMode genomeGenerate \
+		--sjdbOverhang {params.sjdbOverhang} \
+		--genomeDir {params.output_dir} \
+		--genomeFastaFiles {input.genome} \
+		--runThreadN {threads} \
+		--outFileNamePrefix {params.outFileNamePrefix} \
+		--sjdbGTFfile {input.gtf}) &> {log}"
+
+
+rule create_index_salmon:
+	'''Create index for salmon quantification'''
+	input:
+		transcriptome = lambda wildcards:
+			samples_table.loc[wildcards.sample, 'tr_fasta_filtered']
+	output:
+		index = os.path.join(
+			config["salmon_indexes"],
+			"{organism}",
+			"salmon.idx")
+	params:
+		kmerLen = lambda wildcards:
+			samples_table.loc[wildcards.sample, 'kmer']
+	singularity:
+		"docker://zavolab/salmon:0.11.0"
+	log:
+		os.path.join(config["local_log"], "{organism}_create_index_salmon.log")
+	threads:	8
+	shell:
+		"(salmon index \
+		--t {input.transcriptome} \
+		--i {output.index} \
+		--k {params.kmerLen} \
+		--threads {threads}) &> {log}"
+
+
+rule create_index_kallisto:
+	'''Create index for running Kallisto'''
+	input:
+		transcriptome = lambda wildcards:
+			samples_table.loc[wildcards.sample, 'tr_fasta_filtered']
+	output:
+		index = os.path.join(
+				config["kallisto_indexes"],
+				"{organism}",
+				"kallisto.idx")
+	params:
+		output_dir = lambda wildcards:
+			os.path.join(
+				config["kallisto_indexes"],
+				samples_table[wildcards.sample, 'organism'])
+	singularity:
+		"docker://zavolab/kallisto:0.9"
+	log:
+		os.path.join(config["local_log"], "{organism}_create_index_kallisto.log")
+	shell:
+		"(mkdir -p {params.output_dir}; \
+		chmod -R 777 {params.output_dir}; \
+		kallisto index -i {output.index} {input.transcriptome}) &> {log}"
+
