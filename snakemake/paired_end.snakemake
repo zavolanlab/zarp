@@ -27,12 +27,14 @@ rule htseq_qa:
 	output:
 		qual_pdf_mate1 = os.path.join(config["output_dir"], "paired_end", "{sample}", "htseq_quality_mate1.pdf"),
 		qual_pdf_mate2 = os.path.join(config["output_dir"], "paired_end", "{sample}", "htseq_quality_mate2.pdf")
+	threads:
+		2
 	singularity:
 		"docker://zavolab/python_htseq:3.6.5_0.10.0"
 	log:
 		os.path.join(config["local_log"], "paired_end", "{sample}", "htseq_qa_.log")
 	shell:
-		"(htseq-qa -t fastq -o {output.qual_pdf_mate1} {input.reads1}; \
+		"(htseq-qa -t fastq -o {output.qual_pdf_mate1} {input.reads1}; & \
 		htseq-qa -t fastq -o {output.qual_pdf_mate2} {input.reads2}; ) &> {log}"
 
 
