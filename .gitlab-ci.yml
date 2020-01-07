@@ -1,0 +1,8 @@
+image: snakemake/snakemake:v5.9.1
+
+test:
+  script:
+    - cd snakemake
+    - snakemake -n
+    # add additional tests here
+
