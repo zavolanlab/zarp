@@ -1,3 +1,3 @@
 sample	fq1	fq2
-LN18C_rep1	/Users/foivosgypas/Desktop/samples/BSSE_QGF_131557_HHK5FDRXX_1_7_1_LN18C_1_GAATGAGA_GAGGCATT_S1_L001_R1_001_MM_1.fastq.gz	/Users/foivosgypas/Desktop/samples/BSSE_QGF_131557_HHK5FDRXX_1_7_1_LN18C_1_GAATGAGA_GAGGCATT_S1_L001_R2_001_MM_1.fastq.gz
-LN18C_rep2	/Users/foivosgypas/Desktop/samples/BSSE_QGF_131558_HHK5FDRXX_1_7_2_LN18C_2_AGGCAGAG_AGAATGCC_S2_L001_R1_001_MM_1.fastq.gz	/Users/foivosgypas/Desktop/samples/BSSE_QGF_131558_HHK5FDRXX_1_7_2_LN18C_2_AGGCAGAG_AGAATGCC_S2_L001_R2_001_MM_1.fastq.gz
+HNRNPC_control_rep1	../tests/input_files/GSM1502498_1.fastq.gz	../tests/input_files/GSM1502498_2.fastq.gz
+HNRNPC_KD_rep1	../tests/input_files/GSM1502500_1.fastq.gz	../tests/input_files/GSM1502500_2.fastq.gz
