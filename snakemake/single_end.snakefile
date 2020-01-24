@@ -259,7 +259,7 @@ rule genome_quantification_kallisto:
 		-l {params.fraglen} \
 		-s {params.fragsd} \
 		--pseudobam \
-		--{params.directionality}-stranded \
+		{params.directionality} \
 		{input.reads} > {output.pseudoalignment}) &> {log}"
 
 		
