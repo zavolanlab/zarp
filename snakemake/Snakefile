@@ -28,7 +28,10 @@ include: 'single_end.snakefile'
 rule finish:
 	input:
 		outdir1 = expand(os.path.join(config["output_dir"], "paired_end", "{sample}", "mate1_fastqc"), sample=samples_table.index.values),
-		outdir2 = expand(os.path.join(config["output_dir"], "paired_end", "{sample}", "mate2_fastqc"), sample=samples_table.index.values)
+		outdir2 = expand(os.path.join(config["output_dir"], "paired_end", "{sample}", "mate2_fastqc"), sample=samples_table.index.values),
+		reads1 = expand(os.path.join(config["output_dir"], "paired_end", "{sample}", "{sample}.remove_polya_mate1.fastq.gz"), sample=samples_table.index.values)
+		
+
 
 
 rule create_index_star:

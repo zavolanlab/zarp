@@ -16,23 +16,6 @@ rule fastqc:
 		{input.reads}) &> {log}"
 
 
-rule htseq_qa:
-	''' Assess the technical quality of a run. '''
-	input:
-		reads = lambda wildcards: samples_table.loc[wildcards.sample, "fq1"]
-	output:
-		qual_pdf = os.path.join(config["output_dir"], "single_end", "{sample}", "htseq_quality.pdf")
-	singularity:
-		"docker://zavolab/python_htseq:3.6.5_0.10.0"
-	log:
-		os.path.join(config["local_log"], "single_end", "{sample}", "htseq_qa.log")
-	shell:
-		"(htseq-qa \
-		-t fastq \
-		-o {output.qual_pdf} \
-		{input.reads} ) &> {log}"
-
-
 rule remove_adapters_cutadapt:
 	''' Remove adapters '''
 	input:
