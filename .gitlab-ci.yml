@@ -4,5 +4,6 @@ test:
   script:
     - cd snakemake
     - snakemake -n
+    - bash run_test.sh
     # add additional tests here
 

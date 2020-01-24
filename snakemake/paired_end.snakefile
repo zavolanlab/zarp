@@ -17,26 +17,8 @@ rule pe_fastqc:
 	shell:
 		"(mkdir -p {output.outdir1}; \
 		mkdir -p {output.outdir2}; \
-		fastqc --outdir {output.outdir1} {input.reads1}; & \
+		fastqc --outdir {output.outdir1} {input.reads1} & \
 		fastqc --outdir {output.outdir2} {input.reads2}) &> {log}"
-
-rule pe_htseq_qa:
-	'''Assess the technical quality of a run'''
-	input:
-		reads1 = lambda wildcards: samples_table.loc[wildcards.sample, "fq1"],
-		reads2 = lambda wildcards: samples_table.loc[wildcards.sample, "fq2"]
-	output:
-		qual_pdf_mate1 = os.path.join(config["output_dir"], "paired_end", "{sample}", "htseq_quality_mate1.pdf"),
-		qual_pdf_mate2 = os.path.join(config["output_dir"], "paired_end", "{sample}", "htseq_quality_mate2.pdf")
-	threads:
-		2
-	singularity:
-		"docker://zavolab/python_htseq:3.6.5_0.10.0"
-	log:
-		os.path.join(config["local_log"], "paired_end", "{sample}", "htseq_qa_.log")
-	shell:
-		"(htseq-qa -t fastq -o {output.qual_pdf_mate1} {input.reads1}; & \
-		htseq-qa -t fastq -o {output.qual_pdf_mate2} {input.reads2}; ) &> {log}"
 
 
 rule pe_remove_adapters_cutadapt:
@@ -53,6 +35,7 @@ rule pe_remove_adapters_cutadapt:
 
 		reads2 = os.path.join(
 			config["output_dir"],
+			"paired_end",
 			"{sample}",
 			"{sample}.remove_adapters_mate2.fastq.gz")
 	params:
