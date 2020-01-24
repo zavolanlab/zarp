@@ -335,7 +335,7 @@ rule pe_genome_quantification_kallisto:
 		-i {input.index} \
 		-o {params.output_dir} \
 		--pseudobam \
-		--{params.directionality}-stranded \
+		{params.directionality} \
 		{input.reads1} {input.reads2} > {output.pseudoalignment}) &> {log}"
 
 
