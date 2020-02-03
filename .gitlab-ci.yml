@@ -1,9 +1,14 @@
 image: snakemake/snakemake:v5.9.1
 
+before_script:
+  - pip install biopython==1.76
+
 test:
   script:
-    - cd snakemake
-    - snakemake -n
-    - bash run_test.sh
+    - bash tests/test_scripts_labkey_to_snakemake/test.sh
+    - cd snakemake      # fix this in future version; all tests
+    - snakemake -n      # should be called from home directory
+    - bash run_test.sh  #
+    - cd ..             #
     # add additional tests here
 
