@@ -13,7 +13,7 @@
   ##############################################################################
   ### Output and log directories
   ##############################################################################
-  database_path: "/scicore/home/zavolan/GROUP/Rna_Seq_pipeline/Blabla"
+  database_path: "/some/path"
   STAR_idx_folder: "STAR_indices"
   output_dir: "results"
   star_indexes: "results"
@@ -25,5 +25,5 @@
   ##############################################################################
   ### Sample info
   ##############################################################################
-  samples: "../tests/samples.tsv"
+  samples: "input_files/samples.tsv"
 ...

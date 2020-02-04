@@ -1,0 +1,5 @@
+Building DAG of jobs...
+MissingInputException in line 2 of /scicore/home/zavolan/kanitz/SANDBOX/rnaseqpipeline/snakemake/paired_end.snakefile:
+Missing input files for rule pe_fastqc:
+input_files/GSM1502500_1.fastq.gz
+input_files/GSM1502500_2.fastq.gz
