@@ -5,10 +5,11 @@ before_script:
 
 test:
   script:
+    # add code quality tests here
+    # add unit tests here
+    # add script tests here
     - bash tests/test_scripts_labkey_to_snakemake/test.sh
-    - cd snakemake      # fix this in future version; all tests
-    - snakemake -n      # should be called from home directory
-    - bash run_test.sh  #
-    - cd ..             #
-    # add additional tests here
+    # add integration tests here
+    - bash tests/test_create_dag_chart/test.sh
+    - bash tests/test_integration_workflow/test.local.sh
 
