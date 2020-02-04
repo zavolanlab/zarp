@@ -20,7 +20,7 @@ snakemake \
     --printshellcmds \
     --rerun-incomplete \
     --use-singularity \
-    --singularity-args "--bind ${PWD}"
+    --singularity-args="--bind ${PWD}"
 find results/ -type f -name \*\.gz -exec gunzip '{}' \;
 md5sum --check "expected_output.md5"
 
