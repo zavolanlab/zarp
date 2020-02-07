@@ -117,7 +117,7 @@ configuration files:
 values. Have a look at the examples in the `tests/` directory to see what the
 files should look like, specifically:
 
-    - [samples.tsv](tests/test_integration_workflow/input_files/samples.tsv)
+    - [samples.tsv](tests/test_integration_workflow/samples.tsv)
     - [config.yaml](tests/test_integration_workflow/config.yaml)
     - [cluster.json](tests/test_integration_workflow/cluster.json)
 
