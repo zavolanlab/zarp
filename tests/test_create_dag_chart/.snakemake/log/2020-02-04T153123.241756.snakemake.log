@@ -1,9 +1,0 @@
-FileNotFoundError in line 13 of /scicore/home/zavolan/kanitz/SANDBOX/rnaseqpipeline/snakemake/Snakefile:
-[Errno 2] No such file or directory: 'input_files/samples.tsv'
-  File "/scicore/home/zavolan/kanitz/SANDBOX/rnaseqpipeline/snakemake/Snakefile", line 13, in <module>
-  File "/scicore/home/zavolan/kanitz/REMOVE_FROM_HOME/soft/miniconda3/envs/rnaseq_pipeline/lib/python3.6/site-packages/pandas/io/parsers.py", line 676, in parser_f
-  File "/scicore/home/zavolan/kanitz/REMOVE_FROM_HOME/soft/miniconda3/envs/rnaseq_pipeline/lib/python3.6/site-packages/pandas/io/parsers.py", line 448, in _read
-  File "/scicore/home/zavolan/kanitz/REMOVE_FROM_HOME/soft/miniconda3/envs/rnaseq_pipeline/lib/python3.6/site-packages/pandas/io/parsers.py", line 880, in __init__
-  File "/scicore/home/zavolan/kanitz/REMOVE_FROM_HOME/soft/miniconda3/envs/rnaseq_pipeline/lib/python3.6/site-packages/pandas/io/parsers.py", line 1126, in _make_engine
-  File "/scicore/home/zavolan/kanitz/REMOVE_FROM_HOME/soft/miniconda3/envs/rnaseq_pipeline/lib/python3.6/site-packages/pandas/io/parsers.py", line 2269, in __init__
-  File "/scicore/home/zavolan/kanitz/REMOVE_FROM_HOME/soft/miniconda3/envs/rnaseq_pipeline/lib/python3.6/site-packages/pandas/io/common.py", line 431, in get_handle

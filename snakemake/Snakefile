@@ -18,8 +18,8 @@ localrules: finish
 # Execution dependend on sequencing mode
 ##################################################################################
 
-include: 'paired_end.snakefile'
-include: 'single_end.snakefile'
+include: 'paired_end.snakefile.smk'
+include: 'single_end.snakefile.smk'
 
 #################################################################################
 ### Final rule

@@ -329,3 +329,4 @@ pip-selfcheck.json
 snakemake/.*
 runs/.*
 !runs/PUT_YOUR_WORKFLOW_RUN_CONFIGS_HERE
+.snakemake/
