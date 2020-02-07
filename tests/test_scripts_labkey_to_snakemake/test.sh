@@ -14,7 +14,7 @@ cd $script_dir
 # Run tests
 python "../../scripts/labkey_to_snakemake.py" \
     --input_table="input_table.tsv" \
-    --input_dict="../../scripts/input_dict.tsv" \
+    --input_dict="../../scripts/input_dict_caption.tsv" \
     --config_file="config.yaml" \
     --samples_table="samples.tsv" \
     --genomes_path="."
