@@ -326,7 +326,9 @@ pip-selfcheck.json
 # Custom additions
 .vscode
 .DS_Store
-snakemake/.*
 runs/.*
 !runs/PUT_YOUR_WORKFLOW_RUN_CONFIGS_HERE
+._.DS_Store
 .snakemake/
+logs/
+results/
