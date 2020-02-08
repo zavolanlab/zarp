@@ -4,7 +4,9 @@ rule fastqc:
 	input:
 		reads = lambda wildcards: samples_table.loc[wildcards.sample, "fq1"],
 	output:
-		outdir = directory(os.path.join(config["output_dir"], "single_end", "{sample}", "fastqc"))
+		outdir = directory(os.path.join(config["output_dir"], "single_end", "{sample}", "mate1_fastqc"))
+	params:
+		seqmode= lambda wildcards: samples_table.loc[wildcards.sample, "seqmode"]
 	singularity:
 		"docker://zavolab/fastqc:0.11.8"
 	log:
@@ -21,7 +23,7 @@ rule remove_adapters_cutadapt:
 	input:
 		reads = lambda wildcards: samples_table.loc[wildcards.sample, "fq1"]
 	output:
-		reads = os.path.join(config["output_dir"], "single_end", "{sample}", "{sample}.remove_adapters.fastq.gz")
+		reads = os.path.join(config["output_dir"], "single_end", "{sample}", "{sample}.remove_adapters_mate1.fastq.gz")
 	params:
 		adapters_3 = lambda wildcards: 
 			samples_table.loc[wildcards.sample, 'fq1_3p'],
@@ -34,7 +36,7 @@ rule remove_adapters_cutadapt:
 	log:
 		os.path.join(config["local_log"], "single_end", "{sample}", "remove_adapters_cutadapt.log")
 	shell:
-		"cutadapt \
+		"(cutadapt \
 		-e 0.1 \
 		-O 1 \
 		-j {threads} \
@@ -49,9 +51,9 @@ rule remove_adapters_cutadapt:
 rule remove_polya_cutadapt:
 	''' Remove ployA  tails'''
 	input:
-		reads = lambda wildcards: samples_table[wildcards.sample, "fq1"]
+		reads = os.path.join(config["output_dir"], "single_end", "{sample}", "{sample}.remove_adapters_mate1.fastq.gz")
 	output:
-		reads = os.path.join(config["output_dir"], "single_end", "{sample}", "{sample}.remove_polya.fastq.gz")
+		reads = os.path.join(config["output_dir"], "single_end", "{sample}", "{sample}.remove_polya_mate1.fastq.gz")
 	params:
 		polya_3 = lambda wildcards: 
 			samples_table.loc[wildcards.sample, "fq1_polya"]
@@ -80,10 +82,10 @@ rule map_genome_star:
 		index = lambda wildcards:
 			os.path.join(
 				config["star_indexes"],
-				samples_table.loc[wildcards.sample, "organism"],
-				samples_table.loc[wildcards.sample, "index_size"], 
+				str(samples_table.loc[wildcards.sample, "organism"]),
+				str(samples_table.loc[wildcards.sample, "index_size"]), 
 				"STAR_index","chrNameLength.txt"),
-		reads = os.path.join(config["output_dir"], "single_end", "{sample}", "{sample}.remove_polya.fastq.gz")
+		reads = os.path.join(config["output_dir"], "single_end", "{sample}", "{sample}.remove_polya_mate1.fastq.gz")
 	output:
 		bam = os.path.join(config["output_dir"], "single_end", 
 			"{sample}", 
@@ -96,16 +98,15 @@ rule map_genome_star:
 	params:
 		sample_id = "{sample}",
 		index = lambda wildcards:
-				os.path.join(
-					config["star_indexes"],
-					samples_table.loc["{sample}", "organism"],
-					samples_table.loc[wildcards.sample, "index_size"], 
-					"STAR_index"),
-		outFileNamePrefix = lambda wildcards:
-				os.path.join(
-					config["output_dir"], 
-					"single_end", 
-					"{sample}", "map_genome", "{sample}_"),
+			os.path.join(
+				config["star_indexes"],
+				str(samples_table.loc[wildcards.sample, "organism"]),
+				str(samples_table.loc[wildcards.sample, "index_size"]), 
+				"STAR_index"),
+		outFileNamePrefix = os.path.join(
+				config["output_dir"], 
+				"single_end", 
+				"{sample}", "map_genome", "{sample}_"),
 		multimappers = lambda wildcards:
 				samples_table.loc[wildcards.sample, "multimappers"],
 		soft_clip = lambda wildcards:
@@ -138,7 +139,7 @@ rule map_genome_star:
 		--outFilterType BySJout \
 		--outReadsUnmapped None \
 		--outSAMattrRGline ID:rcrunch SM:{params.sample_id} \
-		--alignEndsType {params.soft_clip}} > {output.bam};) &> {log}"
+		--alignEndsType {params.soft_clip} > {output.bam};) &> {log}"
 
 
 rule index_genomic_alignment_samtools:
@@ -171,11 +172,12 @@ rule quantification_salmon:
 			config["output_dir"], 
 			"single_end", 
 			"{sample}", 
-			"{sample}.remove_polya.fastq.gz"),
+			"{sample}.remove_polya_mate1.fastq.gz"),
 		index = lambda wildcards:
 			os.path.join(
 				config["salmon_indexes"],
-				samples_table[wildcards.sample, 'organism'],
+				str(samples_table.loc[wildcards.sample, "organism"]),
+				str(samples_table.loc[wildcards.sample, "kmer"]),
 				"salmon.idx"),
 	   	gtf = lambda wildcards: samples_table.loc[wildcards.sample, "gtf_filtered"]
 	output:
@@ -202,8 +204,8 @@ rule quantification_salmon:
 	log:
 		os.path.join(config["local_log"], "single_end", "{sample}", "quantification_salmon.log")
 	threads:    12
-	conda:
-		"envs/salmon.yaml"
+	singularity:
+		"docker://zavolab/salmon:0.11.0"
 	shell:
 		"(salmon quant \
 		--libType {params.libType} \
@@ -224,7 +226,7 @@ rule genome_quantification_kallisto:
 			config["output_dir"], 
 			"single_end", 
 			"{sample}", 
-			"{sample}.remove_polya.fastq.gz"),
+			"{sample}.remove_polya_mate1.fastq.gz"),
 		index = lambda wildcards:
 			os.path.join(
 				config["kallisto_indexes"],
@@ -235,10 +237,10 @@ rule genome_quantification_kallisto:
 			config["output_dir"], 
 			"single_end", 
 			"{sample}", 
+			"quant_kallisto",
 			"{sample}.kallisto.pseudo.sam")
 	params:
-		output_dir = lambda wildcards:
-			os.path.join(
+		output_dir = os.path.join(
 				config["output_dir"], 
 				"single_end", 
 				"{sample}", 
@@ -250,7 +252,7 @@ rule genome_quantification_kallisto:
 	log:
 		os.path.join(config["local_log"],"kallisto_align_{sample}.log")
 	singularity:
-		"docker://zavolab/kallisto:0.9"
+		"docker://zavolab/kallisto:0.46.1"
 	shell:
 		"(kallisto quant \
 		-i {input.index} \

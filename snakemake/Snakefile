@@ -27,18 +27,29 @@ include: 'single_end.snakefile.smk'
 
 rule finish:
 	input:
-		outdir1 = expand(os.path.join(config["output_dir"], "paired_end", "{sample}", "mate1_fastqc"), sample=samples_table.index.values),
-		outdir2 = expand(os.path.join(config["output_dir"], "paired_end", "{sample}", "mate2_fastqc"), sample=samples_table.index.values),
-		reads1 = expand(os.path.join(config["output_dir"], "paired_end", "{sample}", "{sample}.remove_polya_mate1.fastq.gz"), sample=samples_table.index.values)
-		
-
+		outdir1 = expand(os.path.join(config["output_dir"], "{seqmode}", "{sample}", "mate1_fastqc"),
+			zip,
+			sample= [i for i in list(samples_table.index.values)], 
+			seqmode= [samples_table.loc[i,"seqmode"] for i in list(samples_table.index.values)]),
+		bai_index_map = expand(os.path.join(config["output_dir"], "{seqmode}", "{sample}", "map_genome", "{sample}_Aligned.sortedByCoord.out.bam.bai"),
+			zip,
+			sample= [i for i in list(samples_table.index.values)], 
+			seqmode= [samples_table.loc[i,"seqmode"] for i in list(samples_table.index.values)]), 
+		salmon_gn_estimates = expand(os.path.join(config["output_dir"],"{seqmode}","{sample}","salmon_quant","quant.genes.sf"),
+			zip,
+			sample= [i for i in list(samples_table.index.values)], 
+			seqmode= [samples_table.loc[i,"seqmode"] for i in list(samples_table.index.values)]),
+		pseudoalignment = expand(os.path.join(config["output_dir"],"{seqmode}","{sample}","quant_kallisto", "{sample}.kallisto.pseudo.sam"),
+			zip,
+			sample= [i for i in list(samples_table.index.values)], 
+			seqmode= [samples_table.loc[i,"seqmode"] for i in list(samples_table.index.values)]),
 
 
 rule create_index_star:
 	''' Create index using STAR'''
 	input:
-		genome = lambda wildcards: samples_table.loc[wildcards.sample, 'genome'],
-		gtf = lambda wildcards: samples_table.loc[wildcards.sample, 'gtf']
+		genome =lambda wildcards: samples_table["genome"][samples_table["organism"]==wildcards.organism][0],
+		gtf =lambda wildcards: samples_table["gtf"][samples_table["organism"]==wildcards.organism][0]
 	output:
 		chromosome_info = os.path.join(
 			config["star_indexes"],
@@ -63,8 +74,7 @@ rule create_index_star:
 				"{organism}",
 				"{index_size}",
 				"STAR_index/STAR_"),
-		sjdbOverhang = lambda wildcards:
-			samples_table[wildcards.sample, "index_size"],
+		sjdbOverhang = "{index_size}"
 	singularity:
 		"docker://zavolab/star:2.6.0a"
 	threads: 12
@@ -86,46 +96,44 @@ rule create_index_star:
 rule create_index_salmon:
 	'''Create index for salmon quantification'''
 	input:
-		transcriptome = lambda wildcards:
-			samples_table.loc[wildcards.sample, 'tr_fasta_filtered']
+		transcriptome = lambda wildcards: samples_table['tr_fasta_filtered'][samples_table["organism"]==wildcards.organism][0]
 	output:
-		index = os.path.join(
+		index = directory(os.path.join(
 			config["salmon_indexes"],
 			"{organism}",
-			"salmon.idx")
+			"{kmer}",
+			"salmon.idx"))
+
 	params:
-		kmerLen = lambda wildcards:
-			samples_table.loc[wildcards.sample, 'kmer']
+		kmerLen = "{kmer}"
 	singularity:
 		"docker://zavolab/salmon:0.11.0"
 	log:
-		os.path.join(config["local_log"], "{organism}_create_index_salmon.log")
+		os.path.join(config["local_log"], "{organism}_{kmer}_create_index_salmon.log")
 	threads:	8
 	shell:
 		"(salmon index \
-		--t {input.transcriptome} \
-		--i {output.index} \
-		--k {params.kmerLen} \
+		--transcripts {input.transcriptome} \
+		--index {output.index} \
+		--kmerLen {params.kmerLen} \
 		--threads {threads}) &> {log}"
 
 
 rule create_index_kallisto:
 	'''Create index for running Kallisto'''
 	input:
-		transcriptome = lambda wildcards:
-			samples_table.loc[wildcards.sample, 'tr_fasta_filtered']
+		transcriptome = lambda wildcards: samples_table['tr_fasta_filtered'][samples_table["organism"]==wildcards.organism][0]
 	output:
 		index = os.path.join(
 				config["kallisto_indexes"],
 				"{organism}",
 				"kallisto.idx")
 	params:
-		output_dir = lambda wildcards:
-			os.path.join(
+		output_dir = os.path.join(
 				config["kallisto_indexes"],
-				samples_table[wildcards.sample, 'organism'])
+				"{organism}")
 	singularity:
-		"docker://zavolab/kallisto:0.9"
+		"docker://zavolab/kallisto:0.46.1"
 	log:
 		os.path.join(config["local_log"], "{organism}_create_index_kallisto.log")
 	shell:
