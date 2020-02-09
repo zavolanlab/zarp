@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Tear down test environment
-trap 'rm -rf logs/ results/ .snakemake/ && cd $user_dir' EXIT  # quotes command is exected after script exits, regardless of exit status
+trap 'rm -rf logs/ results/ .snakemake/ && cd $user_dir' EXIT  # quoted command is exected after script exits, regardless of exit status
 
 # Set up test environment
 set -eo pipefail  # ensures that script exits at first command that exits with non-zero status
@@ -22,6 +22,7 @@ snakemake \
     --use-singularity \
     --singularity-args="--bind ${PWD}"
 find results/ -type f -name \*\.gz -exec gunzip '{}' \;
+find results/ -type f -name \*\.zip -exec sh -c 'unzip -o {} -d $(dirname {})' \;
 md5sum --check "expected_output.md5"
 
 # Checksum file generated with
@@ -31,8 +32,7 @@ md5sum --check "expected_output.md5"
 #     -exec gunzip '{}' \;
 # find results/ \
 #     -type f \
-#     -regextype posix-egrep \
-#     -regex ".*\.(fastq|html)$" \
-#     -exec md5sum '{}' \; \
-#     > expected_output.md5
+#     -name \*\.zip \
+#     -exec sh -c 'unzip -o {} -d $(dirname {})' \;
+# md5sum $(cat expected_output.files) > expected_output.md5
 

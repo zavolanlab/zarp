@@ -332,3 +332,4 @@ runs/.*
 .snakemake/
 logs/
 results/
+.java/
