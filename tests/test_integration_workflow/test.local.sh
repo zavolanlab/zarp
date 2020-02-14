@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Tear down test environment
-#trap 'rm -rf logs/ results/ .snakemake/ && cd $user_dir' EXIT  # quoted command is exected after script exits, regardless of exit status
-trap 'cd $user_dir' EXIT  # quoted command is exected after script exits, regardless of exit status
+trap 'rm -rf logs/ results/ .snakemake/ && cd $user_dir' EXIT  # quoted command is exected after script exits, regardless of exit status
 
 # Set up test environment
 set -eo pipefail  # ensures that script exits at first command that exits with non-zero status
