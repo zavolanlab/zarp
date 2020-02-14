@@ -12,6 +12,7 @@ test:
     # add script tests here
     - bash tests/test_scripts_labkey_to_snakemake/test.sh
     # add integration tests here
-    - bash tests/test_create_dag_chart/test.sh
+    - bash tests/test_create_dag_image/test.sh
+    - bash tests/test_rule_graph/test.sh
     - bash tests/test_integration_workflow/test.local.sh
 
