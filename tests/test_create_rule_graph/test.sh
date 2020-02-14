@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Tear down test environment
-trap 'cd $user_dir' EXIT  # quotes command is exected after script exits, regardless of exit status
+trap 'rm -rf .snakemake && cd $user_dir' EXIT  # quotes command is exected after script exits, regardless of exit status
 
 # Set up test environment
 set -eo pipefail  # ensures that script exits at first command that exits with non-zero status
@@ -13,7 +13,7 @@ cd $script_dir
 
 # Run tests
 snakemake \
-    --snakefile="../../snakemake/Snakefile" \
+    --snakefile="../../Snakefile" \
     --configfile="config.yaml" \
     --rulegraph \
     --printshellcmds \

@@ -14,7 +14,7 @@ mkdir -p logs/local_log
 
 # Run tests
 snakemake \
-    --snakefile="../../snakemake/Snakefile" \
+    --snakefile="../../Snakefile" \
     --configfile="config.yaml" \
     --cores=4 \
     --printshellcmds \

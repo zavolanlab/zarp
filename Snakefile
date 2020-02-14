@@ -18,8 +18,8 @@ localrules: finish
 # Execution dependend on sequencing mode
 ##################################################################################
 
-include: 'paired_end.snakefile.smk'
-include: 'single_end.snakefile.smk'
+include: os.path.join('workflow', 'rules', 'paired_end.snakefile.smk')
+include: os.path.join('workflow', 'rules', 'single_end.snakefile.smk')
 
 #################################################################################
 ### Final rule
