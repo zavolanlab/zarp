@@ -2,7 +2,7 @@ image: snakemake/snakemake:v5.9.1
 
 before_script:
   - apt update
-  - apt install -y unzip
+  - apt install -y unzip bedtools
   - pip install -r scripts/requirements.txt
 
 test:
