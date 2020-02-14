@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Tear down test environment
-trap 'rm config.yaml samples.tsv && cd $user_dir' EXIT  # quotes command is exected after script exits, regardless of exit status
+trap 'rm -rf config.yaml samples.tsv .snakemake && cd $user_dir' EXIT  # quotes command is exected after script exits, regardless of exit status
 # 
 # Set up test environment
 set -eo pipefail  # ensures that script exits at first command that exits with non-zero status
@@ -25,7 +25,7 @@ python "../../scripts/labkey_to_snakemake.py" \
 
 
 snakemake \
-    --snakefile="../../snakemake/Snakefile" \
+    --snakefile="../../Snakefile" \
     --configfile="config.yaml" \
     --dryrun \
     # --rulegraph \
