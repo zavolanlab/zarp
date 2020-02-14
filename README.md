@@ -10,7 +10,7 @@ library while cutting down on hands-on time for bioinformaticians.
 The scheme below is a visual representation of an example run of the
 workflow:  
 
-> ![workflow_dag](images/workflow_dag.svg)
+> ![rule_graph](images/rule_graph.svg)
 
 ## Installation
 

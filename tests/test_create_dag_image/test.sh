@@ -18,5 +18,5 @@ snakemake \
     --dag \
     --printshellcmds \
     --dryrun \
-    | dot -Tsvg > "../../images/workflow_dag.svg"
+    | dot -Tsvg > "../../images/dag_test_workflow.svg"
 
