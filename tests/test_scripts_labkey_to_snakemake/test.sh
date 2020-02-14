@@ -2,7 +2,7 @@
 
 # Tear down test environment
 trap 'rm config.yaml samples.tsv && cd $user_dir' EXIT  # quotes command is exected after script exits, regardless of exit status
-
+# 
 # Set up test environment
 set -eo pipefail  # ensures that script exits at first command that exits with non-zero status
 set -u  # ensures that script exits when unset variables are used
@@ -17,6 +17,22 @@ python "../../scripts/labkey_to_snakemake.py" \
     --input_dict="../../scripts/input_dict_caption.tsv" \
     --config_file="config.yaml" \
     --samples_table="samples.tsv" \
-    --genomes_path="."
+    --genomes_path="../input_files" \
+    --multimappers='10' \
+    # --remote \
+    # --project_name "TEST_LABKEY" \
+    # --query_name "RNA_Seq_data_template"
+
+
+snakemake \
+    --snakefile="../../snakemake/Snakefile" \
+    --configfile="config.yaml" \
+    --dryrun \
+    # --rulegraph \
+    # --printshellcmds \
+    # | dot -Tpng > "rulegraph.png"
+
 md5sum --check "expected_output.md5"
+
+    # snakemake --rulegraph --configfile config.yaml | dot -Tpng > rulegraph.png
 

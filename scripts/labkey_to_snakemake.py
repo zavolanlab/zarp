@@ -12,15 +12,18 @@
 
 import sys
 import gzip
+import labkey
 from argparse import ArgumentParser, RawTextHelpFormatter
 import os
+import sys
 import numpy as np
 import pandas as pd
 from Bio import SeqIO
 from io import StringIO
 from csv import writer
 from pathlib import Path
-
+# for convenience, load QueryFilter explicitly (avoids long lines in filter definitions)
+from labkey.query import QueryFilter
 # ----------------------------------------------------------------------------------------------------------------------
 def main():
     """ Preprocess sample folder and create config file for snakemake"""
@@ -32,9 +35,15 @@ def main():
         formatter_class=RawTextHelpFormatter)
 
     parser.add_argument(
+        "--samples_table",
+        dest="samples_table",
+        help="Output table compatible to snakemake",
+        required=True)
+
+    parser.add_argument(
         "--input_table",
         dest="input_table",
-        help="input table containing the sample information",
+        help="input table containing the sample information (labkey format)",
         required=True,
         metavar="FILE")
 
@@ -42,9 +51,25 @@ def main():
         "--input_dict",
         dest="input_dict",
         help="input dictionary containing the feature name \
-              conversion from labkey to snakemake allowed names",
+              conversion from labkey to snakemake",
         required=True,
         metavar="FILE")
+
+    parser.add_argument(
+        "--remote",
+        help="Fetch labkey table via API",
+        action='store_true')
+
+    parser.add_argument(
+        "--project_name",
+        help="Name of labkey folder containing the labkey table (remote mode)",
+        required = False)
+
+    parser.add_argument(
+        "--query_name",
+        help="Name of labkey table (remote mode)",
+        required = False)
+
 
     parser.add_argument(
         "--genomes_path",
@@ -90,12 +115,6 @@ def main():
         help="Configuration file to be used by Snakemake",
         required=False)
 
-    parser.add_argument(
-        "--samples_table",
-        dest="samples_table",
-        help="Table with samples",
-        required=True)
-
 
     # __________________________________________________________________________________________________________________
     # ------------------------------------------------------------------------------------------------------------------
@@ -111,13 +130,20 @@ def main():
         sys.exit(1)
 
     sys.stdout.write('Reading input file...\n')
-    input_table = pd.read_csv(
-        options.input_table,
-        header=0,
-        sep='\t',
-        index_col=None,
-        comment='#',
-        engine='python')
+
+    if options.remote == True:
+        input_table = api_fetch_labkey_table(
+            project_name=options.project_name,
+            query_name=options.query_name)
+
+    else:
+        input_table = pd.read_csv(
+            options.input_table,
+            header=0,
+            sep='\t',
+            index_col=None,
+            comment='#',
+            engine='python')
 
     input_dict = pd.read_csv(
         options.input_dict,
@@ -126,10 +152,12 @@ def main():
         index_col=None,
         comment='#',
         engine='python')
+
     input_dict.set_index('snakemake', inplace=True, drop=True)
     sys.stdout.write('Create snakemake table...\n')
     snakemake_table = pd.DataFrame()
     for index, row in input_table.iterrows():
+        snakemake_table.loc[index, 'sample'] = row[input_dict.loc['replicate_name', 'labkey']] + row[input_dict.loc['condition', 'labkey']]
         if row[input_dict.loc['seqmode', 'labkey']] == 'PAIRED':
             snakemake_table.loc[index, 'seqmode'] = 'paired_end'
         elif row[input_dict.loc['seqmode', 'labkey']] == 'SINGLE':
@@ -138,12 +166,14 @@ def main():
         fq1 = os.path.join(
             row[input_dict.loc['fastq_path', 'labkey']],
             row[input_dict.loc['fq1', 'labkey']])
+
         snakemake_table.loc[index, 'fq1'] = fq1
 
         with gzip.open(fq1, "rt") as handle:
             for record in SeqIO.parse(handle, "fastq"):
                 read_length = len(record.seq)
                 break
+        
         snakemake_table.loc[index, 'index_size'] = read_length
         if read_length <= 50:
             snakemake_table.loc[index, 'kmer'] = 21
@@ -151,29 +181,36 @@ def main():
             snakemake_table.loc[index, 'kmer'] = 31
 
 
-        snakemake_table.loc[index, 'fq2'] = os.path.join(
-            row[input_dict.loc['fastq_path', 'labkey']],
-            row[input_dict.loc['fq2', 'labkey']])
+        if row[input_dict.loc['seqmode', 'labkey']] == 'PAIRED':
+            snakemake_table.loc[index, 'fq2'] = os.path.join(
+                row[input_dict.loc['fastq_path', 'labkey']],
+                row[input_dict.loc['fq2', 'labkey']])
 
         snakemake_table.loc[index, 'fq1_3p'] = row[input_dict.loc['fq1_3p', 'labkey']]
         snakemake_table.loc[index, 'fq1_5p'] = row[input_dict.loc['fq1_5p', 'labkey']]
-        snakemake_table.loc[index, 'fq2_3p'] = row[input_dict.loc['fq2_3p', 'labkey']]
-        snakemake_table.loc[index, 'fq2_5p'] = row[input_dict.loc['fq2_5p', 'labkey']]
+
+        if row[input_dict.loc['seqmode', 'labkey']] == 'PAIRED':
+            snakemake_table.loc[index, 'fq2_3p'] = row[input_dict.loc['fq2_3p', 'labkey']]
+            snakemake_table.loc[index, 'fq2_5p'] = row[input_dict.loc['fq2_5p', 'labkey']]
 
         organism = row[input_dict.loc['organism', 'labkey']].replace(' ', '_').lower()
         snakemake_table.loc[index, 'organism'] = organism
+        
         snakemake_table.loc[index, 'gtf'] = os.path.join(
             options.genomes_path,
             organism,
             'annotation.gtf')
+
         snakemake_table.loc[index, 'gtf_filtered'] = os.path.join(
             options.genomes_path,
             organism,
             'annotation.gtf')
+
         snakemake_table.loc[index, 'genome'] = os.path.join(
             options.genomes_path,
             organism,
             'genome.fa')
+
         snakemake_table.loc[index, 'tr_fasta_filtered'] = os.path.join(
             options.genomes_path,
             organism,
@@ -187,9 +224,9 @@ def main():
         snakemake_table.loc[index, 'libtype'] = options.libtype
 
         if row[input_dict.loc['mate1_direction', 'labkey']] == 'SENSE':
-            snakemake_table.loc[index, 'kallisto_directionality'] = '--fr-stranded'
+            snakemake_table.loc[index, 'kallisto_directionality'] = '--fr'
         elif row[input_dict.loc['mate1_direction', 'labkey']] == 'ANTISENSE':
-            snakemake_table.loc[index, 'kallisto_directionality'] = '--rf-stranded'
+            snakemake_table.loc[index, 'kallisto_directionality'] = '--rf'
         else:
             snakemake_table.loc[index, 'kallisto_directionality'] = ''
 
@@ -202,35 +239,48 @@ def main():
         else:
             pass
 
-        if row[input_dict.loc['mate2_direction', 'labkey']] == 'SENSE':
-            snakemake_table.loc[index, 'fq2_polya'] = 'AAAAAAAAAAAAAAAAA'
-        elif row[input_dict.loc['mate2_direction', 'labkey']] == 'ANTISENSE':
-            snakemake_table.loc[index, 'fq2_polya'] = 'TTTTTTTTTTTTTTTTT'
-        elif row[input_dict.loc['mate2_direction', 'labkey']] == 'RANDOM':
-            snakemake_table.loc[index, 'fq2_polya'] = 'AAAAAAAAAAAAAAAAA'
-        else:
-            pass
+        if row[input_dict.loc['seqmode', 'labkey']] == 'PAIRED':
+            if row[input_dict.loc['mate2_direction', 'labkey']] == 'SENSE':
+                snakemake_table.loc[index, 'fq2_polya'] = 'AAAAAAAAAAAAAAAAA'
+            elif row[input_dict.loc['mate2_direction', 'labkey']] == 'ANTISENSE':
+                snakemake_table.loc[index, 'fq2_polya'] = 'TTTTTTTTTTTTTTTTT'
+            elif row[input_dict.loc['mate2_direction', 'labkey']] == 'RANDOM':
+                snakemake_table.loc[index, 'fq2_polya'] = 'AAAAAAAAAAAAAAAAA'
+            else:
+                pass
 
+
+    snakemake_table.fillna('XXXXXXXXXXXXX', inplace=True)
     snakemake_table.to_csv(
         options.samples_table,
         sep='\t',
         header=True,
         index=False)
 
+
     # Read file and infer read size for sjdbovwerhang
     with open(options.config_file, 'w') as config_file:
         config_file.write('''---
   output_dir: "results"
   local_log: "local_log"
-  star_indexes: "star_indexes"
-  kallisto_indexes: "kallisto_indexes"
+  star_indexes: "results/star_indexes"
+  kallisto_indexes: "results/kallisto_indexes"
+  samples: "'''+ options.samples_table + '''"
+  salmon_indexes: "results/salmon_indexes"
 ...''')
-
 
     sys.stdout.write('Create snakemake table finished successfully...\n')
     sys.stdout.write('Create config file...\n')
     sys.stdout.write('Create config file finished successfully...\n')
     return
+
+def api_fetch_labkey_table(project_name=None, query_name=None):
+    group_path = os.path.join( '/Zavolan Group', project_name)
+    server_context = labkey.utils.create_server_context('labkey.scicore.unibas.ch', group_path, 'labkey', use_ssl=True)
+    schema_name = "lists"
+    results = labkey.query.select_rows(server_context, schema_name, query_name)
+    input_table = pd.DataFrame(results["rows"])
+    return input_table
 
 
 # _____________________________________________________________________________
