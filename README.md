@@ -14,6 +14,16 @@ workflow:
 
 ## Installation
 
+### Cloning the repository
+
+Traverse to the desired path on your file system, then clone the repository and
+move into it with:
+
+```bash
+git clone ssh://git@git.scicore.unibas.ch:2222/zavolan_group/pipelines/rnaseqpipeline.git
+cd rnaseqpipeline
+```
+
 ### Installing Singularity
 
 For improved reproducibility and reusability of the workflow, as well as an
@@ -26,8 +36,11 @@ that Singularity be installed. See the links below for installation
 instructions for the most up-to-date (as of writing) as well as for the tested
 version (2.6.1) of Singularity:
 
+
 - [Singularity v3.5](https://sylabs.io/guides/3.5/user-guide/quick_start.html)
 - [Singularity v2.6](https://sylabs.io/guides/2.6/user-guide/installation.html)
+
+If you have root privileges, you can directly install Singularity together with snakemake in a virtual environment (see next section)
 
 ### Setting up a Snakemake virtual environment
 
@@ -43,25 +56,29 @@ minimal version (Python and package manager) [Miniconda] (see the link for
 installation instructions). Be sure to select the correct version for your
 operating system and ensure that you select the Python 3 option.
 
-To create and activate the environment, run:
+To create and activate a snakemake environment, run:
 
 ```bash
 conda create -n rnaseq_pipeline \
     -c bioconda \
     -c conda-forge \
-    snakemake=5.10.0
+    snakemake=5.10.0 
 conda activate rnaseq_pipeline
 ```
 
-### Cloning the repository
+or, to create a conda environment containing Snakemake AND Singularity (currently not working on MacOS):
 
-Traverse to the desired path on your file system, then clone the repository and
-move into it with:
+> Note: Singularity has to be installed as root, so wherever you don't have root privileges, use the installation methods described above! 
 
 ```bash
-git clone ssh://git@git.scicore.unibas.ch:2222/zavolan_group/pipelines/rnaseqpipeline.git
-cd rnaseqpipeline
+conda create -n rnaseq_pipeline \
+    -c bioconda \
+    -c conda-forge \
+    snakemake=5.10.0 \
+    singularity=3.5.2
+conda activate rnaseq_pipeline 
 ```
+
 
 All installation requirements should now be met with.
 
@@ -84,7 +101,7 @@ bash tests/test_integration_workflow/test.local.sh
 Execute the following command to run the test workflow on a Slurm-managed HPC.
 
 ```bash
-bash tests/test_integration_workflow/test.local.sh
+bash tests/test_integration_workflow/test.slurm.sh
 ```
 
 > **NOTE:** Depending on the configuration of your Slurm installation or if
