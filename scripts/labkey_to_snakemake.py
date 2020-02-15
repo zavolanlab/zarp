@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 ## -----------------------------------------------------------------------------
 # Author : Katsantoni Maria, Christina Herrmann
 # Company: Mihaela Zavolan, Biozentrum, Basel
@@ -35,85 +37,98 @@ def main():
         formatter_class=RawTextHelpFormatter)
 
     parser.add_argument(
-        "--samples_table",
-        dest="samples_table",
-        help="Output table compatible to snakemake",
-        required=True)
+        "genomes_path",
+        help="Path containing the FASTA and GTF files for all organisms",
+        metavar="GENOMES PATH"
+    )
 
     parser.add_argument(
-        "--input_table",
-        dest="input_table",
-        help="input table containing the sample information (labkey format)",
-        required=True,
-        metavar="FILE")
-
-    parser.add_argument(
-        "--input_dict",
-        dest="input_dict",
-        help="input dictionary containing the feature name \
-              conversion from labkey to snakemake",
-        required=True,
-        metavar="FILE")
+        "--input-table",
+        type=str,
+        default=None,
+        help=(
+            "Input table in LabKey format containing the sample information;"
+            "\nexactly one of '--input-table' and '--remote' is required."
+        ),
+        metavar="FILE",
+    )
 
     parser.add_argument(
         "--remote",
-        help="Fetch labkey table via API",
-        action='store_true')
+        action="store_true",
+        help=(
+            "Fetch LabKey table via API; exactly one of '--input-table' and"
+            "\n'--remote' is required."
+        ),
+    )
 
     parser.add_argument(
-        "--project_name",
-        help="Name of labkey folder containing the labkey table (remote mode)",
-        required = False)
+        "--project-name",
+        help=(
+            "Name of LabKey project containing table '--table-name'; required"
+            "\nif '--remote' is specified."
+        ),
+        metavar="STR",
+    )
 
     parser.add_argument(
-        "--query_name",
-        help="Name of labkey table (remote mode)",
-        required = False)
-
+        "--table-name",
+        help="Name of LabKey table; required if '--remote' is specified.",
+        metavar="STR",
+    )
+    parser.add_argument(
+        "--input-dict",
+        help=(
+            "Input dictionary containing the feature name conversion from \n"
+            "LabKey to Snakemake; default: '%(default)s'"
+        ),
+        default=os.path.join(
+            os.path.dirname(__file__),
+            'labkey_to_snakemake.dict.tsv'
+        ),
+        metavar="FILE"
+    )
 
     parser.add_argument(
-        "--genomes_path",
-        dest="genomes_path",
-        help="path containing the fasta and gtf files for all organisms",
-        required=True)
+        "--samples-table",
+        help="Output table compatible to snakemake; default: '%(default)s'",
+        default='samples.tsv',
+        metavar="FILE"
+    )
 
     parser.add_argument(
         "--multimappers",
-        dest="multimappers",
-        help="number of mulitmappers allowed",
-        required=False,
         type=int,
-        metavar='value',
-        default=1)
+        default=100,
+        help="Number of allowed multimappers",
+        metavar='INT',
+    )
 
     parser.add_argument(
-        "--soft_clip",
-        dest="soft_clip",
-        help="soft-clipping option of STAR",
-        required=False,
+        "--soft-clip",
         choices=['EndToEnd','Local'],
-        default='EndToEnd')
+        default='EndToEnd',
+        help="Soft-clipping option for STAR",
+    )
 
     parser.add_argument(
-        "--pass_mode",
-        dest="pass_mode",
-        help="STAR option pass_mode",
-        required=False,
+        "--pass-mode",
         choices=['None','Basic'],
-        default='None')
+        default='None',
+        help="2-pass mode option for STAR",
+    )
 
     parser.add_argument(
         "--libtype",
-        dest="libtype",
+        default='A',
         help="Library type for salmon",
-        required=False,
-        default='A')
+        metavar="STR",
+    )
 
     parser.add_argument(
-        "--config_file",
-        dest="config_file",
+        "--config-file",
         help="Configuration file to be used by Snakemake",
-        required=False)
+    )
 
 
     # __________________________________________________________________________________________________________________
@@ -129,13 +144,33 @@ def main():
         parser.print_help()
         sys.exit(1)
 
+    if options.remote and options.input_table:
+        parser.print_help()
+        print("\n[ERROR] Options '--input-table' and '--remote' are mutually exclusive.")
+        sys.exit(1)
+
+    if not options.remote and not options.input_table:
+        parser.print_help()
+        print("\n[ERROR] At least one of '--input-table' and '--remote' is required.")
+        sys.exit(1)
+
+    if options.remote and not options.project_name:
+        parser.print_help()
+        print("\n[ERROR] If option '--remote' is specified, option '--project-name' is required.")
+        sys.exit(1)
+
+    if options.remote and not options.table_name:
+        parser.print_help()
+        print("\n[ERROR] If option '--remote' is specified, option '--table-name' is required.")
+        sys.exit(1)
+
     sys.stdout.write('Reading input file...\n')
 
     if options.remote == True:
         input_table = api_fetch_labkey_table(
             project_name=options.project_name,
-            query_name=options.query_name)
-
+            query_name=options.table_name)
+        input_table.to_csv(options.input_table, sep='\t', index=False)
     else:
         input_table = pd.read_csv(
             options.input_table,
@@ -157,7 +192,7 @@ def main():
     sys.stdout.write('Create snakemake table...\n')
     snakemake_table = pd.DataFrame()
     for index, row in input_table.iterrows():
-        snakemake_table.loc[index, 'sample'] = row[input_dict.loc['replicate_name', 'labkey']] + row[input_dict.loc['condition', 'labkey']]
+        snakemake_table.loc[index, 'sample'] = row[input_dict.loc['replicate_name', 'labkey']] + "_" + row[input_dict.loc['condition', 'labkey']]
         if row[input_dict.loc['seqmode', 'labkey']] == 'PAIRED':
             snakemake_table.loc[index, 'seqmode'] = 'paired_end'
         elif row[input_dict.loc['seqmode', 'labkey']] == 'SINGLE':
@@ -173,7 +208,7 @@ def main():
             for record in SeqIO.parse(handle, "fastq"):
                 read_length = len(record.seq)
                 break
-        
+
         snakemake_table.loc[index, 'index_size'] = read_length
         if read_length <= 50:
             snakemake_table.loc[index, 'kmer'] = 21
@@ -195,7 +230,7 @@ def main():
 
         organism = row[input_dict.loc['organism', 'labkey']].replace(' ', '_').lower()
         snakemake_table.loc[index, 'organism'] = organism
-        
+
         snakemake_table.loc[index, 'gtf'] = os.path.join(
             options.genomes_path,
             organism,
@@ -251,6 +286,15 @@ def main():
 
 
     snakemake_table.fillna('XXXXXXXXXXXXX', inplace=True)
+    snakemake_table = snakemake_table.astype(
+        {
+            "sd": int,
+            "mean": int,
+            "multimappers": int,
+            "kmer": int,
+            "index_size": int,
+        }
+    )
     snakemake_table.to_csv(
         options.samples_table,
         sep='\t',

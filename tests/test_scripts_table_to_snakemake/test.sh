@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# Scripts requires environment variables 'LABKEY_HOST', 'LABKEY_USER' and
-# 'LABKEY_PASS' to be set with the appropriate values
-
 # Tear down test environment
-trap 'rm -rf ${HOME}/.netrc .snakemake config.yaml samples.tsv input_table.tsv && cd $user_dir' EXIT  # quotes command is exected after script exits, regardless of exit status
+trap 'rm -rf .snakemake config.yaml samples.tsv && cd $user_dir' EXIT  # quotes command is exected after script exits, regardless of exit status
 
 # Set up test environment
 set -eo pipefail  # ensures that script exits at first command that exits with non-zero status
@@ -14,21 +11,13 @@ user_dir=$PWD
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 cd $script_dir
 
-cat << EOF | ( umask 0377; cat >> ${HOME}/.netrc; )
-machine ${LABKEY_HOST}
-login ${LABKEY_USER}
-password ${LABKEY_PASS}
-EOF
-
 # Run tests
 python "../../scripts/labkey_to_snakemake.py" \
+    --input-table="input_table.tsv" \
     --input-dict="../../scripts/labkey_to_snakemake.dict.tsv" \
     --config-file="config.yaml" \
     --samples-table="samples.tsv" \
     --multimappers='10' \
-    --remote \
-    --project-name "TEST_LABKEY" \
-    --table-name "RNA_Seq_data_template" \
     "../input_files"
 
 # Check if dry run completes

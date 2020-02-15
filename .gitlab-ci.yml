@@ -10,6 +10,7 @@ test:
     # add code quality tests here
     # add unit tests here
     # add script tests here
+    - bash tests/test_scripts_table_to_snakemake/test.sh
     - bash tests/test_scripts_labkey_to_snakemake/test.sh
     # add integration tests here
     - bash tests/test_create_dag_image/test.sh
