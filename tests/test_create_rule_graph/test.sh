@@ -14,7 +14,7 @@ cd $script_dir
 # Run tests
 snakemake \
     --snakefile="../../Snakefile" \
-    --configfile="config.yaml" \
+    --configfile="../input_files/config.yaml" \
     --rulegraph \
     --printshellcmds \
     --dryrun \

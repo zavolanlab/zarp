@@ -1,0 +1,8 @@
+---
+  output_dir: "results"
+  local_log: "local_log"
+  star_indexes: "results/star_indexes"
+  kallisto_indexes: "results/kallisto_indexes"
+  samples: "../input_files/samples.tsv"
+  salmon_indexes: "results/salmon_indexes"
+...

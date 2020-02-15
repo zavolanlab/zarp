@@ -117,8 +117,8 @@ bash tests/test_integration_workflow/test.slurm.sh
 create a directory for your workflow run and traverse inside it with:
 
     ```bash
-    mkdir runs/my_run
-    cd runs/my_run
+    mkdir config/my_run
+    cd config/my_run
     ```
 
 2. Create empty sample table, workflow configuration and, if necessary, cluster
@@ -224,28 +224,19 @@ you do not have these):
     EOF
     ```
 
-3. Run the LabKey API client script:
+3. Generate the workflow configuration with the following command, after
+replacing the placeholders with the appropriate values (check out the
+help screen with option '--help' for further options and information):
 
     ```bash
-    python scripts/labkey_api.py <project_name> <labkey_table_nane>
-    ```
-
-    > **NOTE:** Right now the script only prints a `pandas` data frame
-    > representation of the LabKey table on the screen and manually needs to be
-    > saved to a file for the next step. Ultimately the script will produce
-    > either a file in table format or will be merged with the following
-    > script.
-
-4. Generate the workflow configuration with the following command, after
-replacing the placeholders with the appropriate values:
-
-    ```bash
-    python scripts scripts/labkey_to_snakemake.py \
-        --input_table=<labkey_output_table> \
-        --input_dict="scripts/input_dict.tsv" \
-        --config_file="runs/my_run/config.yaml" \
-        --samples_table="runs/my_run/samples.tsv" \
-        --genomes_path=<path_to_annotation_files>
+    python scripts/labkey_to_snakemake.py \
+        --input_dict="scripts/labkey_to_snakemake.dict.tsv" \
+        --config_file="config/my_run/config.yaml" \
+        --samples_table="config/my_run/samples.tsv" \
+        --remote \
+        --project-name="project_name" \
+        --table-name="table_name" \
+        <path_to_annotation_files>
     ```
 
 #### Additional information
