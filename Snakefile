@@ -29,10 +29,6 @@ rule finish:
 			zip,
 			sample= [i for i in list(samples_table.index.values)], 
 			seqmode= [samples_table.loc[i,"seqmode"] for i in list(samples_table.index.values)]),
-		bai_index_map = expand(os.path.join(config["output_dir"], "{seqmode}", "{sample}", "map_genome", "{sample}_Aligned.sortedByCoord.out.bam.bai"),
-			zip,
-			sample= [i for i in list(samples_table.index.values)], 
-			seqmode= [samples_table.loc[i,"seqmode"] for i in list(samples_table.index.values)]), 
 		salmon_gn_estimates = expand(os.path.join(config["output_dir"],"{seqmode}","{sample}","salmon_quant","quant.genes.sf"),
 			zip,
 			sample= [i for i in list(samples_table.index.values)], 
@@ -41,6 +37,10 @@ rule finish:
 			zip,
 			sample= [i for i in list(samples_table.index.values)], 
 			seqmode= [samples_table.loc[i,"seqmode"] for i in list(samples_table.index.values)]),
+		TIN_score = expand(os.path.join(config["output_dir"], "{seqmode}", "{sample}", "TIN", "TIN_score.tsv"),
+			zip,
+			sample= [i for i in list(samples_table.index.values)], 
+			seqmode= [samples_table.loc[i,"seqmode"] for i in list(samples_table.index.values)]), 
 
 
 rule create_index_star:
@@ -139,3 +139,66 @@ rule create_index_kallisto:
 		chmod -R 777 {params.output_dir}; \
 		kallisto index -i {output.index} {input.transcriptome}) &> {log}"
 
+
+rule extract_transcripts_as_bed12:
+	''' Extract transcripts: from GTF into BED12 format'''
+	input:
+		gtf =lambda wildcards: samples_table["gtf"][0]
+	output:
+		bed12 = os.path.join(
+			config["output_dir"],
+			"full_transcripts_protein_coding.bed")
+	singularity:
+		"docker://zavolab/gtf_transcript_type_to_bed12:0.1.0"
+	threads: 1
+	log:
+		os.path.join( config["local_log"], "extract_transcripts_as_bed12.log")
+	shell:
+		"gtf_transcript_type_to_bed12.pl \
+        --anno={input.gtf} \
+        --type=protein_coding \
+        1> {output.bed12} \
+        2> {log}"
+
+
+rule calculate_TIN_scores:
+	'''Calculate TIN score'''
+	input:
+		bai = os.path.join(
+			config["output_dir"],
+			"{seqmode}",
+			"{sample}",
+			"map_genome",
+			"{sample}_Aligned.sortedByCoord.out.bam.bai"),
+		transcripts_bed12 = os.path.join(
+			config["output_dir"],
+			"full_transcripts_protein_coding.bed")
+	output:
+		TIN_score = os.path.join(
+			config["output_dir"],
+			"{seqmode}",
+			"{sample}",
+			"TIN",
+			"TIN_score.tsv")
+	params:
+		bam = os.path.join(
+			config["output_dir"],
+			"{seqmode}",
+			"{sample}",
+			"map_genome",
+			"{sample}_Aligned.sortedByCoord.out.bam"),
+		sample = "{sample}"
+	log:
+		os.path.join(config["local_log"], "{seqmode}", "{sample}", "calculate_TIN_scores.log")
+	threads:	8
+	singularity:
+		"docker://zavolab/tin_score_calculation:0.1.0"
+	shell:
+		"tin_score_calculation.py \
+        -i {params.bam} \
+        -r {input.transcripts_bed12} \
+        -c 0 \
+        --names {params.sample} \
+        -n 100 \
+        1> {output.TIN_score} \
+        2> {log}"

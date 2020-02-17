@@ -37,5 +37,11 @@
     "time": "02:00:00",
     "threads":"6",
     "mem":"32G"
+  },
+  "calculate_TIN_scores":
+  {
+    "time": "06:00:00",
+    "threads":"8",
+    "mem":"32G"
   }
 }
