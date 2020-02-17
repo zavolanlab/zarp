@@ -339,10 +339,3 @@ rule pe_genome_quantification_kallisto:
 		{params.directionality} \
 		{input.reads1} {input.reads2} > {output.pseudoalignment}) &> {log}"
 
-
-
-
-
-
-
-
