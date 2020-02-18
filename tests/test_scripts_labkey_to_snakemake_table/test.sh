@@ -1,7 +1,15 @@
 #!/bin/bash
 
 # Tear down test environment
-trap 'rm -rf .snakemake config.yaml samples.tsv && cd $user_dir' EXIT  # quotes command is exected after script exits, regardless of exit status
+cleanup () {
+    rc=$?
+    rm -rf .snakemake/
+    rm -rf config.yaml
+    rm -rf samples.tsv
+    cd $user_dir
+    echo "Exit status: $rc"
+}
+trap cleanup EXIT
 
 # Set up test environment
 set -eo pipefail  # ensures that script exits at first command that exits with non-zero status
@@ -25,6 +33,7 @@ snakemake \
     --snakefile="../../Snakefile" \
     --configfile="config.yaml" \
     --dryrun \
+    --verbose
 
 md5sum --check "expected_output.md5"
 # MD5 sums obtained with command:

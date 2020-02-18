@@ -1,7 +1,17 @@
 #!/bin/bash
 
 # Tear down test environment
-trap 'rm -rf logs/ results/ .snakemake/ .java/ local_log/ && cd $user_dir' EXIT  # quoted command is exected after script exits, regardless of exit status
+cleanup () {
+    rc=$?
+    rm -rf .java/
+    rm -rf .snakemake/
+    rm -rf local_log/
+    rm -rf logs/
+    rm -rf results/
+    cd $user_dir
+    echo "Exit status: $rc"
+}
+trap cleanup EXIT
 
 # Set up test environment
 set -eo pipefail  # ensures that script exits at first command that exits with non-zero status
@@ -20,7 +30,8 @@ snakemake \
     --printshellcmds \
     --rerun-incomplete \
     --use-singularity \
-    --singularity-args="--bind ${PWD}/../input_files"
+    --singularity-args="--bind ${PWD}/../input_files" \
+    --verbose
 
 # Check md5 sum of some output files
 find results/ -type f -name \*\.gz -exec gunzip '{}' \;

@@ -1,7 +1,13 @@
 #!/bin/bash
 
 # Tear down test environment
-trap 'rm -rf .snakemake && cd $user_dir' EXIT  # quotes command is exected after script exits, regardless of exit status
+cleanup () {
+    rc=$?
+    rm -rf .snakemake
+    cd $user_dir
+    echo "Exit status: $rc"
+}
+trap cleanup EXIT
 
 # Set up test environment
 set -eo pipefail  # ensures that script exits at first command that exits with non-zero status
@@ -18,5 +24,6 @@ snakemake \
     --rulegraph \
     --printshellcmds \
     --dryrun \
+    --verbose \
     | dot -Tsvg > "../../images/rule_graph.svg"
 

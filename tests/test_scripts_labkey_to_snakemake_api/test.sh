@@ -4,7 +4,17 @@
 # 'LABKEY_PASS' to be set with the appropriate values
 
 # Tear down test environment
-trap 'rm -rf ${HOME}/.netrc .snakemake config.yaml samples.tsv input_table.tsv && cd $user_dir' EXIT  # quotes command is exected after script exits, regardless of exit status
+cleanup () {
+    rc=$?
+    rm -rf ${HOME}/.netrc
+    rm -rf .snakemake/
+    rm -rf config.yaml
+    rm -rf input_table.tsv
+    rm -rf samples.tsv
+    cd $user_dir
+    echo "Exit status: $rc"
+}
+trap cleanup EXIT
 
 # Set up test environment
 set -eo pipefail  # ensures that script exits at first command that exits with non-zero status
@@ -36,6 +46,7 @@ snakemake \
     --snakefile="../../Snakefile" \
     --configfile="config.yaml" \
     --dryrun \
+    --verbose
 
 md5sum --check "expected_output.md5"
 # MD5 sums obtained with command:
