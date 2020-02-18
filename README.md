@@ -120,8 +120,8 @@ bash tests/test_integration_workflow/test.local.sh
 
 ### Run workflow via Slurm
 
-Execute the following command to run the test workflow on a Slurm-managed
-high-performance computing (HPC) cluster:
+Execute the following command to run the test workflow on a
+[Slurm][slurm]-managed high-performance computing (HPC) cluster:
 
 ```bash
 bash tests/test_integration_workflow/test.slurm.sh
@@ -216,14 +216,14 @@ your run.
 
 ### Configuring workflow runs via LabKey tables
 
-Our lab stores metadata for sequencing samples in a locally deployed [LabKey]
-instance. This repository provides two scripts that give programmatic access to
-the LabKey data table and convert it to the corresponding workflow inputs
-(`samples.tsv` and `config.yaml`), respectively. As such, these scripts largely
-automate step 3. of the above instructions. However, as these scripts were
-specifically for the needs of our lab, they are likely not portable or, at
-least, will require considerable modification for other setups (e.g., different
-LabKey table structure).
+Our lab stores metadata for sequencing samples in a locally deployed
+[LabKey][labkey] instance. This repository provides two scripts that give
+programmatic access to the LabKey data table and convert it to the
+corresponding workflow inputs (`samples.tsv` and `config.yaml`), respectively.
+As such, these scripts largely automate step 3. of the above instructions.
+However, as these scripts were specifically for the needs of our lab, they are
+likely not portable or, at least, will require considerable modification for
+other setups (e.g., different LabKey table structure).
 
 > **NOTE:** All of the below steps assume that your current working directory
 > is the repository's root directory.
@@ -322,10 +322,11 @@ Contaminant sequences | contaminant_seqs
 
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
 [cluster execution]: <https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html#cluster-execution>
-[LabKey]: <https://www.labkey.com/>
+[labkey]: <https://www.labkey.com/>
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
 [rule-graph]: images/rule_graph.svg
 [snakemake]: <https://snakemake.readthedocs.io/en/stable/>
-[Singularity]: <https://sylabs.io/singularity/>
-[Slurm]: <https://slurm.schedmd.com/documentation.html>
+[singularity]: <https://sylabs.io/singularity/>
+[singularity-install]: <https://sylabs.io/guides/3.5/admin-guide/installation.html>
+[slurm]: <https://slurm.schedmd.com/documentation.html>
 [zavolan-lab]: <https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/>
