@@ -1,0 +1,13 @@
+name: rnaseq_pipeline
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - graphviz=2.40.1
+  - pip=20.0.2
+  - python=3.7.4
+  - singularity=3.5.2
+  - pip:
+    - pandas==1.0.1
+    - snakemake==5.10.0
+
