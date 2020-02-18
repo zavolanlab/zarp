@@ -1,16 +1,25 @@
 # RNA-Seq pipeline
 
-[Snakemake] workflow for general purpose RNA-Seq library annotation developed
-by the [Zavolan lab].
+[Snakemake][snakemake] workflow for general purpose RNA-Seq library annotation
+developed by the [Zavolan lab][zavolan-lab].
 
 Reads are processed, aligned, quantified and analyzed with state-of-the-art
 tools to give meaningful initial insights into various aspects of an RNA-Seq
 library while cutting down on hands-on time for bioinformaticians.
 
-The scheme below is a visual representation of an example run of the
-workflow:  
+Below is a visual representation of the individual workflow steps ("pe"
+refers to "paired-end"):
 
-> ![rule_graph](images/rule_graph.svg)
+> ![rule_graph][rule-graph]
+
+## Requirements
+
+Currently the workflow is only available for Linux distributions. It was tested
+on the following distributions:
+
+- CentOS 7.5
+- Debian 10
+- Ubuntu 16.04, 18.04
 
 ## Installation
 
@@ -24,69 +33,82 @@ git clone ssh://git@git.scicore.unibas.ch:2222/zavolan_group/pipelines/rnaseqpip
 cd rnaseqpipeline
 ```
 
-### Installing Singularity
+### Installing Conda
 
-For improved reproducibility and reusability of the workflow, as well as an
-easy means to run it on a high performance computing (HPC) cluster managed,
-e.g., by [Slurm], each individual step of the workflow runs in its own
-container. Specifically, containers are created out of [Singularity] images
-built for each software used within the workflow. As a consequence, running
-this workflow has very few individual dependencies. It does, however, require
-that Singularity be installed. See the links below for installation
-instructions for the most up-to-date (as of writing) as well as for the tested
-version (2.6.1) of Singularity:
+Workflow dependencies can be conveniently installed with the [Conda][conda]
+package manager. We recommend that you install
+[Miniconda][miniconda-installation] for your system (Linux). Be sure to select
+Python 3 option. The workflow was built and tested with `miniconda 4.7.12`.
+Other versions are not guaranteed to work as expected.
 
+### Installing dependencies
 
-- [Singularity v3.5](https://sylabs.io/guides/3.5/user-guide/quick_start.html)
-- [Singularity v2.6](https://sylabs.io/guides/2.6/user-guide/installation.html)
+For improved reproducibility and reusability of the workflow,
+each individual step of the workflow runs in its own [Singularity][singularity]
+container. As a consequence, running this workflow has very few
+individual dependencies. It does, however, require Singularity to be installed
+on the system running the workflow. As the functional installation of
+Singularity requires root privileges, and Conda currently only provides
+Singularity for Linux architectures, the installation instructions are
+slightly different depending on your system/setup:
 
-If you have root privileges, you can directly install Singularity together with snakemake in a virtual environment (see next section)
+#### For most users
 
-### Setting up a Snakemake virtual environment
+If you do *not* have root privileges on the machine you want to run the
+workflow on *or* if you do not have a Linux machine, please [install
+Singularity][singularity-install] separately and in privileged mode, depending
+on your system. You may have to ask an authorized person (e.g., a systems
+administrator) to do that. This will almost certainly be required if you want
+to run the workflow on a high-performance computing (HPC) cluster. We have
+successfully tested the workflow with the following Singularity versions:
 
-In addition to Singularity, [Snakemake] needs to be installed. We strongly
-recommended to do so via a virtual environment. Here we describe the steps
-necessary to set up such a virtual environment with a recent version (v4.4+) of
-the `conda` package manager. If you prefer to use another solution, such as
-`virtualenv`, adapt the steps according to the specific instructions of your
-preferred solution.
+- `v2.4.5`
+- `v2.6.2`
+- `v3.5.2`
 
-If you do not have `conda` installed for Python3, we recommend to install the
-minimal version (Python and package manager) [Miniconda] (see the link for
-installation instructions). Be sure to select the correct version for your
-operating system and ensure that you select the Python 3 option.
-
-To create and activate a snakemake environment, run:
+After installing Singularity, install the remaining dependencies with:
 
 ```bash
-conda create -n rnaseq_pipeline \
-    -c bioconda \
-    -c conda-forge \
-    snakemake=5.10.0 
+conda env create -f install/environment.yml
+```
+
+#### As root user on Linux
+
+If you have a Linux machine, as well as root privileges, (e.g., if you plan to
+run the workflow on your own computer), you can execute the following command
+to include Singularity in the Conda environment:
+
+```bash
+conda env create -f install/environment.root.yml
+```
+
+### Activate environment
+
+Activate the Conda environment with:
+
+```bash
 conda activate rnaseq_pipeline
 ```
 
-or, to create a conda environment containing Snakemake AND Singularity (currently not working on MacOS):
+### Installing non-essential dependencies
 
-> Note: Singularity has to be installed as root, so wherever you don't have root privileges, use the installation methods described above! 
+Most tests have additional dependencies. If you are planning to run tests, you
+will need to install these by executing the following command _in your active
+Conda environment_:
 
 ```bash
-conda create -n rnaseq_pipeline \
-    -c bioconda \
-    -c conda-forge \
-    snakemake=5.10.0 \
-    singularity=3.5.2
-conda activate rnaseq_pipeline 
+conda env update -f install/environment.dev.yml
 ```
-
-
-All installation requirements should now be met with.
 
 ## Testing the installation
 
-We have prepared several tests to check the integrity of the workflow. The
-most important one lets you execute the workflow on a small set of example
-input files.
+We have prepared several tests to check the integrity of the workflow, its
+components and non-essential processing scripts. These can be found in
+subdirectories of the `tests/` directory. The most critical of these tests
+lets you execute the entire workflow on a small set of example input files.
+Note that for this and other tests to complete without issues,
+[additional dependencies](#installing-non-essential-dependencies) need to be
+installed.
 
 ### Run workflow on local machine
 
@@ -98,7 +120,8 @@ bash tests/test_integration_workflow/test.local.sh
 
 ### Run workflow via Slurm
 
-Execute the following command to run the test workflow on a Slurm-managed HPC.
+Execute the following command to run the test workflow on a Slurm-managed
+high-performance computing (HPC) cluster:
 
 ```bash
 bash tests/test_integration_workflow/test.slurm.sh
@@ -297,10 +320,12 @@ Cycles | cycles
 Molecule | molecule
 Contaminant sequences | contaminant_seqs
 
+[conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
 [cluster execution]: <https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html#cluster-execution>
 [LabKey]: <https://www.labkey.com/>
-[Miniconda]: <https://docs.conda.io/en/latest/miniconda.html>
-[Snakemake]: <https://snakemake.readthedocs.io/en/stable/>
+[miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
+[rule-graph]: images/rule_graph.svg
+[snakemake]: <https://snakemake.readthedocs.io/en/stable/>
 [Singularity]: <https://sylabs.io/singularity/>
 [Slurm]: <https://slurm.schedmd.com/documentation.html>
-[Zavolan lab]: <https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/>
+[zavolan-lab]: <https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/>

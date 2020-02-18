@@ -1,9 +1,11 @@
-image: snakemake/snakemake:v5.9.1
+image: continuumio/miniconda3:4.7.12
 
 before_script:
-  - apt update
-  - apt install -y unzip bedtools
-  - pip install -r scripts/requirements.txt
+  - apt update && apt install -y gcc
+  - conda init bash && source ~/.bashrc && echo $CONDA_DEFAULT_ENV
+  - conda env create -f install/environment.root.yml
+  - conda activate rnaseq_pipeline && echo $CONDA_DEFAULT_ENV
+  - conda env update -f install/environment.dev.yml
 
 test:
   script:
