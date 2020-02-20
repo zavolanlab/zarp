@@ -4,6 +4,7 @@
 cleanup () {
     rc=$?
     rm -rf .snakemake
+    rm -rf logs/
     cd $user_dir
     echo "Exit status: $rc"
 }

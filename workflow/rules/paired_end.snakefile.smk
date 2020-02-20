@@ -13,7 +13,7 @@ rule pe_fastqc:
 	singularity:
 		"docker://zavolab/fastqc:0.11.8"
 	log:
-		os.path.join(config["local_log"],"paired_end", "{sample}", "fastqc.log")
+		os.path.join(config["log_dir"],"paired_end", "{sample}", "fastqc.log")
 	shell:
 		"(mkdir -p {output.outdir1}; \
 		mkdir -p {output.outdir2}; \
@@ -51,7 +51,7 @@ rule pe_remove_adapters_cutadapt:
 		"docker://zavolab/cutadapt:1.16"
 	threads: 8
 	log:
-		os.path.join( config["local_log"], "paired_end", "{sample}", "remove_adapters_cutadapt.log")
+		os.path.join( config["log_dir"], "paired_end", "{sample}", "remove_adapters_cutadapt.log")
 	shell:
 		"(cutadapt \
 		-e 0.1 \
@@ -102,7 +102,7 @@ rule pe_remove_polya_cutadapt:
 		"docker://zavolab/cutadapt:1.16"
 	threads: 8
 	log:
-		os.path.join( config["local_log"], "paired_end", "{sample}", "remove_polya_cutadapt.log")
+		os.path.join( config["log_dir"], "paired_end", "{sample}", "remove_polya_cutadapt.log")
 	shell:
 		'(cutadapt \
 		--match-read-wildcards \
@@ -181,7 +181,7 @@ rule pe_map_genome_star:
 	threads: 12
 
 	log:
-		os.path.join( config["local_log"], "paired_end", "{sample}", "map_genome_star.log")
+		os.path.join( config["log_dir"], "paired_end", "{sample}", "map_genome_star.log")
 
 	shell:
 		"(STAR \
@@ -226,7 +226,7 @@ rule pe_index_genomic_alignment_samtools:
     singularity:
         "docker://zavolab/samtools:1.8"
     log:
-    	os.path.join( config["local_log"], "paired_end", "{sample}", "index_genomic_alignment_samtools.log")
+    	os.path.join( config["log_dir"], "paired_end", "{sample}", "index_genomic_alignment_samtools.log")
 
     shell:
         "(samtools index {input.bam} {output.bai};) &> {log}"
@@ -275,7 +275,7 @@ rule pe_quantification_salmon:
 		libType = lambda wildcards:
 			samples_table.loc[wildcards.sample, 'libtype']
 	log:
-		os.path.join(config["local_log"], "paired_end", "{sample}", "genome_quantification_salmon.log")
+		os.path.join(config["log_dir"], "paired_end", "{sample}", "genome_quantification_salmon.log")
 	threads:	6
 	singularity:
 		"docker://zavolab/salmon:0.11.0"
@@ -330,7 +330,7 @@ rule pe_genome_quantification_kallisto:
 		"docker://zavolab/kallisto:0.46.1"
 	threads:	8
 	log:
-		os.path.join(config["local_log"], "paired_end", "{sample}", "genome_quantification_kallisto.log")
+		os.path.join(config["log_dir"], "paired_end", "{sample}", "genome_quantification_kallisto.log")
 	shell:
 		"(kallisto quant \
 		-i {input.index} \

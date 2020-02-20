@@ -305,12 +305,12 @@ def main():
     # Read file and infer read size for sjdbovwerhang
     with open(options.config_file, 'w') as config_file:
         config_file.write('''---
-  output_dir: "results"
-  local_log: "local_log"
-  star_indexes: "results/star_indexes"
-  kallisto_indexes: "results/kallisto_indexes"
   samples: "'''+ options.samples_table + '''"
-  salmon_indexes: "results/salmon_indexes"
+  output_dir: "results/"
+  log_dir: "logs/"
+  kallisto_indexes: "results/kallisto_indexes/"
+  salmon_indexes: "results/salmon_indexes/"
+  star_indexes: "results/star_indexes/"
 ...''')
 
     sys.stdout.write('Create snakemake table finished successfully...\n')
