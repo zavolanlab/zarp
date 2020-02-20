@@ -5,7 +5,6 @@ cleanup () {
     rc=$?
     rm -rf .java/
     rm -rf .snakemake/
-    rm -rf local_log/
     rm -rf logs/
     rm -rf results/
     cd $user_dir
@@ -20,7 +19,6 @@ set -x  # facilitates debugging by printing out executed commands
 user_dir=$PWD
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 cd $script_dir
-mkdir -p logs/local_log
 
 # Run tests
 snakemake \

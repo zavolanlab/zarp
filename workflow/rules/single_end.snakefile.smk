@@ -10,7 +10,7 @@ rule fastqc:
 	singularity:
 		"docker://zavolab/fastqc:0.11.8"
 	log:
-		os.path.join(config["local_log"], "single_end", "{sample}", "fastqc.log")
+		os.path.join(config["log_dir"], "single_end", "{sample}", "fastqc.log")
 	shell:
 		"(mkdir -p {output.outdir}; \
 		fastqc \
@@ -34,7 +34,7 @@ rule remove_adapters_cutadapt:
 		"docker://zavolab/cutadapt:1.16"
 	threads: 8
 	log:
-		os.path.join(config["local_log"], "single_end", "{sample}", "remove_adapters_cutadapt.log")
+		os.path.join(config["log_dir"], "single_end", "{sample}", "remove_adapters_cutadapt.log")
 	shell:
 		"(cutadapt \
 		-e 0.1 \
@@ -61,7 +61,7 @@ rule remove_polya_cutadapt:
 		"docker://zavolab/cutadapt:1.16"
 	threads: 8
 	log:
-		os.path.join(config["local_log"], "single_end", "{sample}", "remove_polya_cutadapt.log")
+		os.path.join(config["log_dir"], "single_end", "{sample}", "remove_polya_cutadapt.log")
 	shell:
 		"(cutadapt \
 		--match-read-wildcards \
@@ -117,7 +117,7 @@ rule map_genome_star:
 		"docker://zavolab/star:2.6.0a"
 	threads: 12
 	log:
-		os.path.join(config["local_log"], "single_end", "{sample}", "map_genome_star.log")
+		os.path.join(config["log_dir"], "single_end", "{sample}", "map_genome_star.log")
 	shell:
 		"(STAR \
 		--runMode alignReads \
@@ -160,7 +160,7 @@ rule index_genomic_alignment_samtools:
 		"docker://zavolab/samtools:1.8"
 	threads: 1
 	log:
-		os.path.join(config["local_log"], "single_end", "{sample}", "index_genomic_alignment_samtools.log")
+		os.path.join(config["log_dir"], "single_end", "{sample}", "index_genomic_alignment_samtools.log")
 	shell:
 		"(samtools index {input.bam} {output.bai};) &> {log}"
 
@@ -202,7 +202,7 @@ rule quantification_salmon:
 		libType = lambda wildcards:
 	 			samples_table.loc[wildcards.sample, "libtype"]
 	log:
-		os.path.join(config["local_log"], "single_end", "{sample}", "quantification_salmon.log")
+		os.path.join(config["log_dir"], "single_end", "{sample}", "quantification_salmon.log")
 	threads:    12
 	singularity:
 		"docker://zavolab/salmon:0.11.0"
@@ -250,7 +250,7 @@ rule genome_quantification_kallisto:
 		directionality = lambda wildcards: samples_table.loc[wildcards.sample, 'kallisto_directionality']
 	threads:	    8
 	log:
-		os.path.join(config["local_log"],"kallisto_align_{sample}.log")
+		os.path.join(config["log_dir"],"kallisto_align_{sample}.log")
 	singularity:
 		"docker://zavolab/kallisto:0.46.1"
 	shell:

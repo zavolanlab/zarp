@@ -173,7 +173,6 @@ your run.
     ```bash
     cat << "EOF" > run.sh
     #!/bin/bash
-    mkdir -p logs/local_log
     snakemake \
         --snakefile="../../snakemake/Snakefile" \
         --configfile="config.yaml" \
