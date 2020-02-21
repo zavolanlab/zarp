@@ -8,7 +8,7 @@ rule fastqc:
     params:
         seqmode= lambda wildcards: samples_table.loc[wildcards.sample, "seqmode"]
     singularity:
-        "docker://zavolab/fastqc:0.11.8"
+        "docker://zavolab/fastqc:0.11.9-slim"
     log:
         os.path.join(config["log_dir"], "single_end", "{sample}", "fastqc.log")
     shell:
@@ -31,7 +31,7 @@ rule remove_adapters_cutadapt:
             samples_table.loc[wildcards.sample, 'fq1_5p']
 
     singularity:
-        "docker://zavolab/cutadapt:1.16"
+        "docker://zavolab/cutadapt:1.16-slim"
     threads: 8
     log:
         os.path.join(config["log_dir"], "single_end", "{sample}", "remove_adapters_cutadapt.log")
@@ -58,7 +58,7 @@ rule remove_polya_cutadapt:
         polya_3 = lambda wildcards: 
             samples_table.loc[wildcards.sample, "fq1_polya"]
     singularity:
-        "docker://zavolab/cutadapt:1.16"
+        "docker://zavolab/cutadapt:1.16-slim"
     threads: 8
     log:
         os.path.join(config["log_dir"], "single_end", "{sample}", "remove_polya_cutadapt.log")
@@ -112,9 +112,9 @@ rule map_genome_star:
         soft_clip = lambda wildcards:
                 samples_table.loc[wildcards.sample, "soft_clip"],
         pass_mode = lambda wildcards:
-                samples_table.loc[wildcards.sample, "pass_mode"],        
+                samples_table.loc[wildcards.sample, "pass_mode"],
     singularity:
-        "docker://zavolab/star:2.6.0a"
+        "docker://zavolab/star:2.7.3a-slim"
     threads: 12
     log:
         os.path.join(config["log_dir"], "single_end", "{sample}", "map_genome_star.log")
@@ -157,7 +157,7 @@ rule index_genomic_alignment_samtools:
             "map_genome", 
             "{sample}_Aligned.sortedByCoord.out.bam.bai")
     singularity:
-        "docker://zavolab/samtools:1.8"
+        "docker://zavolab/samtools:1.10-slim"
     threads: 1
     log:
         os.path.join(config["log_dir"], "single_end", "{sample}", "index_genomic_alignment_samtools.log")
@@ -252,7 +252,7 @@ rule genome_quantification_kallisto:
     log:
         os.path.join(config["log_dir"], "single_end", "{sample}", "genome_quantification_kallisto.log.log")
     singularity:
-        "docker://zavolab/kallisto:0.46.1"
+        "docker://zavolab/kallisto:0.46.1-slim"
     shell:
         "(kallisto quant \
         -i {input.index} \

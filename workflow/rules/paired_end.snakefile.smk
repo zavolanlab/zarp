@@ -11,7 +11,7 @@ rule pe_fastqc:
     threads:
         2
     singularity:
-        "docker://zavolab/fastqc:0.11.8"
+        "docker://zavolab/fastqc:0.11.9-slim"
     log:
         os.path.join(config["log_dir"],"paired_end", "{sample}", "fastqc.log")
     shell:
@@ -48,7 +48,7 @@ rule pe_remove_adapters_cutadapt:
         adapter_5_mate2 = lambda wildcards:
             samples_table.loc[wildcards.sample, 'fq2_5p']
     singularity:
-        "docker://zavolab/cutadapt:1.16"
+        "docker://zavolab/cutadapt:1.16-slim"
     threads: 8
     log:
         os.path.join( config["log_dir"], "paired_end", "{sample}", "remove_adapters_cutadapt.log")
@@ -99,7 +99,7 @@ rule pe_remove_polya_cutadapt:
         polya_3_mate2 = lambda wildcards:
             samples_table.loc[wildcards.sample, 'fq2_polya'],
     singularity:
-        "docker://zavolab/cutadapt:1.16"
+        "docker://zavolab/cutadapt:1.16-slim"
     threads: 8
     log:
         os.path.join( config["log_dir"], "paired_end", "{sample}", "remove_polya_cutadapt.log")
@@ -176,7 +176,7 @@ rule pe_map_genome_star:
             samples_table.loc[wildcards.sample, "pass_mode"]
 
     singularity:
-        "docker://zavolab/star:2.6.0a"
+        "docker://zavolab/star:2.7.3a-slim"
 
     threads: 12
 
@@ -224,7 +224,7 @@ rule pe_index_genomic_alignment_samtools:
             "map_genome",
             "{sample}_Aligned.sortedByCoord.out.bam.bai"),
     singularity:
-        "docker://zavolab/samtools:1.8"
+        "docker://zavolab/samtools:1.10-slim"
     log:
         os.path.join( config["log_dir"], "paired_end", "{sample}", "index_genomic_alignment_samtools.log")
     shell:
@@ -326,7 +326,7 @@ rule pe_genome_quantification_kallisto:
         directionality = lambda wildcards:
             samples_table.loc[wildcards.sample, "kallisto_directionality"]
     singularity:
-        "docker://zavolab/kallisto:0.46.1"
+        "docker://zavolab/kallisto:0.46.1-slim"
     threads:    8
     log:
         os.path.join(config["log_dir"], "paired_end", "{sample}", "genome_quantification_kallisto.log")
