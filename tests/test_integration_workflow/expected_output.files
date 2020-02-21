@@ -1,12 +1,7 @@
 results/kallisto_indexes/homo_sapiens/kallisto.idx
-results/salmon_indexes/homo_sapiens/31/salmon.idx/duplicate_clusters.tsv
-results/salmon_indexes/homo_sapiens/31/salmon.idx/hash.bin
-results/salmon_indexes/homo_sapiens/31/salmon.idx/header.json
-results/salmon_indexes/homo_sapiens/31/salmon.idx/refInfo.json
-results/salmon_indexes/homo_sapiens/31/salmon.idx/rsd.bin
-results/salmon_indexes/homo_sapiens/31/salmon.idx/sa.bin
-results/salmon_indexes/homo_sapiens/31/salmon.idx/txpInfo.bin
 results/salmon_indexes/homo_sapiens/31/salmon.idx/versionInfo.json
+results/salmon_indexes/homo_sapiens/31/salmon.idx/duplicate_clusters.tsv
+results/salmon_indexes/homo_sapiens/31/salmon.idx/info.json
 results/star_indexes/homo_sapiens/75/STAR_index/chrLength.txt
 results/star_indexes/homo_sapiens/75/STAR_index/chrNameLength.txt
 results/star_indexes/homo_sapiens/75/STAR_index/chrName.txt
@@ -78,8 +73,6 @@ results/single_end/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1/quant_kal
 results/single_end/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1/quant_kallisto/pseudoalignments.bam
 results/single_end/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1/quant_kallisto/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1.kallisto.pseudo.sam
 results/single_end/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1/salmon_quant/lib_format_counts.json
-results/single_end/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1/salmon_quant/quant.genes.sf
-results/single_end/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1/salmon_quant/quant.sf
 results/single_end/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1/salmon_quant/aux_info/ambig_info.tsv
 results/single_end/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1/salmon_quant/aux_info/expected_bias
 results/single_end/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1/salmon_quant/aux_info/observed_bias
