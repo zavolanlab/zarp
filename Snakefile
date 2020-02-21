@@ -148,7 +148,7 @@ rule create_index_star:
         ),
         sjdbOverhang = "{index_size}",
     singularity:
-        "docker://zavolab/star:2.6.0a"
+        "docker://zavolab/star:2.7.3a-slim"
     threads: 12
     log:
         os.path.join(
@@ -221,7 +221,7 @@ rule create_index_kallisto:
             "{organism}",
         ),
     singularity:
-        "docker://zavolab/kallisto:0.46.1"
+        "docker://zavolab/kallisto:0.46.1-slim"
     log:
         os.path.join(
             config['log_dir'],
@@ -244,7 +244,7 @@ rule extract_transcripts_as_bed12:
             "full_transcripts_protein_coding.bed",
         ),
     singularity:
-        "docker://zavolab/gtf_transcript_type_to_bed12:0.1.0"
+        "docker://zavolab/gtf_transcript_type_to_bed12:0.1.0-slim"
     threads: 1
     log:
         os.path.join(
@@ -299,7 +299,7 @@ rule calculate_TIN_scores:
         )
     threads: 8
     singularity:
-        "docker://zavolab/tin_score_calculation:0.1.0"
+        "docker://zavolab/tin_score_calculation:0.1.0-slim"
     shell:
         "tin_score_calculation.py \
         -i {params.bam} \

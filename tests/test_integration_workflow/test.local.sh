@@ -3,6 +3,7 @@
 # Tear down test environment
 cleanup () {
     rc=$?
+    rm -rf .fontconfig/
     rm -rf .java/
     rm -rf .snakemake/
     rm -rf logs/
