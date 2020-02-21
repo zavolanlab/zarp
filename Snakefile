@@ -102,6 +102,9 @@ rule finish:
                 for i in list(samples_table.index.values)
             ]
         ),
+        salmon_merge_genes = os.path.join(config["output_dir"], "summary_salmon", "quantmerge", "genes_tpm.tsv"),
+        salmon_merge_tr = os.path.join(config["output_dir"], "summary_salmon", "quantmerge", "tr_tpm.tsv"),
+
 
 
 rule create_index_star:
@@ -184,7 +187,7 @@ rule create_index_salmon:
     params:
         kmerLen = "{kmer}",
     singularity:
-        "docker://zavolab/salmon:0.11.0"
+        "docker://zavolab/salmon:1.1.0-slim"
     log:
         os.path.join(
             config['log_dir'],
@@ -306,3 +309,77 @@ rule calculate_TIN_scores:
         -n 100 \
         1> {output.TIN_score} \
         2> {log}"
+
+
+rule salmon_quantmerge_genes_tpm:
+    ''' Merge gene quantifications into a single file. '''
+    input:
+        salmon_in = expand(os.path.join(
+            config["output_dir"], 
+            "{seqmode}", 
+            "{sample}", 
+            "salmon_quant",
+            "quant.genes.sf"), 
+            zip,
+                sample= list(samples_table.index.values), 
+                seqmode= list(samples_table["seqmode"])),
+    output:
+        salmon_out = os.path.join(config["output_dir"], "summary_salmon", "quantmerge", "genes_tpm.tsv")
+    params:
+        salmon_dir = expand(os.path.join(
+            config["output_dir"], 
+            "{seqmode}", 
+            "{sample}", 
+            "salmon_quant"), 
+            zip,
+                sample= list(samples_table.index.values), 
+                seqmode= list(samples_table["seqmode"])),
+        sample_name_list = expand("{sample}", sample= list(samples_table.index.values))
+    log:
+        os.path.join(config["log_dir"], "salmon_quantmerge_genes_tpm.log")
+    threads:    1
+    singularity:
+        "docker://zavolab/salmon:1.1.0-slim"
+    shell:
+        "(salmon quantmerge \
+        --quants {params.salmon_dir} \
+        --genes \
+        --names {params.sample_name_list} \
+        --column tpm \
+        --output {output.salmon_out}) &> {log}"
+
+rule salmon_quantmerge_tr_tpm:
+    ''' Merge gene quantifications into a single file. '''
+    input:
+        salmon_in = expand(os.path.join(
+            config["output_dir"], 
+            "{seqmode}", 
+            "{sample}", 
+            "salmon_quant",
+            "quant.sf"), 
+            zip,
+                sample= list(samples_table.index.values), 
+                seqmode= list(samples_table["seqmode"])),
+    output:
+        salmon_out = os.path.join(config["output_dir"], "summary_salmon", "quantmerge", "tr_tpm.tsv")
+    params:
+        salmon_dir = expand(os.path.join(
+            config["output_dir"], 
+            "{seqmode}", 
+            "{sample}", 
+            "salmon_quant"), 
+            zip,
+                sample= list(samples_table.index.values), 
+                seqmode= list(samples_table["seqmode"])),
+        sample_name_list = expand("{sample}", sample= list(samples_table.index.values))
+    log:
+        os.path.join(config["log_dir"], "salmon_quantmerge_tr_tpm.log")
+    threads:    1
+    singularity:
+        "docker://zavolab/salmon:1.1.0-slim" 
+    shell:
+        "(salmon quantmerge \
+        --quants {params.salmon_dir} \
+        --names {params.sample_name_list} \
+        --column tpm \
+        --output {output.salmon_out}) &> {log}"
