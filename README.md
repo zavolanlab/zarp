@@ -5,7 +5,7 @@ developed by the [Zavolan lab][zavolan-lab].
 
 Reads are processed, aligned, quantified and analyzed with state-of-the-art
 tools to give meaningful initial insights into various aspects of an RNA-Seq
-library while cutting down on hands-on time for bioinformaticians.
+library while cutting down on hands-on time for bioinformaticians. For a more detailed description of the individual rules please refer to the [pipeline documentation][pipeline-documentation].    
 
 Below is a visual representation of the individual workflow steps ("pe"
 refers to "paired-end"):
@@ -157,9 +157,9 @@ configuration files:
 values. Have a look at the examples in the `tests/` directory to see what the
 files should look like, specifically:
 
-    - [samples.tsv](tests/test_integration_workflow/samples.tsv)
-    - [config.yaml](tests/test_integration_workflow/config.yaml)
-    - [cluster.json](tests/test_integration_workflow/cluster.json)
+    - [samples.tsv](tests/input_files/samples.tsv)
+    - [config.yaml](tests/input_files/config.yaml)
+    - [cluster.json](tests/input_files/cluster.json)
 
 4. Create a runner script. Pick one of the following choices for either local
 or cluster execution. Before execution of the respective command, you must
@@ -329,3 +329,4 @@ Contaminant sequences | contaminant_seqs
 [singularity-install]: <https://sylabs.io/guides/3.5/admin-guide/installation.html>
 [slurm]: <https://slurm.schedmd.com/documentation.html>
 [zavolan-lab]: <https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/>
+[pipeline-documentation]: pipeline_documentation.md
