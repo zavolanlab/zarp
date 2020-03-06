@@ -207,7 +207,7 @@ rule extract_transcriptome:
             config['log_dir'],
             "{organism}_extract_transcriptome.log")
     singularity:
-        "docker://zavolab/cufflinks:2.2.1"
+        "docker://zavolab/gffread:0.11.7"
     shell:
         "(gffread \
         -w {output.transcriptome} \
