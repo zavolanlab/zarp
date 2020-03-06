@@ -99,7 +99,18 @@ rule finish:
                 "summary_salmon",
                 "quantmerge",
                 "transcripts_{salmon_merge_on}.tsv"),
-            salmon_merge_on=["tpm", "numreads"])
+            salmon_merge_on=["tpm", "numreads"]),
+        star_rpm = expand(
+            os.path.join(
+                config["output_dir"],
+                "{seqmode}",
+                "{sample}",
+                "STAR_coverage",
+                "{sample}_Signal.UniqueMultiple.str1.out.bg"),
+                zip,
+                sample=[i for i in list(samples_table.index.values)],
+                seqmode=[samples_table.loc[i, 'seqmode']
+                        for i in list(samples_table.index.values)])
 
 
 
