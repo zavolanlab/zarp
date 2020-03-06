@@ -102,6 +102,7 @@ rule finish:
             salmon_merge_on=["tpm", "numreads"])
 
 
+
 rule create_index_star:
     """
         Create index for STAR alignments
@@ -169,17 +170,50 @@ rule create_index_star:
         --sjdbGTFfile {input.gtf}) \
         1> {log.stdout} 2> {log.stderr}"
 
+rule extract_transcriptome:
+    """ Create transcriptome from genome and gene annotations """
+    input:
+        genome = lambda wildcards:
+            samples_table['genome'][
+                samples_table['organism'] == wildcards.organism
+            ][0],
+        gtf = lambda wildcards:
+            samples_table['gtf'][
+                samples_table['organism'] == wildcards.organism
+            ][0] 
+    output:
+        transcriptome = os.path.join(
+                config['output_dir'],
+                "transcriptome",
+                "{organism}",
+                "transcriptome.fa",
+            )
+    log:
+        stderr = os.path.join(
+            config['log_dir'],
+            "{organism}_extract_transcriptome.log"),
+        stdout = os.path.join(
+            config['log_dir'],
+            "{organism}_extract_transcriptome.log")
+    singularity:
+        "docker://zavolab/cufflinks:2.2.1"
+    shell:
+        "(gffread \
+        -w {output.transcriptome} \
+        -g {input.genome} {input.gtf}) \
+        1> {log.stdout} 2> {log.stderr}"
 
 rule create_index_salmon:
     """
         Create index for Salmon quantification
     """
     input:
-        transcriptome = lambda wildcards:
-            samples_table['tr_fasta_filtered']
-            [samples_table['organism'] == wildcards.organism]
-            [0]
-
+        transcriptome = os.path.join(
+                config['output_dir'],
+                "transcriptome",
+                "{organism}",
+                "transcriptome.fa",
+            )
     output:
         index = directory(
             os.path.join(
@@ -218,11 +252,12 @@ rule create_index_kallisto:
         Create index for Kallisto quantification
     """
     input:
-        transcriptome = lambda wildcards:
-            samples_table['tr_fasta_filtered']
-            [samples_table['organism'] == wildcards.organism]
-            [0]
-
+        transcriptome = os.path.join(
+                config['output_dir'],
+                "transcriptome",
+                "{organism}",
+                "transcriptome.fa",
+            )
     output:
         index = os.path.join(
             config['kallisto_indexes'],
