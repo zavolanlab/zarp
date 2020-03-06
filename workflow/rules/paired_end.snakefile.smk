@@ -1,43 +1,73 @@
 
 rule pe_fastqc:
-    '''A quality control tool for high throughput sequence data'''
-
+    '''
+        A quality control tool for high throughput sequence data
+    '''
     input:
-        reads1 = lambda wildcards: samples_table.loc[wildcards.sample, "fq1"],
-        reads2 = lambda wildcards: samples_table.loc[wildcards.sample, "fq2"]
+        reads1 = lambda wildcards:
+            samples_table.loc[wildcards.sample, "fq1"],
+        reads2 = lambda wildcards:
+            samples_table.loc[wildcards.sample, "fq2"]
+
     output:
-        outdir1 = directory(os.path.join(config["output_dir"],"paired_end", "{sample}", "mate1_fastqc")),
-        outdir2 = directory(os.path.join(config["output_dir"],"paired_end", "{sample}", "mate2_fastqc"))
-    threads:
-        2
+        outdir1 = directory(os.path.join(
+            config["output_dir"],
+            "paired_end",
+            "{sample}",
+            "mate1_fastqc")),
+        outdir2 = directory(os.path.join(
+            config["output_dir"],
+            "paired_end",
+            "{sample}",
+            "mate2_fastqc"))
+
+    threads: 2
+
     singularity:
         "docker://zavolab/fastqc:0.11.9-slim"
+
     log:
-        os.path.join(config["log_dir"],"paired_end", "{sample}", "fastqc.log")
+        stderr = os.path.join(
+            config["log_dir"],
+            "paired_end",
+            "{sample}",
+            "fastqc.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "paired_end",
+            "{sample}",
+            "fastqc.stdout.log")
+
     shell:
         "(mkdir -p {output.outdir1}; \
         mkdir -p {output.outdir2}; \
-        fastqc --outdir {output.outdir1} {input.reads1} & \
-        fastqc --outdir {output.outdir2} {input.reads2}) &> {log}"
+        fastqc --outdir {output.outdir1} {input.reads1}; \
+        fastqc --outdir {output.outdir2} {input.reads2}); \
+        1> {log.stdout} 2> {log.stderr}"
 
 
 rule pe_remove_adapters_cutadapt:
-    '''Remove adapters'''
+    '''
+        Remove adapters
+    '''
     input:
-        reads1 = lambda wildcards: samples_table.loc[wildcards.sample, "fq1"],
-        reads2 = lambda wildcards: samples_table.loc[wildcards.sample, "fq2"]
+        reads1 = lambda wildcards:
+            samples_table.loc[wildcards.sample, "fq1"],
+        reads2 = lambda wildcards:
+            samples_table.loc[wildcards.sample, "fq2"]
+
     output:
         reads1 = os.path.join(
             config["output_dir"],
             "paired_end",
             "{sample}",
             "{sample}.remove_adapters_mate1.fastq.gz"),
-
         reads2 = os.path.join(
             config["output_dir"],
             "paired_end",
             "{sample}",
             "{sample}.remove_adapters_mate2.fastq.gz")
+
     params:
         adapter_3_mate1 = lambda wildcards:
             samples_table.loc[wildcards.sample, 'fq1_3p'],
@@ -47,11 +77,24 @@ rule pe_remove_adapters_cutadapt:
             samples_table.loc[wildcards.sample, 'fq2_3p'],
         adapter_5_mate2 = lambda wildcards:
             samples_table.loc[wildcards.sample, 'fq2_5p']
+
     singularity:
         "docker://zavolab/cutadapt:1.16-slim"
+
     threads: 8
+
     log:
-        os.path.join( config["log_dir"], "paired_end", "{sample}", "remove_adapters_cutadapt.log")
+        stderr = os.path.join(
+            config["log_dir"],
+            "paired_end",
+            "{sample}",
+            "remove_adapters_cutadapt.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "paired_end",
+            "{sample}",
+            "remove_adapters_cutadapt.stdout.log")
+
     shell:
         "(cutadapt \
         -e 0.1 \
@@ -66,11 +109,14 @@ rule pe_remove_adapters_cutadapt:
         -o {output.reads1} \
         -p {output.reads2} \
         {input.reads1} \
-        {input.reads2}) &> {log}"
+        {input.reads2}); \
+        1> {log.stdout} 2>{log.stderr}"
 
 
 rule pe_remove_polya_cutadapt:
-    '''Remove polyA tails'''
+    '''
+        Remove polyA tails
+    '''
     input:
         reads1 = os.path.join(
             config["output_dir"],
@@ -82,6 +128,7 @@ rule pe_remove_polya_cutadapt:
             "paired_end",
             "{sample}",
             "{sample}.remove_adapters_mate2.fastq.gz")
+
     output:
         reads1 = os.path.join(
             config["output_dir"],
@@ -93,18 +140,32 @@ rule pe_remove_polya_cutadapt:
             "paired_end",
             "{sample}",
             "{sample}.remove_polya_mate2.fastq.gz")
+
     params:
         polya_3_mate1 = lambda wildcards:
             samples_table.loc[wildcards.sample, 'fq1_polya'],
         polya_3_mate2 = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'fq2_polya'],
+            samples_table.loc[wildcards.sample, 'fq2_polya']
+
     singularity:
         "docker://zavolab/cutadapt:1.16-slim"
+
     threads: 8
+
     log:
-        os.path.join( config["log_dir"], "paired_end", "{sample}", "remove_polya_cutadapt.log")
+        stderr = os.path.join(
+            config["log_dir"],
+            "paired_end",
+            "{sample}",
+            "remove_polya_cutadapt.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "paired_end",
+            "{sample}",
+            "remove_adapters_cutadapt.stdout.log")
+
     shell:
-        '(cutadapt \
+        "(cutadapt \
         --match-read-wildcards \
         -j {threads} \
         --pair-filter=both \
@@ -118,11 +179,14 @@ rule pe_remove_polya_cutadapt:
         -o {output.reads1} \
         -p {output.reads2} \
         {input.reads1} \
-        {input.reads2}) &> {log}'
+        {input.reads2};) \
+        1> {log.stdout} 2>{log.stderr}"
 
 
 rule pe_map_genome_star:
-    '''Map to genome using STAR'''
+    '''
+        Map to genome using STAR
+    '''
     input:
         index = lambda wildcards:
             os.path.join(
@@ -141,6 +205,7 @@ rule pe_map_genome_star:
             "paired_end",
             "{sample}",
             "{sample}.remove_polya_mate2.fastq.gz")
+
     output:
         bam = os.path.join(
             config["output_dir"],
@@ -154,6 +219,7 @@ rule pe_map_genome_star:
             "{sample}",
             "map_genome",
             "{sample}_Log.final.out")
+
     params:
         sample_id = "{sample}",
         index = lambda wildcards:
@@ -181,7 +247,11 @@ rule pe_map_genome_star:
     threads: 12
 
     log:
-        os.path.join( config["log_dir"], "paired_end", "{sample}", "map_genome_star.log")
+        stderr = os.path.join(
+            config["log_dir"],
+            "paired_end",
+            "{sample}",
+            "map_genome_star.stderr.log")
 
     shell:
         "(STAR \
@@ -204,11 +274,14 @@ rule pe_map_genome_star:
         --outFilterType BySJout \
         --outReadsUnmapped None \
         --outSAMattrRGline ID:rnaseq_pipeline SM:{params.sample_id} \
-        --alignEndsType {params.soft_clip} > {output.bam};) &> {log}"
+        --alignEndsType {params.soft_clip} > {output.bam};) \
+        2> {log.stderr}"
 
 
 rule pe_index_genomic_alignment_samtools:
-    '''Index the genomic alignment'''
+    '''
+        Index the genomic alignment
+    '''
     input:
         bam = os.path.join(
             config["output_dir"],
@@ -223,16 +296,31 @@ rule pe_index_genomic_alignment_samtools:
             "{sample}",
             "map_genome",
             "{sample}_Aligned.sortedByCoord.out.bam.bai"),
+
     singularity:
         "docker://zavolab/samtools:1.10-slim"
+
     log:
-        os.path.join( config["log_dir"], "paired_end", "{sample}", "index_genomic_alignment_samtools.log")
+        stderr = os.path.join(
+            config["log_dir"],
+            "paired_end",
+            "{sample}",
+            "index_genomic_alignment_samtools.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "paired_end",
+            "{sample}",
+            "index_genomic_alignment_samtools.stdout.log")
+
     shell:
-        "(samtools index {input.bam} {output.bai};) &> {log}"
+        "(samtools index {input.bam} {output.bai};) \
+        1> {log.stdout} 2> {log.stderr}"
 
 
 rule pe_quantification_salmon:
-    '''Quantification at transcript and gene level using Salmon'''
+    '''
+        Quantification at transcript and gene level using Salmon
+    '''
     input:
         reads1 = os.path.join(
             config["output_dir"],
@@ -252,7 +340,8 @@ rule pe_quantification_salmon:
                 str(samples_table.loc[wildcards.sample, "organism"]),
                 str(samples_table.loc[wildcards.sample, "kmer"]),
                 "salmon.idx")
-    output:        
+
+    output:
         gn_estimates = os.path.join(
             config["output_dir"],
             "paired_end",
@@ -265,6 +354,7 @@ rule pe_quantification_salmon:
             "{sample}",
             "salmon_quant",
             "quant.sf")
+
     params:
         output_dir = os.path.join(
             config["output_dir"],
@@ -273,11 +363,24 @@ rule pe_quantification_salmon:
             "salmon_quant"),
         libType = lambda wildcards:
             samples_table.loc[wildcards.sample, 'libtype']
+
     log:
-        os.path.join(config["log_dir"], "paired_end", "{sample}", "genome_quantification_salmon.log")
-    threads:    6
+        stderr = os.path.join(
+            config["log_dir"],
+            "paired_end",
+            "{sample}",
+            "genome_quantification_salmon.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "paired_end",
+            "{sample}",
+            "genome_quantification_salmon.stdout.log"),
+
+    threads: 6
+
     singularity:
         "docker://zavolab/salmon:1.1.0-slim"
+
     shell:
         "(salmon quant \
         --libType {params.libType} \
@@ -289,11 +392,13 @@ rule pe_quantification_salmon:
         --geneMap {input.gtf} \
         -1 {input.reads1} \
         -2 {input.reads2} \
-        -o {params.output_dir}) &> {log}"
+        -o {params.output_dir}) 1> {log.stdout} 2> {log.stderr}"
 
 
 rule pe_genome_quantification_kallisto:
-    '''Quantification at transcript and gene level using Kallisto'''
+    '''
+        Quantification at transcript and gene level using Kallisto
+    '''
     input:
         reads1 = os.path.join(
             config["output_dir"],
@@ -310,6 +415,7 @@ rule pe_genome_quantification_kallisto:
                 config["kallisto_indexes"],
                 samples_table.loc[wildcards.sample, 'organism'],
                 "kallisto.idx")
+
     output:
         pseudoalignment = os.path.join(
             config["output_dir"],
@@ -317,24 +423,33 @@ rule pe_genome_quantification_kallisto:
             "{sample}",
             "quant_kallisto",
             "{sample}.kallisto.pseudo.sam")
+
     params:
         output_dir = os.path.join(
-                config["output_dir"],
-                "paired_end",
-                "{sample}",
-                "quant_kallisto"),
+            config["output_dir"],
+            "paired_end",
+            "{sample}",
+            "quant_kallisto"),
         directionality = lambda wildcards:
             samples_table.loc[wildcards.sample, "kallisto_directionality"]
+
     singularity:
         "docker://zavolab/kallisto:0.46.1-slim"
-    threads:    8
+
+    threads: 8
+
     log:
-        os.path.join(config["log_dir"], "paired_end", "{sample}", "genome_quantification_kallisto.log")
+        stderr = os.path.join(
+            config["log_dir"],
+            "paired_end",
+            "{sample}",
+            "genome_quantification_kallisto.stderr.log")
+
     shell:
         "(kallisto quant \
         -i {input.index} \
         -o {params.output_dir} \
         --pseudobam \
         {params.directionality} \
-        {input.reads1} {input.reads2} > {output.pseudoalignment}) &> {log}"
-    
+        {input.reads1} {input.reads2} > {output.pseudoalignment}) \
+        2> {log.stderr}"
