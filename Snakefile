@@ -53,17 +53,6 @@ rule finish:
             sample=[i for i in list(samples_table.index.values)],
             seqmode=[samples_table.loc[i, 'seqmode']
                      for i in list(samples_table.index.values)]),
-        salmon_gn_estimates = expand(
-            os.path.join(
-                config['output_dir'],
-                "{seqmode}",
-                "{sample}",
-                "salmon_quant",
-                "quant.genes.sf"),
-            zip,
-            sample=[i for i in list(samples_table.index.values)],
-            seqmode=[samples_table.loc[i, 'seqmode']
-                     for i in list(samples_table.index.values)]),
         pseudoalignment = expand(
             os.path.join(
                 config['output_dir'],
@@ -329,11 +318,140 @@ rule extract_transcripts_as_bed12:
         2> {log.stderr}"
 
 
+rule index_genomic_alignment_samtools:
+    '''
+        Index genome bamfile using samtools
+    '''
+    input:
+        bam = os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "map_genome",
+            "{sample}_Aligned.sortedByCoord.out.bam")
+
+    output:
+        bai = os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "map_genome",
+            "{sample}_Aligned.sortedByCoord.out.bam.bai")
+
+    singularity:
+        "docker://zavolab/samtools:1.10-slim"
+
+    threads: 1
+
+    log:
+        stderr = os.path.join(
+            config["log_dir"],
+            "{seqmode}",
+            "{sample}",
+            "index_genomic_alignment_samtools.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "{seqmode}",
+            "{sample}",
+            "index_genomic_alignment_samtools.stdout.log")
+
+    shell:
+        "(samtools index {input.bam} {output.bai};) \
+        1> {log.stdout} 2> {log.stderr}"
+
+
+rule star_rpm:
+    ''' Create stranded bedgraph coverage with STARs RPM normalisation '''
+    input: 
+        bam = os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "map_genome",
+            "{sample}_Aligned.sortedByCoord.out.bam"),
+        bai = os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "map_genome",
+            "{sample}_Aligned.sortedByCoord.out.bam.bai")
+
+    output:
+        str1 = (os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "STAR_coverage",
+            "{sample}_Signal.Unique.str1.out.bg"),
+            os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "STAR_coverage",
+            "{sample}_Signal.UniqueMultiple.str1.out.bg")),
+        str2 = (os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "STAR_coverage",
+            "{sample}_Signal.Unique.str2.out.bg"),
+            os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "STAR_coverage",
+            "{sample}_Signal.UniqueMultiple.str2.out.bg"))
+
+    params:
+        out_dir = lambda wildcards, output: os.path.dirname(output.str1[0]),
+        prefix = lambda wildcards, output: os.path.join(os.path.dirname(output.str1[0]),
+            str(wildcards.sample) + "_"),
+        stranded = "Stranded"
+
+    singularity:
+        "docker://zavolab/star:2.7.3a-slim"
+
+    log: 
+        stderr = os.path.join(
+            config["log_dir"],
+            "{seqmode}",
+            "{sample}",
+            "star_rpm_single_end.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "{seqmode}",
+            "{sample}",
+            "star_rpm_single_end.stdout.log")
+
+    threads: 4
+
+    shell:
+        """
+        (mkdir -p {params.out_dir}; \
+        chmod -R 777 {params.out_dir}; \
+        STAR \
+        --runMode inputAlignmentsFromBAM \
+        --runThreadN {threads} \
+        --inputBAMfile {input.bam} \
+        --outWigType "bedGraph" \
+        --outWigStrand {params.stranded} \
+        --outWigNorm "RPM" \
+        --outFileNamePrefix {params.prefix}) \
+        1> {log.stdout} 2> {log.stderr}
+        """
+
+
 rule calculate_TIN_scores:
     """
         Caluclate transcript integrity (TIN) score
     """
     input:
+        bam = os.path.join(
+            config['output_dir'],
+            "{seqmode}",
+            "{sample}",
+            "map_genome",
+            "{sample}_Aligned.sortedByCoord.out.bam"),
         bai = os.path.join(
             config['output_dir'],
             "{seqmode}",
@@ -353,12 +471,6 @@ rule calculate_TIN_scores:
             "TIN_score.tsv")
 
     params:
-        bam = os.path.join(
-            config['output_dir'],
-            "{seqmode}",
-            "{sample}",
-            "map_genome",
-            "{sample}_Aligned.sortedByCoord.out.bam"),
         sample = "{sample}"
 
     log:
@@ -375,7 +487,7 @@ rule calculate_TIN_scores:
 
     shell:
         "(tin_score_calculation.py \
-        -i {params.bam} \
+        -i {input.bam} \
         -r {input.transcripts_bed12} \
         -c 0 \
         --names {params.sample} \
