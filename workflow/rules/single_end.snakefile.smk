@@ -370,3 +370,4 @@ rule genome_quantification_kallisto:
         {params.directionality} \
         {input.reads} > {output.pseudoalignment};) \
         2> {log.stderr}"
+
