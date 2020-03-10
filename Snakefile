@@ -678,10 +678,6 @@ rule salmon_quantmerge_transcripts:
 #################################################################################
 
 directionality = {"--fr": "fr-firststrand", "--rf": "fr-secondstrand"}
-rename_files = {"fr-firststrand": ("Signal.UniqueMultiple.out.plus.bg", 
-    "Signal.UniqueMultiple.out.minus.bg"),
-    "fr-secondstrand": ("Signal.UniqueMultiple.out.minus.bg", 
-    "Signal.UniqueMultiple.out.plus.bg")}
 
 
 rule generate_alfa_index:
