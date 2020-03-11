@@ -26,12 +26,12 @@ cd $script_dir
 # Run tests
 snakemake \
     --snakefile="../../Snakefile" \
-    --configfile="input_files/config.yaml" \
+    --configfile="../input_files/config_alfa.yaml" \
     --cores=4 \
     --printshellcmds \
     --rerun-incomplete \
     --use-singularity \
-    --singularity-args="--bind ${PWD}" \
+    --singularity-args="--bind ${PWD}/../input_files" \
     --verbose \
     results/ALFA/ALFA_plots.Categories.pdf
 
