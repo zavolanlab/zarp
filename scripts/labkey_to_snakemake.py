@@ -275,6 +275,7 @@ def main():
   kallisto_indexes: "results/kallisto_indexes/"
   salmon_indexes: "results/salmon_indexes/"
   star_indexes: "results/star_indexes/"
+  alfa_indexes: "results/alfa_indexes/"
 ...''')
 
     sys.stdout.write('Create snakemake table finished successfully...\n')

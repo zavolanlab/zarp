@@ -332,4 +332,5 @@ runs/.*
 .snakemake/
 logs/
 results/
+!tests/test_alfa/results/
 .java/
