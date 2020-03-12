@@ -4,6 +4,7 @@ import os
 import sys
 
 import pandas as pd
+import shutil
 
 # Get sample table
 samples_table = pd.read_csv(
@@ -16,7 +17,7 @@ samples_table = pd.read_csv(
 )
 
 # Global config
-localrules: finish
+localrules: finish, rename_star_rpm_for_alfa
 
 # Create log directories
 os.makedirs(
@@ -94,7 +95,23 @@ rule finish:
                 zip,
                 sample=[i for i in list(samples_table.index.values)],
                 seqmode=[samples_table.loc[i, 'seqmode']
-                        for i in list(samples_table.index.values)])
+                        for i in list(samples_table.index.values)]),
+        alfa_reports = expand(os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "ALFA",
+            "ALFA_plots.Biotypes.pdf"),
+            zip,
+            sample= [i for i in list(samples_table.index.values)],
+            seqmode= [
+                samples_table.loc[i,"seqmode"] 
+                for i in list(samples_table.index.values)]),
+        alfa_all_samples = os.path.join(
+            config["output_dir"],
+            "ALFA",
+            "ALFA_plots.Categories.pdf")
+
 
 
 
@@ -436,6 +453,47 @@ rule star_rpm:
         """
 
 
+rule rename_star_rpm_for_alfa:
+    input:
+        str1 = os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "STAR_coverage",
+            "{sample}_Signal.UniqueMultiple.str1.out.bg"),
+        str2 = os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "STAR_coverage",
+            "{sample}_Signal.UniqueMultiple.str2.out.bg")
+    
+    output:
+        plus = os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "ALFA",
+            "{sample}_Signal.UniqueMultiple.out.plus.bg"),
+        minus = os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "ALFA",
+            "{sample}_Signal.UniqueMultiple.out.minus.bg")
+    
+    params:
+        orientation = lambda wildcards: samples_table.loc[wildcards.sample, "kallisto_directionality"]
+    
+    run:
+        if params['orientation'] == "--fr":
+            shutil.copy2(input['str1'], output['plus'])
+            shutil.copy2(input['str2'], output['minus'])
+        elif params['orientation'] == "--rf":
+            shutil.copy2(input['str1'], output['minus'])
+            shutil.copy2(input['str2'], output['plus'])
+
+
 rule calculate_TIN_scores:
     """
         Caluclate transcript integrity (TIN) score
@@ -705,3 +763,161 @@ rule salmon_quantmerge_transcripts:
         --column {params.salmon_merge_on} \
         --output {output.salmon_out}) \
         1> {log.stdout} 2> {log.stderr}"
+
+
+#################################################################################
+### ALFA: Annotation Landscape For Aligned reads
+#################################################################################
+
+directionality = {"--fr": "fr-firststrand", "--rf": "fr-secondstrand"}
+
+
+rule generate_alfa_index:
+    ''' Generate ALFA index files from sorted GTF file '''
+    input:
+        gtf = lambda wildcards: samples_table["gtf"][samples_table["organism"]==wildcards.organism][0],
+        chr_len = os.path.join(
+            config["star_indexes"],
+            "{organism}",
+            "{index_size}",
+            "STAR_index",
+            "chrNameLength.txt"),
+
+    output:
+        index_stranded = os.path.join(config["alfa_indexes"], 
+            "{organism}", 
+            "{index_size}", 
+            "ALFA", 
+            "sorted_genes.stranded.ALFA_index"),
+        index_unstranded = os.path.join(config["alfa_indexes"], 
+            "{organism}", 
+            "{index_size}", 
+            "ALFA", 
+            "sorted_genes.unstranded.ALFA_index")
+
+    params:
+        genome_index = "sorted_genes",
+        out_dir = lambda wildcards, output: os.path.dirname(output.index_stranded)
+
+    threads: 4
+
+    singularity: 
+        "docker://zavolab/alfa:1.1.1"
+
+    log: 
+        os.path.join(config["log_dir"], "{organism}_{index_size}_generate_alfa_index.log")
+
+    shell:
+        """
+        alfa -a {input.gtf} \
+            -g {params.genome_index} \
+            --chr_len {input.chr_len} \
+            -p {threads} \
+            -o {params.out_dir} &> {log}
+        """
+
+
+rule alfa_qc:
+    ''' Run ALFA from stranded bedgraph files '''
+    input:
+        plus = os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "ALFA",
+            "{sample}_Signal.UniqueMultiple.out.plus.bg"),
+        minus = os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "ALFA",
+            "{sample}_Signal.UniqueMultiple.out.minus.bg"),
+        gtf = lambda wildcards: os.path.join(config["alfa_indexes"], 
+            samples_table.loc[wildcards.sample, "organism"], 
+            str(samples_table.loc[wildcards.sample, "index_size"]), 
+            "ALFA", 
+            "sorted_genes.stranded.ALFA_index")
+
+    output:
+        biotypes = os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "ALFA",
+            "ALFA_plots.Biotypes.pdf"),
+        categories = os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "ALFA",
+            "ALFA_plots.Categories.pdf"),
+        table = os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "ALFA",
+            "{sample}.ALFA_feature_counts.tsv")
+
+    params:
+        out_dir = lambda wildcards, output: os.path.dirname(output.biotypes),
+        alfa_orientation = lambda wildcards: directionality[samples_table.loc[wildcards.sample, "kallisto_directionality"]],
+        in_file_plus = lambda wildcards, input: os.path.basename(input.plus),
+        in_file_minus = lambda wildcards, input: os.path.basename(input.minus),
+        genome_index = lambda wildcards, input: os.path.abspath(os.path.join(os.path.dirname(input.gtf), "sorted_genes")),
+        name = "{sample}"
+
+    singularity:
+        "docker://zavolab/alfa:1.1.1"
+
+    log: 
+        os.path.abspath(os.path.join(
+            config["log_dir"], 
+            "{seqmode}", 
+            "{sample}", 
+            "alfa_qc.log"))
+
+    shell:
+        """ 
+        cd {params.out_dir}; \
+        (alfa -g {params.genome_index} \
+            --bedgraph {params.in_file_plus} {params.in_file_minus} {params.name} \
+            -s {params.alfa_orientation}) &> {log}
+        """
+
+
+rule alfa_qc_all_samples:
+    ''' Run ALFA from stranded bedgraph files on all samples '''
+    input:
+        tables = [os.path.join(
+            config["output_dir"],
+            samples_table.loc[sample1, "seqmode"],
+            str(sample1),
+            "ALFA",
+            sample1 + ".ALFA_feature_counts.tsv")
+            for sample1 in list(samples_table.index.values)]
+
+    output:
+        biotypes = os.path.join(
+            config["output_dir"],
+            "ALFA",
+            "ALFA_plots.Biotypes.pdf"),
+        categories = os.path.join(
+            config["output_dir"],
+            "ALFA",
+            "ALFA_plots.Categories.pdf")
+
+    params:
+        out_dir = lambda wildcards, output: os.path.dirname(output.biotypes)
+
+    log: 
+        os.path.abspath(
+            os.path.join(config["log_dir"], 
+            "alfa_qc_all_samples.log"))
+
+    singularity:
+        "docker://zavolab/alfa:1.1.1"
+
+    shell:
+        """
+        (alfa -c {input.tables} -o {params.out_dir}) &> {log}
+        """

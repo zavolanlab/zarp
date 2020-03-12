@@ -1,0 +1,6 @@
+Chr1	ensembl_havana	gene	251	1250	.	+	.	gene_id "ENSMUSG00000051951"; gene_biotype "protein_coding";
+Chr1	ensembl_havana	transcript	251	1250	.	+	.	gene_id "ENSMUSG00000051951"; gene_biotype "protein_coding";
+Chr1	ensembl_havana	exon	376	1000	.	+	.	gene_id "ENSMUSG00000051951"; gene_biotype "protein_coding";
+Chr1	ensembl_havana	CDS	376	1000	.	+	0	gene_id "ENSMUSG00000051951"; gene_biotype "protein_coding";
+Chr1	ensembl_havana	five_prime_utr	251	375	.	+	.	gene_id "ENSMUSG00000051951"; gene_biotype "protein_coding";
+Chr1	ensembl_havana	three_prime_utr	1001	1250	.	+	.	gene_id "ENSMUSG00000051951"; gene_biotype "protein_coding";
