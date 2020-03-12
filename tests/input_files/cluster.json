@@ -43,5 +43,17 @@
     "time": "06:00:00",
     "threads":"8",
     "mem":"32G"
+  },
+  "merge_TIN_scores":
+  {
+    "time": "00:05:00",
+    "threads":"1",
+    "mem":"4G"
+  },
+  "plot_TIN_scores":
+  {
+    "time": "00:05:00",
+    "threads":"1",
+    "mem":"4G"
   }
 }

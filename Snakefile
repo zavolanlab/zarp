@@ -65,17 +65,12 @@ rule finish:
             sample=[i for i in list(samples_table.index.values)],
             seqmode=[samples_table.loc[i, 'seqmode']
                      for i in list(samples_table.index.values)]),
-        TIN_score = expand(
-            os.path.join(
-                config['output_dir'],
-                "{seqmode}",
-                "{sample}",
-                "TIN",
-                "TIN_score.tsv"),
-            zip,
-            sample=[i for i in list(samples_table.index.values)],
-            seqmode=[samples_table.loc[i, 'seqmode']
-                     for i in list(samples_table.index.values)]),
+        TIN_boxplot_PNG = os.path.join(
+            config['output_dir'],
+            "TIN_scores_boxplot.png"),
+        TIN_boxplot_PDF = os.path.join(
+            config['output_dir'],
+            "TIN_scores_boxplot.pdf"),
         salmon_merge_genes = expand(
             os.path.join(
                 config["output_dir"],
@@ -541,7 +536,7 @@ rule calculate_TIN_scores:
     threads: 8
 
     singularity:
-        "docker://zavolab/tin_score_calculation:0.1.0-slim"
+        "docker://zavolab/tin_score_calculation:0.2.0-slim"
 
     shell:
         "(tin_score_calculation.py \
@@ -550,6 +545,103 @@ rule calculate_TIN_scores:
         -c 0 \
         --names {params.sample} \
         -n 100 > {output.TIN_score};) 2> {log.stderr}"
+
+
+rule merge_TIN_scores:
+    """
+        Merge TIN scores tables
+    """
+    input:
+        TIN_score = expand(
+            os.path.join(
+                config['output_dir'],
+                "{seqmode}",
+                "{sample}",
+                "TIN",
+                "TIN_score.tsv"),
+            zip,
+            sample=[i for i in list(samples_table.index.values)],
+            seqmode=[samples_table.loc[i, 'seqmode']
+                     for i in list(samples_table.index.values)])
+
+    output:
+        TIN_scores_merged = os.path.join(
+            config['output_dir'],
+            "TIN_scores_merged.tsv")
+
+    params:
+        TIN_score_merged_paths = ",".join(expand(
+            os.path.join(
+                config['output_dir'],
+                "{seqmode}",
+                "{sample}",
+                "TIN",
+                "TIN_score.tsv"),
+            zip,
+            sample=[i for i in list(samples_table.index.values)],
+            seqmode=[samples_table.loc[i, 'seqmode']
+                     for i in list(samples_table.index.values)]))
+
+    log:
+        stderr = os.path.join(
+            config['log_dir'],
+            "merge_TIN_scores.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "merge_TIN_scores.stdout.log")
+
+    threads: 1
+
+    singularity:
+        "docker://zavolab/tin_score_calculation:0.2.0-slim"
+
+    shell:
+        "(tin_score_merge.py \
+        --input-files {params.TIN_score_merged_paths} \
+        --output-file {output.TIN_scores_merged}) \
+        1> {log.stdout} 2> {log.stderr}"
+
+
+rule plot_TIN_scores:
+    """
+        Generate TIN scores boxplots
+    """
+    input:
+        TIN_scores_merged = os.path.join(
+            config['output_dir'],
+            "TIN_scores_merged.tsv"),
+
+    output:
+        TIN_boxplot_PNG = os.path.join(
+            config['output_dir'],
+            "TIN_scores_boxplot.png"),
+        TIN_boxplot_PDF = os.path.join(
+            config['output_dir'],
+            "TIN_scores_boxplot.pdf")
+
+    params:
+        TIN_boxplot_prefix = os.path.join(
+            config['output_dir'],
+            "TIN_scores_boxplot")
+
+    log:
+        stderr = os.path.join(
+            config['log_dir'],
+            "plot_TIN_scores.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "plot_TIN_scores.stdout.log")
+
+    threads: 1
+
+    singularity:
+        "docker://zavolab/tin_score_calculation:0.2.0-slim"
+
+    shell:
+        "(tin_score_plot.py \
+        --input-file {input.TIN_scores_merged} \
+        --output-file-prefix {params.TIN_boxplot_prefix}) \
+        1> {log.stdout} 2> {log.stderr}"
 
 
 rule salmon_quantmerge_genes:
