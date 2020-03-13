@@ -1,0 +1,317 @@
+# RNAseq pipeline documentation
+This document describes the individual rules of the pipeline for information purposes. For instructions on installation and usage please refer to the [README](README.md).    
+
+## Overview
+### General
+* read samples table
+* create log directories
+* **create_index_star**
+* **extract_transcriptome**
+* **create_index_salmon**
+* **create_index_kallisto**
+* **extract_transcripts_as_bed12**
+* **index_genomic_alignment_samtools**
+* **star_rpm**
+* **rename_star_rpm_for_alfa**
+* **calculate_TIN_scores**
+* **salmon_quantmerge_genes**
+* **salmon_quantmerge_transcripts**
+* **generate_alfa_index**
+* **alfa_qc**
+* **alfa_qc_all_samples**
+
+### Sequencing mode specific
+* **(pe_)fastqc**
+* **(pe_)remove_adapters_cutadapt**
+* **(pe_)remove_polya_cutadapt**
+* **(pe_)map_genome_star**
+* **(pe_)quantification_salmon**
+* **(pe_)genome_quantification_kallisto**
+
+
+
+
+## Detailed description of steps
+The pipeline consists of three snakefiles: A main Snakefile and an individual Snakefile for each sequencing mode (single-end and paired-end), as parameters to individual tools differ between the sequencing modes. The main Snakefile contains some general rules for the creation of indices, rules that are applicable to both sequencing modes, and rules that deal with summary steps and combining results across samples of the run.     
+Individual rules of the pipeline are described briefly, and links to the respective software manuals are given. If parameters can be influenced by the user (via the samples table) they are also described.
+Description of paired- and single-end rules are combined, only differences are highlighted.
+
+
+### General
+#### read samples table
+ 
+Requirements: 
+* tab separated file
+* first row has to contain parameter names as in  [samples.tsv](tests/input_files/samples.tsv)
+* First column will be used as indices (sample identifiers)
+
+Parameter name | Description
+--- | ---
+sample | descriptive sample name (type=STRING)
+seqmode | "paired_end" or "single_end" (type=STRING)
+fq1 | PATH/TO/INPUT_FILE.mate_1.fastq.gz (type=STRING)
+index_size | ideally `max(ReadLength)-1`. In most cases the default value of 100 will work just as well. Needed for STAR mapping and index creation
+kmer | 31; for salmon index creation. 31 seems to work for reads of 75 bp or longer. If you get poor mapping, consider smaller values for kmer. (type=STRING or type=INT)
+fq2 | PATH/TO/INPUT_FILE.mate_2.fastq.gz (type=STRING)
+fq1_3p | 3' adapter of mate 1 (use "XXXXXXXXXXXXXXX" if none); for cutadapt (type=STRING)
+fq1_5p | 5' adapter of mate 1 ("); for cutadapt (type=STRING)
+fq2_3p | 3' adapter of mate 2 ("); for cutadapt (type=STRING)
+fq2_5p | 5' adapter of mate 2 ("); for cutadapt (type=STRING)
+organism | format has to correspond to the naming of provided genome files and directories, like "ORGANISM" in the path below. Use e.g. "homo_sapiens" (type=STRING)
+gtf | PATH/TO/ORGANISM/annotation.gtf; for star index (type=STRING)
+gtf_filtered | PATH/TO/ORGANISM/annotation.gtf; for salmon quantification (type=STRING)
+genome | PATH/TO/ORGANISM/genome.fa; for star index (type=STRING)
+tr_fasta_filtered | PATH/TO/ORGANISM/transcriptome.fa, for salmon and kallisto index creation (type=STRING)
+sd | Estimated standard deviation of fragment length; for single-end kallisto quantification (type=STRING or type=INT)
+mean | Estimated average fragment length; for single-end kallisto quantification (type=STRING or type=INT)
+multimappers | max number of multiple alignments allowed for a read: if exceeded, the read is considered unmapped; for star mapping (type=STRING or type=INT)
+soft_clip | "Local": standard local alignment with soft-clipping allowed. "EndToEnd": force end-to-end read alignment, do not soft-clip; for star mapping (type=STRING)
+pass_mode | "None": 1-pass mapping; "Basic": basic 2-pass mapping, with all 1st pass junctions inserted into the genome indices on the fly; for star mapping (type=STRING)
+libtype | "A": automatically infer. For more info see [salmon manual](https://salmon.readthedocs.io/en/latest/salmon.html) (type=STRING)
+kallisto_directionality | "--fr-stranded":Strand specific reads, first read forward. "--rf-stranded": Strand specific reads, first read reverse; for kallisto (type=STRING)
+fq1_polya | stretch of As or Ts, depending on read orientation; for cutadapt (type=STRING)
+fq2_polya | stretch of As or Ts, depending on read orientation; for cutadapt (type=STRING)
+
+
+#### create log directories
+Currently not implemented as Snakemake rule, but general statement.
+
+
+
+#### create_index_star
+Create index for STAR alignments. Supply the reference genome sequences (FASTA files) and annotations (GTF file), from which STAR generates genome indexes that are utilized in the 2nd (mapping) step. The genome indexes are saved to disk and need only be generated once for each genome/annotation/index size combination. [STAR manual](http://labshare.cshl.edu/shares/gingeraslab/www-data/dobin/STAR/STAR.posix/doc/STARmanual.pdf#section.2)    
+
+**Input:** genome fasta file, gtf file    
+**Parameters:** sjdbOverhang (This is the `index_size` specified in the samples table).    
+**Output:** chrNameLength.txt will be used for STAR mapping; chrName.txt
+
+#### extract_transcriptome
+Create transcriptome from genome and gene annotations using [gffread](https://github.com/gpertea/gffread).
+
+
+**Input:** `genome` and `gtf` of the input samples table    
+**Output:** transcriptome fasta file.    
+
+ 
+#### create_index_salmon
+Create index for [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) quantification. If you want to use Salmon in mapping-based mode, then you first have to build a salmon index for your transcriptome. This will build the mapping-based index, using an auxiliary k-mer hash over k-mers of length 31. While the mapping algorithms will make use of arbitrarily long matches between the query and reference, the k size selected here will act as the minimum acceptable length for a valid match. Thus, a smaller value of k may slightly improve sensitivty. Apparently a k of 31 seems to work well for reads of 75bp or longer, but you might consider a smaller k if you plan to deal with shorter reads.   
+
+**Input:** transcriptome fasta file for transcripts to be quantified    
+**Parameters:** kmer length (`kmer` in the input samples table).    
+**Output:** salmon index, used for quantification.
+
+
+#### create_index_kallisto
+Create index for [Kallisto](https://pachterlab.github.io/kallisto/manual) quantification. Similar to salmon index described above. The default kmer size of 31 is used in this pipeline and thus not adaptable by the user.       
+
+**Input:** transcriptome fasta file for transcripts to be quantified    
+**Output:** kallisto index, used for kallisto quantification.    
+
+
+#### extract_transcripts_as_bed12
+Convert transcripts from gtf to bed12 format. This is needed for the TIN score calculation and doesn't require any parameters. [GitLab repository](https://git.scicore.unibas.ch/zavolan_group/tools/gtf_transcript_type_to_bed12/)    
+
+**Input:** gtf file    
+**Output:** "full_transcripts_protein_coding.bed"    
+
+
+#### index_genomic_alignment_samtools
+Index the genomic alignment with [samtools index](http://quinlanlab.org/tutorials/samtools/samtools.html#samtools-index). Indexing a genome sorted BAM file allows one to quickly extract alignments overlapping particular genomic regions. Moreover, indexing is required by genome viewers such as IGV so that the viewers can quickly display alignments in each genomic region to which you navigate.    
+Needed for TIN score calculation and bedgraph coverage calculation.    
+
+**Input:** bam file    
+**Output:** bam.bai index file    
+
+
+#### star_rpm
+Create stranded bedgraph coverage with STAR's RPM normalisation.
+Described [here](https://ycl6.gitbooks.io/rna-seq-data-analysis/visualization.html)    
+
+STAR RPM uses SAM flags to correctly tell where the read and its mate mapped to. That is, if read1 is mapped to the plus strand, then read2 is mapped to the minus strand and STAR will count read1 and read2 to the plus strand. 
+This is in contrast to `bedtools genomecov -bg -split`, where the reads are assigned to the respective strand irrespective of their mates. 
+
+**Input:** .bam, .bam.bai index    
+**Output:** coverage bedGraphs 
+
+**Arguments not influencable by user:**   
+--outWigStrans "Stranded"    
+--outWigNorm "RPM"  
+
+
+#### rename_star_rpm_for_alfa
+Local rule to rename and copy the stranded bedgraph coverage tracks such that they comply with [ALFA](https://github.com/biocompibens/ALFA).
+The renaming to `plus.bg` and `minus.bg` depends on the library orientation, which is provided by the user in `kallisto_directionality`. 
+
+
+**Input:** .bg coverage tracks    
+**Output:** renamed and copied bedgraph files    
+
+
+#### calculate_TIN_scores
+Given a set of BAM files and a gene annotation BED file, calculates the Transcript Integrity Number (TIN) for each transcript. [GitLab repository](https://git.scicore.unibas.ch/zavolan_group/tools/tin_score_calculation). TIN is conceptually similar to RIN (RNA integrity number) but provides transcript level measurement of RNA quality and is more sensitive to measure low quality RNA samples:
+
+* TIN score of a transcript is used to measure the RNA integrity of the transcript.
+* Median TIN score across all transcripts can be used to measure RNA integrity of that "RNA sample".
+* TIN ranges from 0 (the worst) to 100 (the best). TIN = 60 means: 60% of the transcript has been covered if the reads coverage were uniform.
+* TIN will be assigned to 0 if the transcript has no coverage or covered reads is fewer than cutoff.
+
+**Input:** aligned reads.bam.bai, "full_transcripts_protein_coding.bed"         
+**Output:** TIN score tsv file
+
+
+
+#### salmon_quantmerge_genes
+Merge the salmon quantification *gene* results for all samples of same sequencing mode into a single file. Do this for tpm and number of reads separately.    
+
+**Input:** All salmon quant genes files of same seqmode   
+**Output:** Two tsv files for gene quantifications, one for tpm and one for number of reads.   
+
+#### salmon_quantmerge_transcripts
+Merge the salmon quantification *transcript* results for all samples of same sequencing mode into a single file. Do this for tpm and number of reads separately.   
+
+**Input:** All salmon quant transcript files of same seqmode     
+**Output:** Two tsv files for transcript quantifications, one for tpm and one for number of reads.   
+
+
+#### generate_alfa_index
+Create ALFA index files used for running [ALFA](https://github.com/biocompibens/ALFA) for a given organism.    
+
+**Input:** .gtf genome annotation, chrNameLength.txt file containing chromosome names and lengths    
+**Output:** two ALFA index files, one stranded and one unstranded    
+
+
+#### alfa_qc
+Run [ALFA](https://github.com/biocompibens/ALFA) from stranded bedgraph tracks.
+The library orientation is needed as *fr-firststrand* and *fr-secondstrand*. Currently, the values from `kallisto_directionality` are re-used.
+
+ALFA counts features in the bedgraph coverage tracks, by using the library orientation and the ALFA index files. The counts are stored in `ALFA_feature_counts.tsv`.
+
+The main output of ALFA are two plots, `ALFA_Biotypes.pdf` and `ALFA_Categories.pdf`. They display the nucleotide distributions among the different features and their enrichment. For details see [ALFA documentation](https://github.com/biocompibens/ALFA).
+
+
+**Input:** the renamed .bg files (suffixed with `out.plus.bg` and `out.minus.bg`), library orientation, the stranded ALFA index file    
+**Output:** ALFA_Biotypes.pdf and ALFA_Categories.pdf; ALFA_feature_counts.tsv containing table for the plots    
+
+
+#### alfa_qc_all_samples
+Combine the output of all samples into one plot generated by [ALFA](https://github.com/biocompibens/ALFA).
+
+**Input:** ALFA_feature_counts.tsv from each sample in `samples.tsv`    
+**Output:** ALFA_Biotypes.pdf and ALFA_Categories.pdf for all samples together    
+
+
+### Sequencing mode specific rules
+#### (pe_)fastqc
+[FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) aims to provide a simple way to do some quality control checks on raw sequence data coming from high throughput sequencing pipelines. It provides a modular set of analyses which you can use to give a quick impression of whether your data has any problems of which you should be aware before doing any further analysis.   
+
+**Input:** raw fastq file(s)    
+**Output:** fastqc report (.txt) and several figures (.png)
+
+
+
+#### (pe_)remove_adapters_cutadapt
+[Cutadapt](https://cutadapt.readthedocs.io/en/stable/) finds and removes adapter sequences, primers, poly-A tails and other types of unwanted sequence from your high-throughput sequencing reads.   
+
+**Input:** fastq reads    
+**Parameters:** Adapters to be removed, specified by user in the columns `fq1_3p`, `fq1_5p`, `fq2_3p`, `fq2_5p` respectively.    
+**Output:** fastq files with adapters removed, reads shorter than 10nt will be discarded.    
+
+
+**Arguments not influencable by user:**        
+-e 0.1  maximum error-rate of 10%    
+-j 8    use 8 threads    
+-m 10   Discard processed reads that are shorter than 10    
+-n 3    search for all the given adapter sequences repeatedly, either until no adapter match was found or until 3 rounds have been performed.    
+
+*paired end:*    
+--pair-filter=both      filtering criteria must apply to both reads in order for a read pair to be discarded
+
+*single end:*    
+-O 1    minimal overlap of 1
+
+#### (pe_)remove_polya_cutadapt
+Here, [Cutadapt](https://cutadapt.readthedocs.io/en/stable/)t is used to remove poly(A) tails. 
+
+**Input:** fastq reads    
+**Parameters:** Adapters to be removed, specified by user in the columns 'fq1_polya', 'fq2_polya', respectively.    
+**Output:** fastq files with poly(A) tails removed, reads shorter than 10nt will be discarded. 
+
+**Arguments like in remove_adapters_cutadapt and additionally:**    
+--match-read-wildcards This option is used to allow matching wildcard characters also within reads, because if no tail should be trimmed "XXXXXX" is specified in the samples table, which doesn't match any nucleotides, and thus nothing will be done here.    
+-n 2    search for all the given adapter sequences repeatedly, either until no adapter match was found or until 2 rounds have been performed.    
+-q 6    trim low-quality 3'ends with a cutoff of 6 nucleotides    
+
+
+*paired end:*
+--pair-filter=both      filtering criteria must apply to both reads in order for a read pair to be discarded
+
+*single end:*    
+-O 1    minimal overlap of 1
+
+#### (pe_)map_genome_star
+Spliced Transcripts Alignment to a Reference; Read the [Publication](https://www.ncbi.nlm.nih.gov/pubmed/23104886) or check out the [STAR manual](https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf).    
+
+**Input:** STAR_index, reads as .fastq.gz    
+**Parameters:**    
+* index size, specified by user in column `index_size`
+* multimappers, specified by user in column `multimappers`   
+* soft_clip, specified by user in column `soft_clip`
+* pass_mode, specified by user in column `pass_mode`     
+
+**Output:** aligned reads as .bam, STAR logfile
+
+**Arguments not influencable by user:**    
+--outSAMunmapped None: do not output unmapped reads in SAM file    
+--outFilterMultimapScoreRange 0: the score range below the maximum score for multimapping alignments    
+--outSAMattributes All: NH HI AS nM NM MD jM jI MC ch    
+--outStd BAM_SortedByCoordinate:  which output will be directed to stdout (standard out)    
+--outSAMtype BAM SortedByCoordinate:   type of SAM/BAM output    
+--outFilterMismatchNoverLmax 0.04: alignment will be output only if its ratio of mismatches to *mapped* length is less than or equal to this value    
+--outFilterScoreMinOverLread 0.3: same as outFilterScoreMin, but normalized to read length (sum of mates’ lengths for paired-end reads)    
+--outFilterMatchNminOverLread 0.3:  Minimal fraction of aligned bases    
+--outFilterType BySJout: reduces the number of ”spurious” junctions     
+--outReadsUnmapped None: do not output unmapped reads.
+
+*Same for single- and paired-end.*
+
+
+
+
+#### (pe_)quantification_salmon
+[Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) is a tool for wicked-fast transcript quantification from RNA-seq data.
+
+**Input:** 
+* .fastq.gz reads, adapters and poly(A)tails removed. 
+* filtered annotation .gtf
+* salmon index, from **create_index_salmon**    
+
+**Parameters:**  libType, specified by user as `libtype`    
+**Output:** gene and transcript quantifications
+
+**Arguments not influencable by user:**    
+--seqBias: [Correct for sequence specific biases](https://salmon.readthedocs.io/en/latest/salmon.html#seqbias)    
+--validateMappings: Enables selective alignment of the sequencing reads when mapping them to the transcriptome. This can improve both the sensitivity and specificity of mapping and, as a result, can [improve quantification accuracy](https://salmon.readthedocs.io/en/latest/salmon.html#validatemappings).    
+--writeUnmappedNames: write out the names of reads (or mates in paired-end reads) that do not map to the transcriptome.
+
+*additionally for single end:*    
+**Parameters:** 
+* --fldMean: fragment length, user specified as `mean`
+* --fldSD: fragment length SD, user specified as `sd`   
+
+
+
+#### (pe_)genome_quantification_kallisto
+[kallisto](http://pachterlab.github.io/kallisto/manual.html) is a program for quantifying abundances of transcripts from RNA-Seq data, or more generally of target sequences using high-throughput sequencing reads. It is based on the novel idea of pseudoalignment for rapidly determining the compatibility of reads with targets, without the need for alignment.    
+
+**Input:** 
+* .fastq.gz reads, adapters and poly(A)tails removed.
+* kallisto index, from **create_index_kallisto** 
+
+**Parameters:** directionality, which is `kallisto_directionality` from samples table    
+
+**Output:** Pseudoalignment .sam file
+
+*additionally for single end:*    
+* -l: fragment length, user specified as `mean`
+* -s: fragment length SD, user specified as `sd` 
+
