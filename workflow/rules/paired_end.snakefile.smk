@@ -173,7 +173,6 @@ rule pe_remove_polya_cutadapt:
         -n 2 \
         -e 0.1 \
         -q 6 \
-        -m 10  \
         -a {params.polya_3_mate1} \
         -A {params.polya_3_mate2} \
         -o {output.reads1} \
