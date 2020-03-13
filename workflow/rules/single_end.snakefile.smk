@@ -15,10 +15,6 @@ rule fastqc:
             "{sample}",
             "mate1_fastqc"))
 
-    params:
-        seqmode = lambda wildcards:
-            samples_table.loc[wildcards.sample, "seqmode"]
-
     singularity:
         "docker://zavolab/fastqc:0.11.9-slim"
 
@@ -232,7 +228,7 @@ rule map_genome_star:
         --outFilterMatchNminOverLread 0.3 \
         --outFilterType BySJout \
         --outReadsUnmapped None \
-        --outSAMattrRGline ID:rcrunch SM:{params.sample_id} \
+        --outSAMattrRGline ID:rnaseq_pipeline SM:{params.sample_id} \
         --alignEndsType {params.soft_clip} > {output.bam};) \
         2> {log.stderr}"
 
