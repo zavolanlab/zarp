@@ -78,10 +78,9 @@ rule remove_adapters_cutadapt:
     shell:
         "(cutadapt \
         -e 0.1 \
-        -O 1 \
         -j {threads} \
         -m 10 \
-        -n 3 \
+        -n 2 \
         -a {params.adapters_3} \
         -g {params.adapters_5} \
         -o {output.reads} \
@@ -130,12 +129,10 @@ rule remove_polya_cutadapt:
 
     shell:
         "(cutadapt \
-        --match-read-wildcards \
         -j {threads} \
-        -n 2 \
+        -n 1 \
         -e 0.1 \
         -O 1 \
-        -q 6 \
         -m 10  \
         -a {params.polya_3} \
         -o {output.reads} \
