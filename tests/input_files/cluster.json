@@ -8,52 +8,172 @@
     "name": "{rule}.{wildcards}",
     "out": "logs/cluster/{rule}.{wildcards}-%j-%N.out"
   },
-  "generate_segemehl_index_other_RNAs":
+  "create_index_star":
   {
     "time": "06:00:00",
-    "threads":"8",
-    "mem":"50G"
+    "threads":"12",
+    "mem":"45G"
   },
-  "map_to_other_RNAs":
+  "extract_transcripts_as_bed12":
   {
-    "time": "06:00:00",
-    "threads":"8",
-    "mem":"50G"
+    "time": "00:30:00",
+    "threads":"1",
+    "mem":"1G"
   },
-  "index_genome_STAR":
+  "extract_transcriptome":
   {
-    "time": "06:00:00",
-    "threads":"8",
-    "mem":"75G"
+    "time": "00:30:00",
+    "threads":"1",
+    "mem":"1G"
   },
-  "align_reads_STAR":
+  "create_index_salmon":
   {
-    "time": "06:00:00",
+    "time": "03:00:00",
     "threads":"8",
-    "mem":"75G"
+    "mem":"10G"
   },
-  "salmon_quant":
+  "create_index_kallisto":
   {
-    "time": "02:00:00",
-    "threads":"6",
+    "time": "00:30:00",
+    "threads":"1",
+    "mem":"10G"
+  },
+  "index_genomic_alignment_samtools":
+  {
+    "time": "00:30:00",
+    "threads":"1",
+    "mem":"500M"
+  },
+  "star_rpm":
+  {
+    "time": "00:30:00",
+    "threads":"4",
+    "mem":"15G"
+  },
+  "rename_star_rpm_for_alfa":
+  {
+    "time": "03:00:00",
+    "threads":"1",
     "mem":"32G"
   },
   "calculate_TIN_scores":
   {
     "time": "06:00:00",
     "threads":"8",
-    "mem":"32G"
+    "mem":"15G"
   },
   "merge_TIN_scores":
   {
     "time": "00:05:00",
     "threads":"1",
-    "mem":"4G"
+    "mem":"500M"
   },
   "plot_TIN_scores":
   {
     "time": "00:05:00",
     "threads":"1",
-    "mem":"4G"
+    "mem":"500M"
+  },
+  "salmon_quantmerge_genes":
+  {
+    "time": "00:05:00",
+    "threads":"1",
+    "mem":"500M"
+  },
+  "salmon_quantmerge_transcripts":
+  {
+    "time": "00:05:00",
+    "threads":"1",
+    "mem":"500M"
+  },
+  "generate_alfa_index":
+  {
+    "time": "02:00:00",
+    "threads":"4",
+    "mem":"1G"
+  },
+  "alfa_qc":
+  {
+    "time": "00:30:00",
+    "threads":"1",
+    "mem":"500M"
+  },
+  "alfa_qc_all_samples":
+  {
+    "time": "01:00:00",
+    "threads":"1",
+    "mem":"500M"
+  },
+  "pe_fastqc":
+  {
+    "time": "01:00:00",
+    "threads":"2",
+    "mem":"1G"
+  },
+  "fastqc":
+  {
+    "time": "01:00:00",
+    "threads":"2",
+    "mem":"1G"
+  },
+  "pe_remove_adapters_cutadapt":
+  {
+    "time": "06:00:00",
+    "threads":"8",
+    "mem":"1G"
+  },
+  "remove_adapters_cutadapt":
+  {
+    "time": "06:00:00",
+    "threads":"8",
+    "mem":"1G"
+  },
+  "pe_remove_polya_cutadapt":
+  {
+    "time": "06:00:00",
+    "threads":"8",
+    "mem":"1G"
+  },
+  "remove_polya_cutadapt":
+  {
+    "time": "06:00:00",
+    "threads":"8",
+    "mem":"1G"
+  },
+  "pe_map_genome_star":
+  {
+    "time": "06:00:00",
+    "threads":"12",
+    "mem":"50G"
+  }, 
+  "map_genome_star":
+  {
+    "time": "06:00:00",
+    "threads":"12",
+    "mem":"50G"
+  }, 
+  "pe_quantification_salmon":
+  {
+    "time": "03:00:00",
+    "threads":"6",
+    "mem":"10G"
+  }, 
+  "quantification_salmon":
+  {
+    "time": "03:00:00",
+    "threads":"6",
+    "mem":"10G"
+  }, 
+  "pe_genome_quantification_kallisto":
+  {
+    "time": "03:00:00",
+    "threads":"8",
+    "mem":"15G"
+  },
+  "genome_quantification_kallisto":
+  {
+    "time": "03:00:00",
+    "threads":"8",
+    "mem":"15G"
   }
 }
