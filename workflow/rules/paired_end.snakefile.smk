@@ -24,7 +24,7 @@ rule pe_fastqc:
     threads: 2
 
     singularity:
-        "docker://zavolab/fastqc:0.11.9"
+        "docker://zavolab/fastqc:0.11.9-slim"
 
     log:
         stderr = os.path.join(
@@ -109,7 +109,7 @@ rule pe_remove_adapters_cutadapt:
         -o {output.reads1} \
         -p {output.reads2} \
         {input.reads1} \
-        {input.reads2}); \
+        {input.reads2};) \
         1> {log.stdout} 2>{log.stderr}"
 
 
@@ -162,7 +162,7 @@ rule pe_remove_polya_cutadapt:
             config["log_dir"],
             "paired_end",
             "{sample}",
-            "remove_adapters_cutadapt.stdout.log")
+            "remove_polya_cutadapt.stdout.log")
 
     shell:
         "(cutadapt \
