@@ -136,7 +136,7 @@ rule remove_polya_cutadapt:
         -m 10  \
         -a {params.polya_3} \
         -o {output.reads} \
-        {input.reads}); \
+        {input.reads};) \
         1> {log.stdout} 2> {log.stderr}"
 
 
