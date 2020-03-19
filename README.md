@@ -1,4 +1,4 @@
-# RNA-Seq pipeline
+# Rhea pipeline
 
 [Snakemake][snakemake] workflow for general purpose RNA-Seq library annotation
 developed by the [Zavolan lab][zavolan-lab].
@@ -29,8 +29,8 @@ Traverse to the desired path on your file system, then clone the repository and
 move into it with:
 
 ```bash
-git clone ssh://git@git.scicore.unibas.ch:2222/zavolan_group/pipelines/rnaseqpipeline.git
-cd rnaseqpipeline
+git clone ssh://git@git.scicore.unibas.ch:2222/zavolan_group/pipelines/rhea.git
+cd rhea
 ```
 
 ### Installing Conda
@@ -87,7 +87,7 @@ conda env create -f install/environment.root.yml
 Activate the Conda environment with:
 
 ```bash
-conda activate rnaseq_pipeline
+conda activate rhea
 ```
 
 ### Installing non-essential dependencies

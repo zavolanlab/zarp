@@ -1,4 +1,4 @@
-name: rnaseq_pipeline
+name: rhea
 channels:
   - conda-forge
   - defaults
