@@ -4,7 +4,7 @@ before_script:
   - apt update && apt install -y gcc
   - conda init bash && source ~/.bashrc && echo $CONDA_DEFAULT_ENV
   - conda env create -f install/environment.root.yml
-  - conda activate rnaseq_pipeline && echo $CONDA_DEFAULT_ENV
+  - conda activate rhea && echo $CONDA_DEFAULT_ENV
   - conda env update -f install/environment.dev.yml
 
 test:

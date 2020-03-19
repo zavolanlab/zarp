@@ -1,4 +1,4 @@
-# RNAseq pipeline documentation
+# Rhea workflow documentation
 This document describes the individual rules of the pipeline for information purposes. For instructions on installation and usage please refer to the [README](README.md).    
 
 ## Overview
