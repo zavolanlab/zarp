@@ -5,6 +5,8 @@ import sys
 
 import pandas as pd
 import shutil
+import glob
+from zipfile import ZipFile 
 
 # Get sample table
 samples_table = pd.read_csv(
@@ -17,7 +19,8 @@ samples_table = pd.read_csv(
 )
 
 # Global config
-localrules: finish, rename_star_rpm_for_alfa
+localrules: finish, rename_star_rpm_for_alfa, prepare_files_for_report, \
+    prepare_MultiQC_config
 
 # Create log directories
 os.makedirs(
@@ -44,76 +47,11 @@ rule finish:
         Rule for collecting outputs
     """
     input:
-        outdir1 = expand(
+        MultiQC_report = expand(
             os.path.join(
                 config['output_dir'],
-                "{seqmode}",
-                "{sample}",
-                "mate1_fastqc"),
-            zip,
-            sample=[i for i in list(samples_table.index.values)],
-            seqmode=[samples_table.loc[i, 'seqmode']
-                     for i in list(samples_table.index.values)]),
-        pseudoalignment = expand(
-            os.path.join(
-                config['output_dir'],
-                "{seqmode}",
-                "{sample}",
-                "quant_kallisto",
-                "{sample}.kallisto.pseudo.sam"),
-            zip,
-            sample=[i for i in list(samples_table.index.values)],
-            seqmode=[samples_table.loc[i, 'seqmode']
-                     for i in list(samples_table.index.values)]),
-        TIN_boxplot_PNG = os.path.join(
-            config['output_dir'],
-            "TIN_scores_boxplot.png"),
-        TIN_boxplot_PDF = os.path.join(
-            config['output_dir'],
-            "TIN_scores_boxplot.pdf"),
-        salmon_merge_genes = expand(
-            os.path.join(
-                config["output_dir"],
-                "summary_salmon",
-                "quantmerge",
-                "genes_{salmon_merge_on}.tsv"),
-            salmon_merge_on=["tpm", "numreads"]),
-        salmon_merge_transcripts = expand(
-            os.path.join(
-                config["output_dir"],
-                "summary_salmon",
-                "quantmerge",
-                "transcripts_{salmon_merge_on}.tsv"),
-            salmon_merge_on=["tpm", "numreads"]),
-        star_rpm = expand(
-            os.path.join(
-                config["output_dir"],
-                "{seqmode}",
-                "{sample}",
-                "STAR_coverage",
-                "{sample}_Signal.UniqueMultiple.str1.out.bg"),
-                zip,
-                sample=[i for i in list(samples_table.index.values)],
-                seqmode=[samples_table.loc[i, 'seqmode']
-                        for i in list(samples_table.index.values)]),
-        alfa_reports = expand(os.path.join(
-            config["output_dir"],
-            "{seqmode}",
-            "{sample}",
-            "ALFA",
-            "ALFA_plots.Biotypes.pdf"),
-            zip,
-            sample= [i for i in list(samples_table.index.values)],
-            seqmode= [
-                samples_table.loc[i,"seqmode"] 
-                for i in list(samples_table.index.values)]),
-        alfa_all_samples = os.path.join(
-            config["output_dir"],
-            "ALFA",
-            "ALFA_plots.Categories.pdf")
-
-
-
+                "multiqc_summary"),
+            output_dir=config["output_dir"])
 
 rule create_index_star:
     """
@@ -920,4 +858,378 @@ rule alfa_qc_all_samples:
     shell:
         """
         (alfa -c {input.tables} -o {params.out_dir}) &> {log}
+        """
+
+
+rule prepare_files_for_report:
+    '''
+        Re-structure the results and add comments for MultiQC parsing
+    '''
+    input:
+        outdir1 = expand(
+            os.path.join(
+                config['output_dir'],
+                "{seqmode}",
+                "{sample}",
+                "mate1_fastqc"),
+            zip,
+            sample=[i for i in list(samples_table.index.values)],
+            seqmode=[samples_table.loc[i, 'seqmode']
+                     for i in list(samples_table.index.values)]),
+        pseudoalignment = expand(
+            os.path.join(
+                config['output_dir'],
+                "{seqmode}",
+                "{sample}",
+                "quant_kallisto",
+                "{sample}.kallisto.pseudo.sam"),
+            zip,
+            sample=[i for i in list(samples_table.index.values)],
+            seqmode=[samples_table.loc[i, 'seqmode']
+                     for i in list(samples_table.index.values)]),
+        TIN_boxplot_PNG = os.path.join(
+            config['output_dir'],
+            "TIN_scores_boxplot.png"),
+        TIN_boxplot_PDF = os.path.join(
+            config['output_dir'],
+            "TIN_scores_boxplot.pdf"),
+        salmon_merge_genes = expand(
+            os.path.join(
+                config["output_dir"],
+                "summary_salmon",
+                "quantmerge",
+                "genes_{salmon_merge_on}.tsv"),
+            salmon_merge_on=["tpm", "numreads"]),
+        salmon_merge_transcripts = expand(
+            os.path.join(
+                config["output_dir"],
+                "summary_salmon",
+                "quantmerge",
+                "transcripts_{salmon_merge_on}.tsv"),
+            salmon_merge_on=["tpm", "numreads"]),
+        star_rpm = expand(
+            os.path.join(
+                config["output_dir"],
+                "{seqmode}",
+                "{sample}",
+                "STAR_coverage",
+                "{sample}_Signal.UniqueMultiple.str1.out.bg"),
+                zip,
+                sample=[i for i in list(samples_table.index.values)],
+                seqmode=[samples_table.loc[i, 'seqmode']
+                        for i in list(samples_table.index.values)]),
+        alfa_reports = expand(os.path.join(
+            config["output_dir"],
+            "{seqmode}",
+            "{sample}",
+            "ALFA",
+            "ALFA_plots.Biotypes.pdf"),
+            zip,
+            sample= [i for i in list(samples_table.index.values)],
+            seqmode= [
+                samples_table.loc[i,"seqmode"] 
+                for i in list(samples_table.index.values)]),
+        alfa_all_samples = os.path.join(
+            config["output_dir"],
+            "ALFA",
+            "ALFA_plots.Categories.pdf")
+
+    output:
+        samples_dir = directory(os.path.join(
+            "{output_dir}",
+            "samples"))
+    params:
+        results_dir = config["output_dir"],
+        log_dir = config["log_dir"],
+        log_samples_dir = os.path.join(
+            config["log_dir"],
+            "samples")
+    log:
+        LOG_local_log = \
+            os.path.join("{output_dir}", "local_log", \
+                "prepare_files_for_report.log")
+    run:
+
+        # remove "single/paired end" from the results directories
+        os.mkdir(output.samples_dir)
+        # move paired end results
+        paired_end_dir = glob.glob(
+            os.path.join(
+                params.results_dir,
+                "paired_end",
+                "*"))
+        for s in paired_end_dir:
+            sample_name = s.split("/")[-1]
+            shutil.copytree(
+                s, \
+                os.path.join(
+                    params.results_dir,
+                    "samples",
+                    sample_name))
+        shutil.rmtree(
+            os.path.join(
+                params.results_dir,
+                "paired_end"),
+            ignore_errors=False,
+            onerror=None)
+        # move single end results
+        single_end_dir = glob.glob(
+            os.path.join(
+                params.results_dir,
+                "single_end",
+                "*"))
+        for s in single_end_dir:
+            sample_name = s.split("/")[-1]
+            shutil.copytree(
+                s, \
+                os.path.join(
+                    params.results_dir,
+                    "samples",
+                    sample_name))
+        shutil.rmtree(
+            os.path.join(
+                params.results_dir,
+                "single_end"),
+            ignore_errors=False,
+            onerror=None)
+
+        # remove "single/paired end" from the logs directories
+        os.mkdir(params.log_samples_dir)
+        # move paired end results
+        paired_end_dir = glob.glob(
+            os.path.join(
+                params.log_dir,
+                "paired_end",
+                "*"))
+        for s in paired_end_dir:
+            sample_name = s.split("/")[-1]
+            shutil.copytree(
+                s, \
+                os.path.join(
+                    params.log_dir,
+                    "samples",
+                    sample_name))
+        shutil.rmtree(
+            os.path.join(
+                params.log_dir,
+                "paired_end"),
+            ignore_errors=False,
+            onerror=None)
+        # move single end results
+        single_end_dir = glob.glob(
+            os.path.join(
+                params.log_dir,
+                "single_end",
+                "*"))
+        for s in single_end_dir:
+            sample_name = s.split("/")[-1]
+            shutil.copytree(
+                s, \
+                os.path.join(
+                    params.log_dir,
+                    "samples",
+                    sample_name))
+        shutil.rmtree(
+            os.path.join(
+                params.log_dir,
+                "single_end"),
+            ignore_errors=False,
+            onerror=None)
+
+        # encapsulate salmon quantification results
+        all_samples_dirs = glob.glob(
+            os.path.join(
+                params.results_dir,
+                "samples",
+                "*"))
+        for s in all_samples_dirs:
+            sample_name = s.split("/")[-1]
+            shutil.move(
+                os.path.join(
+                    s,
+                    "salmon_quant"),
+                os.path.join(
+                    s,
+                    sample_name)
+                )
+            os.mkdir(os.path.join(
+                s,
+                "salmon_quant"))
+            shutil.move(
+                os.path.join(
+                    s,
+                    sample_name),
+                os.path.join(
+                    s,
+                    "salmon_quant",
+                    sample_name)
+                )
+
+        # adjust FastQC results 'Filename' field:
+        fastq_zip_list = glob.glob(
+            os.path.join(
+                params.results_dir,
+                "samples",
+                "*",
+                "*_fastqc",
+                "*_fastqc.zip"))
+        for zipfile in fastq_zip_list:
+            sample_name = zipfile.split("/")[-3]
+            zipfile_path_chunks = zipfile.split("/")
+            new_path = os.path.join(*(zipfile_path_chunks[:-1]))
+            with ZipFile(zipfile, 'r') as zip_f:
+                zip_f.extractall(new_path)
+            fastqc_data_f = os.path.join(
+                zipfile[:-4],
+                "fastqc_data.txt")
+            with open(fastqc_data_f) as f:
+                log_lines = f.read().splitlines()
+            log_lines[3] = "Filename\t" + sample_name+"|"+log_lines[3].split("\t")[1]
+            with open(fastqc_data_f, "w") as f:
+                for i in log_lines: f.write(i+"\n")
+            os.remove(zipfile)
+
+        # adjust Kallisto quantification logs
+        kallisto_logs = glob.glob(
+            os.path.join(
+                params.log_dir,
+                "samples",
+                "*",
+                "genome_quantification_kallisto.stderr.log"))
+        for kallisto_log in kallisto_logs:
+            with open(kallisto_log) as f:
+                log_lines = f.read().splitlines()
+                temp = log_lines[8].split(".")
+            log_lines[8] = temp[0] + "." + temp[2] + "." + temp[3]
+            with open(kallisto_log+".MODIFIED", "w") as f:
+                for i in log_lines: f.write(i+"\n")
+
+        # add #-comment to all cutadapt logs:
+        cutadapt_logs = glob.glob(
+            os.path.join(
+                params.log_dir,
+                "samples",
+                "*",
+                "remove_*_cutadapt.stdout.log"))
+        for cutadapt_log in cutadapt_logs:
+            sample_name = cutadapt_log.split("/")[-2]
+            with open(cutadapt_log) as f:
+                log_lines = f.read().splitlines()
+            log_lines[1] = log_lines[1] + " # " + sample_name
+            with open(cutadapt_log, "w") as f:
+                for i in log_lines: f.write(i+"\n")
+
+        # adjust TIN boxplots filenames for MutliQC recognition
+        os.rename(
+            input.TIN_boxplot_PNG,
+            os.path.join(
+                params.results_dir,
+                "TIN scores_mqc.png"))
+        os.rename(
+            input.TIN_boxplot_PDF,
+            os.path.join(
+                params.results_dir,
+                "TIN scores_mqc.pdf"))
+
+
+rule prepare_MultiQC_config:
+    '''
+        Prepare config for the MultiQC
+    '''
+    input:
+        multiqc_input_dir = os.path.join(
+            "{output_dir}",
+            "samples")
+    output:
+        multiqc_config = os.path.join(
+            "{output_dir}",
+            "MultiQC_config.yaml")
+    params:
+        logo_path = os.path.join(
+            "..",
+            "..",
+            "images",
+            "logo.128px.png"),
+        results_dir = config["output_dir"]
+    log:
+        LOG_local_log = \
+            os.path.join("{output_dir}", "local_log", \
+                "prepare_MultiQC_config.log")
+    run:
+        with open(output.multiqc_config, "w") as YAML:
+            YAML.write("---\n\n")
+            YAML.write("title: \"Rhea\"\n")
+            YAML.write("subtitle: \"RNA-Seq processing pipeline developed by the members of Zavolan Lab\"\n")
+            YAML.write("intro_text: \"Short analysis title from config[analysis_title]\"\n")
+            YAML.write("custom_logo: \""+params.logo_path+"\"\n")
+            YAML.write("custom_logo_url: \"https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/\"\n")
+            YAML.write("custom_logo_title: \"ZavoLab\"\n\n")
+            YAML.write("report_header_info:\n")
+            YAML.write("  - Project Type: \"Snakemake workflow\"\n")
+            YAML.write("  - Analysis Type: \"RNA-seq\"\n")
+            YAML.write("  - Analysis Author: \"config[author_name]\"\n")
+            YAML.write("  - Contact E-mail: \"config[author_email]\"\n\n")
+            YAML.write("top_modules:\n\n")
+            YAML.write("  - fastqc:\n")
+            YAML.write("      path_filters:\n")
+            YAML.write("      - \"*/mate1_fastqc/*\"\n")
+            YAML.write("      - \"*/mate2_fastqc/*\"\n")            
+            YAML.write("\n")
+            YAML.write("  - cutadapt:\n")
+            YAML.write("      name: \"Cutadapt: adapter removal\"\n")
+            YAML.write("      path_filters:\n")
+            YAML.write("      - \"*/remove_adapters_cutadapt.stdout.log\"\n")
+            YAML.write("\n")
+            YAML.write("  - cutadapt:\n")
+            YAML.write("      name: \"Cutadapt: polyA tails removal\"\n")
+            YAML.write("      path_filters:\n")
+            YAML.write("      - \"*/remove_polya_cutadapt.stdout.log\"\n")
+            YAML.write("\n")
+            YAML.write("  - star:\n")
+            YAML.write("      path_filters:\n")
+            YAML.write("      - \"*/map_genome/*\"\n")
+            YAML.write("\n")
+            YAML.write("  - TIN_scores:\n")
+            YAML.write("      path_filters:\n")
+            YAML.write("      - \"*/TIN scores_mqc.png\"\n")
+            YAML.write("\n")  
+            YAML.write("  - salmon:\n")
+            YAML.write("      path_filters:\n")
+            YAML.write("      - \"*/salmon_quant/*\"\n")
+            YAML.write("\n")
+            YAML.write("  - kallisto:\n")
+            YAML.write("      path_filters:\n")
+            YAML.write("      - \"*/genome_quantification_kallisto.stderr.log.MODIFIED\"\n")
+            YAML.write("\n")
+            YAML.write("...")
+
+
+rule MULTIQC_report:
+    '''
+        Create report with MultiQC
+    '''
+    input:
+        multiqc_config = os.path.join(
+            config["output_dir"],
+            "MultiQC_config.yaml")
+    output:
+        MultiQC_report = \
+            directory(os.path.join("{output_dir}", "multiqc_summary"))
+    params:
+        results_dir = config["output_dir"],
+        log_dir = config["log_dir"]
+    log:
+        LOG_local_log = \
+            os.path.join("{output_dir}", "local_log", \
+                "MULTIQC_report.log")
+    singularity:
+        "docker://ewels/multiqc:1.7"
+    shell:
+        """
+        multiqc \
+        --outdir {output.MultiQC_report} \
+        --config {input.multiqc_config} \
+        {params.results_dir} \
+        {params.log_dir} \
+        &> {log.LOG_local_log};
         """
