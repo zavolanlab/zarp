@@ -84,7 +84,7 @@ rule remove_adapters_cutadapt:
         -a {params.adapters_3} \
         -g {params.adapters_5} \
         -o {output.reads} \
-        {input.reads};) \
+        {input.reads}) \
         1> {log.stdout} 2> {log.stderr}"
 
 

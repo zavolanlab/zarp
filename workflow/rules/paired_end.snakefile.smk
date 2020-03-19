@@ -177,7 +177,7 @@ rule pe_remove_polya_cutadapt:
         -o {output.reads1} \
         -p {output.reads2} \
         {input.reads1} \
-        {input.reads2};) \
+        {input.reads2}) \
         1> {log.stdout} 2>{log.stderr}"
 
 

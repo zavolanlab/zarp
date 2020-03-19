@@ -31,7 +31,7 @@ snakemake \
     --printshellcmds \
     --rerun-incomplete \
     --use-singularity \
-    --singularity-args="--bind ${PWD}/../input_files" \
+    --singularity-args="--bind ${PWD}/../input_files,${PWD}/../../images" \
     --verbose \
     results/ALFA/ALFA_plots.Categories.pdf
 
