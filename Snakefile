@@ -963,10 +963,10 @@ rule prepare_files_for_report:
                 sample=[i for i in list(samples_table.index.values)],
                 seqmode=[samples_table.loc[i, 'seqmode']
                         for i in list(samples_table.index.values)]),
-        alfa_concat_out = expand(os.path.join(
+        alfa_concat_out = os.path.join(
             config["output_dir"],
             "ALFA",
-            "ALFA_plots.concat.png"))
+            "ALFA_plots.concat.png")
 
     output:
         samples_dir = directory(os.path.join(
@@ -1165,6 +1165,14 @@ rule prepare_files_for_report:
                 params.results_dir,
                 "TIN scores_mqc.pdf"))
 
+        # adjust alfa plot filename for MutliQC recognition
+        os.rename(
+            input.alfa_concat_out,
+            os.path.join(
+                params.results_dir,
+                "ALFA",
+                "ALFA_plots.concat_mqc.png"))
+
 
 rule prepare_MultiQC_config:
     '''
@@ -1222,6 +1230,10 @@ rule prepare_MultiQC_config:
             YAML.write("  - star:\n")
             YAML.write("      path_filters:\n")
             YAML.write("      - \"*/map_genome/*\"\n")
+            YAML.write("\n")
+            YAML.write("  - alfa:\n")
+            YAML.write("      path_filters:\n")
+            YAML.write("      - \"*/ALFA_plots.concat_mqc.png\"\n")
             YAML.write("\n")
             YAML.write("  - TIN_scores:\n")
             YAML.write("      path_filters:\n")
