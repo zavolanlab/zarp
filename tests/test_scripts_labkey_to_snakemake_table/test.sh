@@ -6,6 +6,7 @@ cleanup () {
     rm -rf .snakemake/
     rm -rf config.yaml
     rm -rf samples.tsv
+    rm -rf logs
     cd $user_dir
     echo "Exit status: $rc"
 }

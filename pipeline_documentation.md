@@ -39,7 +39,7 @@ This document describes the individual rules of the pipeline for information pur
 ## Detailed description of steps
 The pipeline consists of three snakefiles: A main Snakefile and an individual Snakefile for each sequencing mode (single-end and paired-end), as parameters to individual tools differ between the sequencing modes. The main Snakefile contains some general rules for the creation of indices, rules that are applicable to both sequencing modes, and rules that deal with summary steps and combining results across samples of the run.     
 Individual rules of the pipeline are described briefly, and links to the respective software manuals are given. If parameters can be influenced by the user (via the samples table) they are also described.
-Description of paired- and single-end rules are combined, only differences are highlighted.
+Description of paired and single-end rules are combined, only differences are highlighted.
 
 
 ### General
@@ -74,9 +74,10 @@ soft_clip | "Local": standard local alignment with soft-clipping allowed. "EndTo
 pass_mode | "None": 1-pass mapping; "Basic": basic 2-pass mapping, with all 1st pass junctions inserted into the genome indices on the fly; for star mapping (type=STRING)
 libtype | "A": automatically infer. For more info see [salmon manual](https://salmon.readthedocs.io/en/latest/salmon.html) (type=STRING)
 kallisto_directionality | "--fr-stranded":Strand specific reads, first read forward. "--rf-stranded": Strand specific reads, first read reverse; for kallisto (type=STRING)
-fq1_polya | stretch of As or Ts, depending on read orientation; for cutadapt (type=STRING)
-fq2_polya | stretch of As or Ts, depending on read orientation; for cutadapt (type=STRING)
-
+fq1_polya3p | stretch of As or Ts, depending on read orientation, trimmed from the 3' end of the read; for cutadapt (type=STRING)
+fq1_polya5p | stretch of As or Ts, depending on read orientation, trimmed from the 5' end of the read; for cutadapt (type=STRING)
+fq2_polya3p| stretch of As or Ts, depending on read orientation, trimmed from the 3' end of the read; for cutadapt (type=STRING)
+fq2_polya5p| stretch of As or Ts, depending on read orientation, trimmed from the 5' end of the read; for cutadapt (type=STRING)
 
 #### create log directories
 Currently not implemented as Snakemake rule, but general statement.
@@ -260,33 +261,26 @@ Creates an interactive report after the pipeline is finished. [MultiQC](https://
 **Output:** fastq files with adapters removed, reads shorter than 10nt will be discarded.    
 
 
-**Arguments not influencable by user:**        
+**Non-customisable arguments:**        
 -e 0.1  maximum error-rate of 10%    
 -j 8    use 8 threads    
 -m 10   Discard processed reads that are shorter than 10    
--n 3    search for all the given adapter sequences repeatedly, either until no adapter match was found or until 3 rounds have been performed.    
+-n 2    search for all the given adapter sequences repeatedly, either until no adapter match was found or until 2 rounds have been performed.    
 
 *paired end:*    
---pair-filter=both      filtering criteria must apply to both reads in order for a read pair to be discarded
-
-*single end:*    
--O 1    minimal overlap of 1
+--pair-filter=any      filtering criteria must apply to any of the two reads in order for a read pair to be discarded
 
 #### (pe_)remove_polya_cutadapt
-Here, [Cutadapt](https://cutadapt.readthedocs.io/en/stable/)t is used to remove poly(A) tails. 
+Here, [Cutadapt](https://cutadapt.readthedocs.io/en/stable/) is used to remove poly(A) tails. 
 
 **Input:** fastq reads    
 **Parameters:** Adapters to be removed, specified by user in the columns 'fq1_polya', 'fq2_polya', respectively.    
 **Output:** fastq files with poly(A) tails removed, reads shorter than 10nt will be discarded. 
 
-**Arguments like in remove_adapters_cutadapt and additionally:**    
---match-read-wildcards This option is used to allow matching wildcard characters also within reads, because if no tail should be trimmed "XXXXXX" is specified in the samples table, which doesn't match any nucleotides, and thus nothing will be done here.    
--n 2    search for all the given adapter sequences repeatedly, either until no adapter match was found or until 2 rounds have been performed.    
--q 6    trim low-quality 3'ends with a cutoff of 6 nucleotides    
-
-
+**Arguments similar to remove_adapters_cutadapt and additionally:**    
+-n 1    search for all the given adapter sequences repeatedly, either until no adapter match was found or until 1 round has been performed.    
 *paired end:*
---pair-filter=both      filtering criteria must apply to both reads in order for a read pair to be discarded
+--pair-filter=any      filtering criteria must apply to both reads in order for a read pair to be discarded
 
 *single end:*    
 -O 1    minimal overlap of 1
@@ -316,8 +310,6 @@ Spliced Transcripts Alignment to a Reference; Read the [Publication](https://www
 --outReadsUnmapped None: do not output unmapped reads.
 
 *Same for single- and paired-end.*
-
-
 
 
 #### (pe_)quantification_salmon
@@ -357,5 +349,4 @@ Spliced Transcripts Alignment to a Reference; Read the [Publication](https://www
 *additionally for single end:*    
 * -l: fragment length, user specified as `mean`
 * -s: fragment length SD, user specified as `sd` 
-
 
