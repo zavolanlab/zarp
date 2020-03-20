@@ -108,7 +108,9 @@ rule remove_polya_cutadapt:
 
     params:
         polya_3 = lambda wildcards:
-            samples_table.loc[wildcards.sample, "fq1_polya"]
+            samples_table.loc[wildcards.sample, "fq1_polya_3p"],
+        polya_5 = lambda wildcards:
+            samples_table.loc[wildcards.sample, "fq1_polya_5p"]
 
     singularity:
         "docker://zavolab/cutadapt:1.16-slim"
@@ -135,6 +137,7 @@ rule remove_polya_cutadapt:
         -O 1 \
         -m 10  \
         -a {params.polya_3} \
+        -g {params.polya_5} \
         -o {output.reads} \
         {input.reads};) \
         1> {log.stdout} 2> {log.stderr}"

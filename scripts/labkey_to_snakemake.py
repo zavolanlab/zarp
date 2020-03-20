@@ -228,9 +228,13 @@ def main():
         snakemake_table.loc[index, 'soft_clip'] = options.soft_clip
         snakemake_table.loc[index, 'pass_mode'] = options.pass_mode
         snakemake_table.loc[index, 'libtype'] = options.libtype
+
         if options.trim_polya is True:
-            snakemake_table.loc[index, 'fq1_polya'] = trim_polya(
+            fq1_polya_3p, fq1_polya_5p = trim_polya(
                 row[input_dict.loc['mate1_direction', 'labkey']])
+            snakemake_table.loc[index, 'fq1_polya_3p'] = fq1_polya_3p
+            snakemake_table.loc[index, 'fq1_polya_5p'] = fq1_polya_5p
+
         snakemake_table.loc[index, 'kallisto_directionality'] = \
             get_kallisto_directionality(
                 row[input_dict.loc['mate1_direction', 'labkey']])
@@ -247,8 +251,10 @@ def main():
                 input_dict.loc['fq2_5p', 'labkey']]
 
             if options.trim_polya is True:
-                snakemake_table.loc[index, 'fq2_polya'] = trim_polya(
+                fq2_polya_3p, fq2_polya_5p = trim_polya(
                     row[input_dict.loc['mate2_direction', 'labkey']])
+                snakemake_table.loc[index, 'fq2_polya_3p'] = fq2_polya_3p
+                snakemake_table.loc[index, 'fq2_polya_5p'] = fq2_polya_5p
 
     snakemake_table.fillna('XXXXXXXXXXXXX', inplace=True)
     snakemake_table = snakemake_table.astype(
@@ -322,14 +328,15 @@ def get_kallisto_directionality(directionality):
 
 def trim_polya(sense):
     if sense == 'SENSE':
-        polya = 'AAAAAAAAAAAAAAAAA'
+        polya_3p = 'AAAAAAAAAAAAAAAAA'
+        polya_5p = 'XXXXXXXXXXXXXXXXX'
     elif sense == 'ANTISENSE':
-        polya = 'TTTTTTTTTTTTTTTTT'
-    elif sense == 'RANDOM':
-        polya = 'AAAAAAAAAAAAAAAAA'
+        polya_3p = 'XXXXXXXXXXXXXXXXX'
+        polya_5p = 'TTTTTTTTTTTTTTTTT'
     else:
-        polya = 'XXXXXXXXXXXXXXXXX'
-    return polya
+        polya_3p = 'XXXXXXXXXXXXXXXXX'
+        polya_5p = 'XXXXXXXXXXXXXXXXX'
+    return polya_3p, polya_5p
 
 
 if __name__ == '__main__':

@@ -143,9 +143,13 @@ rule pe_remove_polya_cutadapt:
 
     params:
         polya_3_mate1 = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'fq1_polya'],
+            samples_table.loc[wildcards.sample, 'fq1_polya_3p'],
+        polya_5_mate1 = lambda wildcards:
+            samples_table.loc[wildcards.sample, 'fq1_polya_5p'],
         polya_3_mate2 = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'fq2_polya']
+            samples_table.loc[wildcards.sample, 'fq2_polya_3p'],
+        polya_5_mate2 = lambda wildcards:
+            samples_table.loc[wildcards.sample, 'fq2_polya_5p']
 
     singularity:
         "docker://zavolab/cutadapt:1.16-slim"
@@ -173,7 +177,9 @@ rule pe_remove_polya_cutadapt:
         -e 0.1 \
         -O 1 \
         -a {params.polya_3_mate1} \
+        -g {params.polya_5_mate1} \
         -A {params.polya_3_mate2} \
+        -G {params.polya_5_mate2} \
         -o {output.reads1} \
         -p {output.reads2} \
         {input.reads1} \
