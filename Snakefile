@@ -53,6 +53,7 @@ rule finish:
                 "multiqc_summary"),
             output_dir=config["output_dir"])
 
+
 rule create_index_star:
     """
         Create index for STAR alignments
@@ -398,13 +399,13 @@ rule rename_star_rpm_for_alfa:
             "{seqmode}",
             "{sample}",
             "STAR_coverage",
-            "{sample}_Signal.UniqueMultiple.str1.out.bg"),
+            "{sample}_Signal.{unique}.str1.out.bg"),
         str2 = os.path.join(
             config["output_dir"],
             "{seqmode}",
             "{sample}",
             "STAR_coverage",
-            "{sample}_Signal.UniqueMultiple.str2.out.bg")
+            "{sample}_Signal.{unique}.str2.out.bg")
     
     output:
         plus = os.path.join(
@@ -412,13 +413,15 @@ rule rename_star_rpm_for_alfa:
             "{seqmode}",
             "{sample}",
             "ALFA",
-            "{sample}_Signal.UniqueMultiple.out.plus.bg"),
+            "{unique}",
+            "{sample}_Signal.{unique}.out.plus.bg"),
         minus = os.path.join(
             config["output_dir"],
             "{seqmode}",
             "{sample}",
             "ALFA",
-            "{sample}_Signal.UniqueMultiple.out.minus.bg")
+            "{unique}",
+            "{sample}_Signal.{unique}.out.minus.bg")
     
     params:
         orientation = lambda wildcards: samples_table.loc[wildcards.sample, "kallisto_directionality"]
@@ -763,13 +766,15 @@ rule alfa_qc:
             "{seqmode}",
             "{sample}",
             "ALFA",
-            "{sample}_Signal.UniqueMultiple.out.plus.bg"),
+            "{unique}",
+            "{sample}_Signal.{unique}.out.plus.bg"),
         minus = os.path.join(
             config["output_dir"],
             "{seqmode}",
             "{sample}",
             "ALFA",
-            "{sample}_Signal.UniqueMultiple.out.minus.bg"),
+            "{unique}",
+            "{sample}_Signal.{unique}.out.minus.bg"),
         gtf = lambda wildcards: os.path.join(config["alfa_indexes"], 
             samples_table.loc[wildcards.sample, "organism"], 
             str(samples_table.loc[wildcards.sample, "index_size"]), 
@@ -782,18 +787,21 @@ rule alfa_qc:
             "{seqmode}",
             "{sample}",
             "ALFA",
+            "{unique}",
             "ALFA_plots.Biotypes.pdf"),
         categories = os.path.join(
             config["output_dir"],
             "{seqmode}",
             "{sample}",
             "ALFA",
+            "{unique}",
             "ALFA_plots.Categories.pdf"),
         table = os.path.join(
             config["output_dir"],
             "{seqmode}",
             "{sample}",
             "ALFA",
+            "{unique}",
             "{sample}.ALFA_feature_counts.tsv")
 
     params:
@@ -812,7 +820,7 @@ rule alfa_qc:
             config["log_dir"], 
             "{seqmode}", 
             "{sample}", 
-            "alfa_qc.log"))
+            "alfa_qc.{unique}.log"))
 
     shell:
         """ 
@@ -831,6 +839,7 @@ rule alfa_qc_all_samples:
             samples_table.loc[sample1, "seqmode"],
             str(sample1),
             "ALFA",
+            "{unique}",
             sample1 + ".ALFA_feature_counts.tsv")
             for sample1 in list(samples_table.index.values)]
 
@@ -838,10 +847,12 @@ rule alfa_qc_all_samples:
         biotypes = os.path.join(
             config["output_dir"],
             "ALFA",
+            "{unique}",
             "ALFA_plots.Biotypes.pdf"),
         categories = os.path.join(
             config["output_dir"],
             "ALFA",
+            "{unique}",
             "ALFA_plots.Categories.pdf")
 
     params:
@@ -850,7 +861,7 @@ rule alfa_qc_all_samples:
     log: 
         os.path.abspath(
             os.path.join(config["log_dir"], 
-            "alfa_qc_all_samples.log"))
+            "alfa_qc_all_samples.{unique}.log"))
 
     singularity:
         "docker://zavolab/alfa:1.1.1"
@@ -858,6 +869,40 @@ rule alfa_qc_all_samples:
     shell:
         """
         (alfa -c {input.tables} -o {params.out_dir}) &> {log}
+        """
+
+
+rule alfa_concat_results:
+    input:
+        expand(os.path.join(
+            config["output_dir"],
+            "ALFA",
+            "{unique_type}",
+            "ALFA_plots.{annotation}.pdf"),
+            unique_type = ["Unique", "UniqueMultiple"],
+            annotation = ["Categories", "Biotypes"])
+
+    output:
+        expand(os.path.join(
+            config["output_dir"],
+            "ALFA",
+            "ALFA_plots.concat.png"))
+
+    params:
+        density = 300
+
+    log: 
+        os.path.abspath(
+            os.path.join(config["log_dir"], 
+            "alfa_qc_all_samples.concat.log"))
+
+    singularity:
+        "docker://zavolab/imagemagick:7.0.8"
+
+    shell:
+        """
+        convert -append -density {params.density} \
+            {input} {output} &> {log}
         """
 
 
@@ -918,21 +963,10 @@ rule prepare_files_for_report:
                 sample=[i for i in list(samples_table.index.values)],
                 seqmode=[samples_table.loc[i, 'seqmode']
                         for i in list(samples_table.index.values)]),
-        alfa_reports = expand(os.path.join(
-            config["output_dir"],
-            "{seqmode}",
-            "{sample}",
-            "ALFA",
-            "ALFA_plots.Biotypes.pdf"),
-            zip,
-            sample= [i for i in list(samples_table.index.values)],
-            seqmode= [
-                samples_table.loc[i,"seqmode"] 
-                for i in list(samples_table.index.values)]),
-        alfa_all_samples = os.path.join(
+        alfa_concat_out = expand(os.path.join(
             config["output_dir"],
             "ALFA",
-            "ALFA_plots.Categories.pdf")
+            "ALFA_plots.concat.png"))
 
     output:
         samples_dir = directory(os.path.join(

@@ -33,7 +33,7 @@ snakemake \
     --use-singularity \
     --singularity-args="--bind ${PWD}/../input_files,${PWD}/../../images" \
     --verbose \
-    results/ALFA/ALFA_plots.Categories.pdf
+    results/ALFA/ALFA_plots.concat.png
 
 # Check md5 sum of some output files
 find results/ -type f -name \*\.gz -exec gunzip '{}' \;
