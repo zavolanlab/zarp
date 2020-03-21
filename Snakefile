@@ -147,7 +147,7 @@ rule extract_transcriptome:
             config['log_dir'],
             "{organism}_extract_transcriptome.log")
     singularity:
-        "docker://zavolab/gffread:0.11.7"
+        "docker://zavolab/gffread:0.11.7-slim"
     shell:
         "(gffread \
         -w {output.transcriptome} \
@@ -743,7 +743,7 @@ rule generate_alfa_index:
     threads: 4
 
     singularity: 
-        "docker://zavolab/alfa:1.1.1"
+        "docker://zavolab/alfa:1.1.1-slim"
 
     log: 
         os.path.join(config["log_dir"], "{organism}_{index_size}_generate_alfa_index.log")
@@ -813,7 +813,7 @@ rule alfa_qc:
         name = "{sample}"
 
     singularity:
-        "docker://zavolab/alfa:1.1.1"
+        "docker://zavolab/alfa:1.1.1-slim"
 
     log: 
         os.path.abspath(os.path.join(
@@ -864,7 +864,7 @@ rule alfa_qc_all_samples:
             "alfa_qc_all_samples.{unique}.log"))
 
     singularity:
-        "docker://zavolab/alfa:1.1.1"
+        "docker://zavolab/alfa:1.1.1-slim"
 
     shell:
         """
@@ -897,7 +897,7 @@ rule alfa_concat_results:
             "alfa_qc_all_samples.concat.log"))
 
     singularity:
-        "docker://zavolab/imagemagick:7.0.8"
+        "docker://zavolab/imagemagick:6.9.10-slim"
 
     shell:
         """
