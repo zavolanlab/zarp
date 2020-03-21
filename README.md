@@ -5,12 +5,15 @@ developed by the [Zavolan lab][zavolan-lab].
 
 Reads are processed, aligned, quantified and analyzed with state-of-the-art
 tools to give meaningful initial insights into various aspects of an RNA-Seq
-library while cutting down on hands-on time for bioinformaticians. For a more detailed description of the individual rules please refer to the [pipeline documentation][pipeline-documentation].    
+library while cutting down on hands-on time for bioinformaticians.
 
-Below is a visual representation of the individual workflow steps ("pe"
+Below is a schematic representation of the individual workflow steps ("pe"
 refers to "paired-end"):
 
 > ![rule_graph][rule-graph]
+
+For a more detailed description of each step, please refer to the [pipeline
+documentation][pipeline-documentation].
 
 ## Requirements
 
