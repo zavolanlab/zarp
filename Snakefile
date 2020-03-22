@@ -970,7 +970,7 @@ rule prepare_files_for_report:
 
     output:
         samples_dir = directory(os.path.join(
-            "{output_dir}",
+            config["output_dir"],
             "samples"))
     params:
         results_dir = config["output_dir"],
@@ -979,9 +979,12 @@ rule prepare_files_for_report:
             config["log_dir"],
             "samples")
     log:
-        LOG_local_log = \
-            os.path.join("{output_dir}", "local_log", \
-                "prepare_files_for_report.log")
+        stderr = os.path.join(
+            config["log_dir"],
+            "prepare_files_for_report.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "prepare_files_for_report.stdout.log")
     run:
 
         # remove "single/paired end" from the results directories
@@ -1110,7 +1113,9 @@ rule prepare_files_for_report:
         for zipfile in fastq_zip_list:
             sample_name = zipfile.split("/")[-3]
             zipfile_path_chunks = zipfile.split("/")
-            new_path = os.path.join(*(zipfile_path_chunks[:-1]))
+            new_path = os.path.abspath(
+                os.path.join(
+                    *(zipfile_path_chunks[:-1])))
             with ZipFile(zipfile, 'r') as zip_f:
                 zip_f.extractall(new_path)
             fastqc_data_f = os.path.join(
@@ -1180,11 +1185,11 @@ rule prepare_MultiQC_config:
     '''
     input:
         multiqc_input_dir = os.path.join(
-            "{output_dir}",
+            config["output_dir"],
             "samples")
     output:
         multiqc_config = os.path.join(
-            "{output_dir}",
+            config["output_dir"],
             "MultiQC_config.yaml")
     params:
         logo_path = os.path.join(
@@ -1194,9 +1199,12 @@ rule prepare_MultiQC_config:
             "logo.128px.png"),
         results_dir = config["output_dir"]
     log:
-        LOG_local_log = \
-            os.path.join("{output_dir}", "local_log", \
-                "prepare_MultiQC_config.log")
+        stderr = os.path.join(
+            config["log_dir"],
+            "prepare_MultiQC_config.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "prepare_MultiQC_config.stdout.log")
     run:
         with open(output.multiqc_config, "w") as YAML:
             YAML.write("---\n\n")
@@ -1259,15 +1267,19 @@ rule MULTIQC_report:
             config["output_dir"],
             "MultiQC_config.yaml")
     output:
-        MultiQC_report = \
-            directory(os.path.join("{output_dir}", "multiqc_summary"))
+        MultiQC_report = directory(os.path.join(
+            config["output_dir"],
+            "multiqc_summary"))
     params:
         results_dir = config["output_dir"],
         log_dir = config["log_dir"]
     log:
-        LOG_local_log = \
-            os.path.join("{output_dir}", "local_log", \
-                "MULTIQC_report.log")
+        stderr = os.path.join(
+            config["log_dir"],
+            "MULTIQC_report.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "MULTIQC_report.stdout.log")
     singularity:
         "docker://ewels/multiqc:1.7"
     shell:
@@ -1277,5 +1289,5 @@ rule MULTIQC_report:
         --config {input.multiqc_config} \
         {params.results_dir} \
         {params.log_dir} \
-        &> {log.LOG_local_log};
+        1> {log.stdout} 2> {log.stderr}
         """
