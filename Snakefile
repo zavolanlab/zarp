@@ -897,7 +897,7 @@ rule alfa_concat_results:
             "alfa_qc_all_samples.concat.log"))
 
     singularity:
-        "docker://zavolab/imagemagick:6.9.10-slim"
+        "docker://zavolab/imagemagick:7.0.8"
 
     shell:
         """
@@ -969,15 +969,15 @@ rule prepare_files_for_report:
             "ALFA_plots.concat.png")
 
     output:
-        samples_dir = directory(os.path.join(
+        samples_dir_result = directory(os.path.join(
             config["output_dir"],
+            "samples")),
+        samples_dir_log = directory(os.path.join(
+            config["log_dir"],
             "samples"))
     params:
         results_dir = config["output_dir"],
         log_dir = config["log_dir"],
-        log_samples_dir = os.path.join(
-            config["log_dir"],
-            "samples")
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -988,8 +988,8 @@ rule prepare_files_for_report:
     run:
 
         # remove "single/paired end" from the results directories
-        os.mkdir(output.samples_dir)
-        # move paired end results
+        os.mkdir(output.samples_dir_result)
+        # copy paired end results
         paired_end_dir = glob.glob(
             os.path.join(
                 params.results_dir,
@@ -1003,13 +1003,7 @@ rule prepare_files_for_report:
                     params.results_dir,
                     "samples",
                     sample_name))
-        shutil.rmtree(
-            os.path.join(
-                params.results_dir,
-                "paired_end"),
-            ignore_errors=False,
-            onerror=None)
-        # move single end results
+        # copy single end results
         single_end_dir = glob.glob(
             os.path.join(
                 params.results_dir,
@@ -1023,16 +1017,10 @@ rule prepare_files_for_report:
                     params.results_dir,
                     "samples",
                     sample_name))
-        shutil.rmtree(
-            os.path.join(
-                params.results_dir,
-                "single_end"),
-            ignore_errors=False,
-            onerror=None)
 
         # remove "single/paired end" from the logs directories
-        os.mkdir(params.log_samples_dir)
-        # move paired end results
+        os.mkdir(output.samples_dir_log)
+        # copy paired end results
         paired_end_dir = glob.glob(
             os.path.join(
                 params.log_dir,
@@ -1046,13 +1034,7 @@ rule prepare_files_for_report:
                     params.log_dir,
                     "samples",
                     sample_name))
-        shutil.rmtree(
-            os.path.join(
-                params.log_dir,
-                "paired_end"),
-            ignore_errors=False,
-            onerror=None)
-        # move single end results
+        # copy single end results
         single_end_dir = glob.glob(
             os.path.join(
                 params.log_dir,
@@ -1066,12 +1048,6 @@ rule prepare_files_for_report:
                     params.log_dir,
                     "samples",
                     sample_name))
-        shutil.rmtree(
-            os.path.join(
-                params.log_dir,
-                "single_end"),
-            ignore_errors=False,
-            onerror=None)
 
         # encapsulate salmon quantification results
         all_samples_dirs = glob.glob(
@@ -1112,12 +1088,12 @@ rule prepare_files_for_report:
                 "*_fastqc.zip"))
         for zipfile in fastq_zip_list:
             sample_name = zipfile.split("/")[-3]
-            zipfile_path_chunks = zipfile.split("/")
-            new_path = os.path.abspath(
-                os.path.join(
-                    *(zipfile_path_chunks[:-1])))
+            absolute_path_zipfile = os.path.abspath(zipfile)
+            zipfile_path_chunks = absolute_path_zipfile.split(os.path.sep)
+            dir_path_to_zipfile = os.path.sep + os.path.join(
+                (*zipfile_path_chunks[:-1]))
             with ZipFile(zipfile, 'r') as zip_f:
-                zip_f.extractall(new_path)
+                zip_f.extractall(dir_path_to_zipfile)
             fastqc_data_f = os.path.join(
                 zipfile[:-4],
                 "fastqc_data.txt")
@@ -1178,14 +1154,43 @@ rule prepare_files_for_report:
                 "ALFA",
                 "ALFA_plots.concat_mqc.png"))
 
+        # remove old result directories
+        shutil.rmtree(
+            os.path.join(
+                params.results_dir,
+                "paired_end"),
+            ignore_errors=False,
+            onerror=None)
+        shutil.rmtree(
+            os.path.join(
+                params.results_dir,
+                "single_end"),
+            ignore_errors=False,
+            onerror=None)
+        shutil.rmtree(
+            os.path.join(
+                params.log_dir,
+                "paired_end"),
+            ignore_errors=False,
+            onerror=None)
+        shutil.rmtree(
+            os.path.join(
+                params.log_dir,
+                "single_end"),
+            ignore_errors=False,
+            onerror=None)
+
 
 rule prepare_MultiQC_config:
     '''
         Prepare config for the MultiQC
     '''
     input:
-        multiqc_input_dir = os.path.join(
+        samples_dir_result = os.path.join(
             config["output_dir"],
+            "samples"),
+        samples_dir_log = os.path.join(
+            config["log_dir"],
             "samples")
     output:
         multiqc_config = os.path.join(
