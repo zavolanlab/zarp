@@ -23,7 +23,6 @@ set -x  # facilitates debugging by printing out executed commands
 user_dir=$PWD
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 cd $script_dir
-
 cat << EOF | ( umask 0377; cat >> ${HOME}/.netrc; )
 machine ${LABKEY_HOST}
 login ${LABKEY_USER}
@@ -39,6 +38,7 @@ python "../../scripts/labkey_to_snakemake.py" \
     --remote \
     --project-name "TEST_LABKEY" \
     --table-name "RNA_Seq_data_template" \
+    --logo="../../images/logo.128px.png" \
     "../input_files"
 
 # Check if dry run completes

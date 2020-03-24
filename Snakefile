@@ -2,8 +2,6 @@
 import os
 import pandas as pd
 import shutil
-workdir: config['workdir']
-
 
 # Get sample table
 samples_table = pd.read_csv(
@@ -18,13 +16,6 @@ samples_table = pd.read_csv(
 # Global config
 localrules: start, finish, rename_star_rpm_for_alfa, prepare_multiqc_config
 
-# Create log directories
-os.makedirs(
-    os.path.join(
-        os.getcwd(),
-        config['log_dir'],
-    ),
-    exist_ok=True)
 
 if cluster_config:
     os.makedirs(
@@ -47,16 +38,32 @@ rule finish:
             config['output_dir'],
             "multiqc_summary"),
         bigWig = expand(
-                os.path.join(
+            os.path.join(
                 config["output_dir"],
                 "samples",
                 "{sample}",
                 "bigWig",
                 "{unique_type}",
                 "{sample}_{unique_type}_{strand}.bw"),
-                sample=samples_table.index.values,
-                strand=["plus", "minus"],
-                unique_type=["Unique", "UniqueMultiple"])
+            sample=samples_table.index.values,
+            strand=["plus", "minus"],
+            unique_type=["Unique", "UniqueMultiple"]),
+
+        salmon_merge_genes = expand(
+            os.path.join(
+                config["output_dir"],
+                "summary_salmon",
+                "quantmerge",
+                "genes_{salmon_merge_on}.tsv"),
+            salmon_merge_on=["tpm", "numreads"]),
+
+        salmon_merge_transcripts = expand(
+            os.path.join(
+                config["output_dir"],
+                "summary_salmon",
+                "quantmerge",
+                "transcripts_{salmon_merge_on}.tsv"),
+            salmon_merge_on=["tpm", "numreads"]),
 
 
 rule start:
@@ -86,6 +93,9 @@ rule start:
             "samples",
             "{sample}",
             "start_{sample}.{mate}.stdout.log")
+
+    singularity:
+        "docker://bash:5.0.16"
 
     shell:
         "(cp {input.reads} {output.reads}) \
@@ -203,6 +213,7 @@ rule create_index_star:
         --sjdbGTFfile {input.gtf}) \
         1> {log.stdout} 2> {log.stderr}"
 
+
 rule extract_transcriptome:
     """
         Create transcriptome from genome and gene annotations
@@ -240,16 +251,60 @@ rule extract_transcriptome:
         1> {log.stdout} 2> {log.stderr}"
 
 
-rule create_index_salmon:
+rule concatenate_transcriptome_and_genome:
     """
-        Create index for Salmon quantification
+        Concatenate genome and transcriptome
     """
     input:
         transcriptome = os.path.join(
             config['output_dir'],
             "transcriptome",
             "{organism}",
-            "transcriptome.fa")
+            "transcriptome.fa"),
+
+        genome = lambda wildcards:
+            samples_table['genome']
+            [samples_table['organism'] == wildcards.organism]
+            [0]
+
+    output:
+        genome_transcriptome = os.path.join(
+            config['output_dir'],
+            "transcriptome",
+            "{organism}",
+            "genome_transcriptome.fa")
+
+    singularity:
+        "docker://bash:5.0.16"
+
+    log:
+        stderr = os.path.join(
+            config['log_dir'],
+            "{organism}_concatenate_transcriptome_and_genome.stderr.log")
+
+    shell:
+        "(cat {input.transcriptome} {input.genome} \
+        1> {output.genome_transcriptome}) \
+        2> {log.stderr}"
+
+
+rule create_index_salmon:
+    """
+        Create index for Salmon quantification
+    """
+    input:
+        genome_transcriptome = os.path.join(
+            config['output_dir'],
+            "transcriptome",
+            "{organism}",
+            "genome_transcriptome.fa"),
+        chr_names = lambda wildcards:
+            os.path.join(
+                config['star_indexes'],
+                samples_table["organism"][0],
+                str(samples_table["index_size"][0]),
+                "STAR_index",
+                "chrName.txt")
 
     output:
         index = directory(
@@ -277,7 +332,8 @@ rule create_index_salmon:
 
     shell:
         "(salmon index \
-        --transcripts {input.transcriptome} \
+        --transcripts {input.genome_transcriptome} \
+        --decoys {input.chr_names} \
         --index {output.index} \
         --kmerLen {params.kmerLen} \
         --threads {threads}) \
@@ -395,142 +451,6 @@ rule index_genomic_alignment_samtools:
         1> {log.stdout} 2> {log.stderr}"
 
 
-rule star_rpm:
-    '''
-        Create stranded bedgraph coverage with STARs RPM normalisation
-    '''
-    input:
-        bam = lambda wildcards:
-            expand(
-                os.path.join(
-                    config["output_dir"],
-                    "samples",
-                    "{sample}",
-                    "map_genome",
-                    "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam"),
-                sample=wildcards.sample,
-                seqmode=samples_table.loc[wildcards.sample, 'seqmode']),
-        bai = lambda wildcards:
-            expand(
-                os.path.join(
-                    config["output_dir"],
-                    "samples",
-                    "{sample}",
-                    "map_genome",
-                    "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam.bai"),
-                sample=wildcards.sample,
-                seqmode=samples_table.loc[wildcards.sample, 'seqmode']),
-
-    output:
-        str1 = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "STAR_coverage",
-            "{sample}_Signal.Unique.str1.out.bg"),
-        str2 = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "STAR_coverage",
-            "{sample}_Signal.UniqueMultiple.str1.out.bg"),
-        str3 = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "STAR_coverage",
-            "{sample}_Signal.Unique.str2.out.bg"),
-        str4 = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "STAR_coverage",
-            "{sample}_Signal.UniqueMultiple.str2.out.bg")
-
-    params:
-        out_dir = lambda wildcards, output:
-            os.path.dirname(output.str1),
-        prefix = lambda wildcards, output:
-            os.path.join(
-                os.path.dirname(output.str1),
-                str(wildcards.sample) + "_"),
-        stranded = "Stranded"
-
-    singularity:
-        "docker://zavolab/star:2.7.3a-slim"
-
-    log:
-        stderr = os.path.join(
-            config["log_dir"],
-            "samples",
-            "{sample}",
-            "star_rpm.stderr.log"),
-        stdout = os.path.join(
-            config["log_dir"],
-            "samples",
-            "{sample}",
-            "star_rpm.stdout.log")
-
-    threads: 4
-
-    shell:
-        "(mkdir -p {params.out_dir}; \
-        chmod -R 777 {params.out_dir}; \
-        STAR \
-        --runMode inputAlignmentsFromBAM \
-        --runThreadN {threads} \
-        --inputBAMfile {input.bam} \
-        --outWigType \"bedGraph\" \
-        --outWigStrand {params.stranded} \
-        --outWigNorm \"RPM\" \
-        --outFileNamePrefix {params.prefix}) \
-        1> {log.stdout} 2> {log.stderr}"
-
-
-rule rename_star_rpm_for_alfa:
-    input:
-        str1 = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "STAR_coverage",
-            "{sample}_Signal.{unique}.str1.out.bg"),
-        str2 = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "STAR_coverage",
-            "{sample}_Signal.{unique}.str2.out.bg")
-
-    output:
-        plus = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "ALFA",
-            "{unique}",
-            "{sample}_Signal.{unique}.out.plus.bg"),
-        minus = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "ALFA",
-            "{unique}",
-            "{sample}_Signal.{unique}.out.minus.bg")
-
-    params:
-        orientation = lambda wildcards:
-            samples_table.loc[wildcards.sample, "kallisto_directionality"]
-
-    run:
-        if params['orientation'] == "--fr":
-            shutil.copy2(input['str1'], output['plus'])
-            shutil.copy2(input['str2'], output['minus'])
-        elif params['orientation'] == "--rf":
-            shutil.copy2(input['str1'], output['minus'])
-            shutil.copy2(input['str2'], output['plus'])
-
-
 rule calculate_TIN_scores:
     """
         Calculate transcript integrity (TIN) score
@@ -574,7 +494,9 @@ rule calculate_TIN_scores:
     log:
         stderr = os.path.join(
             config['log_dir'],
-            "{sample}_calculate_TIN_scores.log")
+            "samples",
+            "{sample}",
+            "calculate_TIN_scores.log")
 
     threads: 8
 
@@ -654,15 +576,15 @@ rule plot_TIN_scores:
     output:
         TIN_boxplot_PNG = os.path.join(
             config['output_dir'],
-            "TIN_scores_boxplot.png"),
+            "TIN_scores_boxplot_mqc.png"),
         TIN_boxplot_PDF = os.path.join(
             config['output_dir'],
-            "TIN_scores_boxplot.pdf")
+            "TIN_scores_boxplot_mqc.pdf")
 
     params:
         TIN_boxplot_prefix = os.path.join(
             config['output_dir'],
-            "TIN_scores_boxplot")
+            "TIN_scores_boxplot_mqc")
 
     log:
         stderr = os.path.join(
@@ -810,8 +732,163 @@ rule salmon_quantmerge_transcripts:
         1> {log.stdout} 2> {log.stderr}"
 
 
-# ALFA: Annotation Landscape For Aligned reads
-directionality = {"--fr": "fr-firststrand", "--rf": "fr-secondstrand"}
+rule star_rpm:
+    '''
+        Create stranded bedgraph coverage with STARs RPM normalisation
+    '''
+    input:
+        bam = lambda wildcards:
+            expand(
+                os.path.join(
+                    config["output_dir"],
+                    "samples",
+                    "{sample}",
+                    "map_genome",
+                    "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam"),
+                sample=wildcards.sample,
+                seqmode=samples_table.loc[wildcards.sample, 'seqmode']),
+        bai = lambda wildcards:
+            expand(
+                os.path.join(
+                    config["output_dir"],
+                    "samples",
+                    "{sample}",
+                    "map_genome",
+                    "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam.bai"),
+                sample=wildcards.sample,
+                seqmode=samples_table.loc[wildcards.sample, 'seqmode']),
+
+    output:
+        str1 = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "STAR_coverage",
+            "{sample}_Signal.Unique.str1.out.bg"),
+        str2 = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "STAR_coverage",
+            "{sample}_Signal.UniqueMultiple.str1.out.bg"),
+        str3 = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "STAR_coverage",
+            "{sample}_Signal.Unique.str2.out.bg"),
+        str4 = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "STAR_coverage",
+            "{sample}_Signal.UniqueMultiple.str2.out.bg")
+
+    params:
+        out_dir = lambda wildcards, output:
+            os.path.dirname(output.str1),
+        prefix = lambda wildcards, output:
+            os.path.join(
+                os.path.dirname(output.str1),
+                str(wildcards.sample) + "_"),
+        stranded = "Stranded"
+
+    singularity:
+        "docker://zavolab/star:2.7.3a-slim"
+
+    log:
+        stderr = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            "star_rpm.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            "star_rpm.stdout.log")
+
+    threads: 4
+
+    shell:
+        "(mkdir -p {params.out_dir}; \
+        chmod -R 777 {params.out_dir}; \
+        STAR \
+        --runMode inputAlignmentsFromBAM \
+        --runThreadN {threads} \
+        --inputBAMfile {input.bam} \
+        --outWigType bedGraph \
+        --outWigStrand {params.stranded} \
+        --outWigNorm RPM \
+        --outFileNamePrefix {params.prefix}) \
+        1> {log.stdout} 2> {log.stderr}"
+
+
+rule rename_star_rpm_for_alfa:
+    input:
+        plus = lambda wildcards:
+            expand(
+                os.path.join(
+                    config["output_dir"],
+                    "samples",
+                    "{sample}",
+                    "STAR_coverage",
+                    "{sample}_Signal.{unique}.{plus}.out.bg"),
+                sample=wildcards.sample,
+                unique=wildcards.unique,
+                plus=samples_table.loc[wildcards.sample, 'alfa_plus']),
+
+        minus = lambda wildcards:
+            expand(
+                os.path.join(
+                    config["output_dir"],
+                    "samples",
+                    "{sample}",
+                    "STAR_coverage",
+                    "{sample}_Signal.{unique}.{minus}.out.bg"),
+                sample=wildcards.sample,
+                unique=wildcards.unique,
+                minus=samples_table.loc[wildcards.sample, 'alfa_minus'])
+
+    output:
+        plus = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "ALFA",
+            "{unique}",
+            "{sample}.{unique}.plus.bg"),
+        minus = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "ALFA",
+            "{unique}",
+            "{sample}.{unique}.minus.bg")
+
+    params:
+        orientation = lambda wildcards:
+            samples_table.loc[wildcards.sample, "kallisto_directionality"]
+
+    log:
+        stderr = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            "rename_star_rpm_for_alfa__{unique}.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            "rename_star_rpm_for_alfa__{unique}.stdout.log")
+
+    singularity:
+        "docker://bash:5.0.16"
+
+    shell:
+        "(cp {input.plus} {output.plus}; \
+         cp {input.minus} {output.minus};) \
+         1>{log.stdout} 2>{log.stderr}"
 
 
 rule generate_alfa_index:
@@ -875,14 +952,14 @@ rule alfa_qc:
             "{sample}",
             "ALFA",
             "{unique}",
-            "{sample}_Signal.{unique}.out.plus.bg"),
+            "{sample}.{unique}.plus.bg"),
         minus = os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "ALFA",
             "{unique}",
-            "{sample}_Signal.{unique}.out.minus.bg"),
+            "{sample}.{unique}.minus.bg"),
         gtf = lambda wildcards:
             os.path.join(
                 config["alfa_indexes"],
@@ -917,13 +994,13 @@ rule alfa_qc:
     params:
         out_dir = lambda wildcards, output:
             os.path.dirname(output.biotypes),
-        alfa_orientation = lambda wildcards:
-            directionality[samples_table.loc[
-                wildcards.sample, "kallisto_directionality"]],
-        in_file_plus = lambda wildcards, input:
+        plus = lambda wildcards, input:
             os.path.basename(input.plus),
-        in_file_minus = lambda wildcards, input:
+        minus = lambda wildcards, input:
             os.path.basename(input.minus),
+        alfa_orientation = lambda wildcards:
+            [samples_table.loc[
+                wildcards.sample, "alfa_directionality"]],
         genome_index = lambda wildcards, input:
             os.path.abspath(
                 os.path.join(
@@ -935,18 +1012,21 @@ rule alfa_qc:
         "docker://zavolab/alfa:1.1.1-slim"
 
     log:
-        os.path.abspath(os.path.join(
+        os.path.join(
             config["log_dir"],
-            "{sample}_alfa_qc.{unique}.log"))
+            "samples",
+            "{sample}",
+            "alfa_qc.{unique}.log")
 
     shell:
         "(cd {params.out_dir}; \
         alfa \
         -g {params.genome_index} \
-        --bedgraph {params.in_file_plus} {params.in_file_minus} {params.name} \
+        --bedgraph {params.plus} {params.minus} {params.name} \
         -s {params.alfa_orientation}) &> {log}"
 
 
+# cd {params.out_dir};
 rule alfa_qc_all_samples:
     '''
         Run ALFA from stranded bedgraph files on all samples
@@ -960,7 +1040,7 @@ rule alfa_qc_all_samples:
                     "{sample}",
                     "ALFA",
                     "{unique}",
-                    "{sample}" + ".ALFA_feature_counts.tsv"),
+                    "{sample}.ALFA_feature_counts.tsv"),
                 sample=samples_table.index.values,
                 unique=wildcards.unique)
     output:
@@ -1003,10 +1083,10 @@ rule alfa_concat_results:
             annotation=["Categories", "Biotypes"])
 
     output:
-        expand(os.path.join(
+        os.path.join(
             config["output_dir"],
             "ALFA",
-            "ALFA_plots.concat.png"))
+            "ALFA_plots_mqc.png")
 
     params:
         density = 300
@@ -1029,15 +1109,21 @@ rule prepare_multiqc_config:
         Prepare config for the MultiQC
     '''
     input:
-        logo_path = os.path.abspath(
-            os.path.join(
-                "images",
-                "logo.128px.png"))
+        script = os.path.join(
+            workflow.basedir,
+            "workflow",
+            "scripts",
+            "rhea_multiqc_config.py")
 
     output:
         multiqc_config = os.path.join(
             config["output_dir"],
             "multiqc_config.yaml")
+
+    params:
+        logo_path = config['logo'],
+        multiqc_intro_text = config['multiqc_intro_text'],
+        url = config['multiqc_url']
 
     log:
         stderr = os.path.join(
@@ -1048,9 +1134,11 @@ rule prepare_multiqc_config:
             "prepare_multiqc_config.stdout.log")
 
     shell:
-        "(python scripts/rhea_multiqc_config.py \
+        "(python {input.script} \
         --config {output.multiqc_config} \
-        --custom_logo {input.logo_path}) \
+        --intro-text '{params.multiqc_intro_text}' \
+        --custom-logo {params.logo_path} \
+        --url '{params.url}') \
         1> {log.stdout} 2> {log.stderr}"
 
 
@@ -1094,41 +1182,16 @@ rule multiqc_report:
 
         TIN_boxplot_PNG = os.path.join(
             config['output_dir'],
-            "TIN_scores_boxplot.png"),
+            "TIN_scores_boxplot_mqc.png"),
 
         TIN_boxplot_PDF = os.path.join(
             config['output_dir'],
-            "TIN_scores_boxplot.pdf"),
-
-        salmon_merge_genes = expand(
-            os.path.join(
-                config["output_dir"],
-                "summary_salmon",
-                "quantmerge",
-                "genes_{salmon_merge_on}.tsv"),
-            salmon_merge_on=["tpm", "numreads"]),
-
-        salmon_merge_transcripts = expand(
-            os.path.join(
-                config["output_dir"],
-                "summary_salmon",
-                "quantmerge",
-                "transcripts_{salmon_merge_on}.tsv"),
-            salmon_merge_on=["tpm", "numreads"]),
-
-        star_rpm = expand(
-            os.path.join(
-                config["output_dir"],
-                "samples",
-                "{sample}",
-                "STAR_coverage",
-                "{sample}_Signal.UniqueMultiple.str1.out.bg"),
-            sample=samples_table.index.values),
+            "TIN_scores_boxplot_mqc.pdf"),
 
         alfa_concat_out = os.path.join(
             config["output_dir"],
             "ALFA",
-            "ALFA_plots.concat.png"),
+            "ALFA_plots_mqc.png"),
 
         multiqc_config = os.path.join(
             config["output_dir"],
@@ -1165,11 +1228,9 @@ rule multiqc_report:
         1> {log.stdout} 2> {log.stderr}"
 
 
-
-
 rule sort_bed_4_big:
     '''
-    sort bedGraphs in order to work with bedGraphtobigWig
+        sort bedGraphs in order to work with bedGraphtobigWig
     '''
     input:
         bg = os.path.join(
@@ -1178,74 +1239,80 @@ rule sort_bed_4_big:
             "{sample}",
             "ALFA",
             "{unique}",
-            "{sample}_Signal.{unique}.out.{strand}.bg")
+            "{sample}.{unique}.{strand}.bg")
+
     output:
-        sorted_bg = os.path.join(config["output_dir"],
-                                "samples",
-                                "{sample}",
-                                "bigWig",
-                                "{unique}",
-                                "{sample}_{unique}_{strand}.sorted.bg")
+        sorted_bg = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "bigWig",
+            "{unique}",
+            "{sample}_{unique}_{strand}.sorted.bg")
+
     singularity:
         "docker://cjh4zavolab/bedtools:2.27"
+
     log:
         stderr = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "sort_bg_{unique}_{strand}.stderr.log"),
-        stdout = os.path.join(
-            config["log_dir"],
-            "samples",
-            "{sample}",
-            "sort_bg_{unique}_{strand}.stdout.log")
+            "sort_bg_{unique}_{strand}.stderr.log")
+
     shell:
-        '''
-        sortBed \
-        -i {input.bg} \
-        > {output.sorted_bg}
-        '''
+        "(sortBed \
+         -i {input.bg} \
+         > {output.sorted_bg};) 2> {log.stderr}"
 
 rule prepare_bigWig:
     '''
-    bedGraphtobigWig, for viewing in genome browsers
+        bedGraphtobigWig, for viewing in genome browsers
     '''
     input:
-        sorted_bg = os.path.join(config["output_dir"],
-                                "samples",
-                                "{sample}",
-                                "bigWig",
-                                "{unique}",
-                                "{sample}_{unique}_{strand}.sorted.bg"),
-        chr_sizes = lambda wildcards: os.path.join(config['star_indexes'],
-                            samples_table.loc[wildcards.sample, "organism"], 
-                            str(samples_table.loc[wildcards.sample, "index_size"]),
-                                "STAR_index",
-                                "chrNameLength.txt")
+        sorted_bg = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "bigWig",
+            "{unique}",
+            "{sample}_{unique}_{strand}.sorted.bg"),
+        chr_sizes = lambda wildcards:
+            os.path.join(
+                config['star_indexes'],
+                samples_table.loc[wildcards.sample, "organism"],
+                str(samples_table.loc[wildcards.sample, "index_size"]),
+                "STAR_index",
+                "chrNameLength.txt")
+
     output:
-        bigWig = os.path.join(config["output_dir"],
-                                "samples",
-                                "{sample}",
-                                "bigWig",
-                                "{unique}",
-                                "{sample}_{unique}_{strand}.bw")
+        bigWig = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "bigWig",
+            "{unique}",
+            "{sample}_{unique}_{strand}.bw")
+
     singularity:
         "docker://zavolab/bedgraphtobigwig:4-slim"
+
     log:
         stderr = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
             "bigwig_{unique}_{strand}.stderr.log"),
+
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
             "bigwig_{unique}_{strand}.stdout.log")
+
     shell:
-        '''
-        bedGraphToBigWig \
-        {input.sorted_bg} \
-        {input.chr_sizes} \
-        {output.bigWig}
-        '''
+        "(bedGraphToBigWig \
+         {input.sorted_bg} \
+         {input.chr_sizes} \
+         {output.bigWig};) \
+         1> {log.stdout} 2> {log.stderr}"

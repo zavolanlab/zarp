@@ -60,6 +60,11 @@ def main():
                         "\nif '--remote' is specified.",
                         metavar="STR")
 
+    parser.add_argument("--logo",
+                        default='None',
+                        help="zavolan lab logo path",
+                        metavar="STR")
+
     parser.add_argument("--table-name",
                         help="Name of LabKey table; required if '--remote'" +
                         " is specified.",
@@ -109,6 +114,29 @@ def main():
 
     parser.add_argument("--config-file",
                         help="Configuration file to be used by Snakemake")
+
+    parser.add_argument("--abspath",
+                        choices=[os.path.abspath, str],
+                        default=str,
+                        help="Absolute path")
+
+    parser.add_argument("--samples_dir",
+                        help="Path one level within Rhea",
+                        default='')
+
+    parser.add_argument("--output_dir",
+                        default='',
+                        help="Path of the results directory")
+
+    parser.add_argument("--multiqc-url",
+                        dest="multiqc_url",
+                        default="No url",
+                        help="Multiqc url of the group that did the analysis")
+
+    parser.add_argument("--multiqc-intro-text",
+                        dest="multiqc_intro_text",
+                        default="No description provided by user",
+                        help="Multiqc small intro text of the analysis info")
 
     try:
         options = parser.parse_args()
@@ -179,13 +207,15 @@ def main():
             input_dict.loc['replicate_name', 'labkey']] + "_" + row[
             input_dict.loc['condition', 'labkey']]
         if row[input_dict.loc['seqmode', 'labkey']] == 'PAIRED':
-            snakemake_table.loc[index, 'seqmode'] = 'paired_end'
+            snakemake_table.loc[index, 'seqmode'] = 'pe'
         elif row[input_dict.loc['seqmode', 'labkey']] == 'SINGLE':
-            snakemake_table.loc[index, 'seqmode'] = 'single_end'
+            snakemake_table.loc[index, 'seqmode'] = 'se'
 
-        fq1 = os.path.join(
-            row[input_dict.loc['fastq_path', 'labkey']],
-            row[input_dict.loc['fq1', 'labkey']])
+        fq1 = options.abspath(
+            os.path.join(
+                options.samples_dir,
+                row[input_dict.loc['fastq_path', 'labkey']],
+                row[input_dict.loc['fq1', 'labkey']]))
 
         snakemake_table.loc[index, 'fq1'] = fq1
         read_length = get_read_length(fq1)
@@ -200,25 +230,29 @@ def main():
             ' ', '_').lower()
         snakemake_table.loc[index, 'organism'] = organism
 
-        snakemake_table.loc[index, 'gtf'] = os.path.join(
-            options.genomes_path,
-            organism,
-            'annotation.gtf')
+        snakemake_table.loc[index, 'gtf'] = options.abspath(
+            os.path.join(
+                options.genomes_path,
+                organism,
+                'annotation.gtf'))
 
-        snakemake_table.loc[index, 'gtf_filtered'] = os.path.join(
-            options.genomes_path,
-            organism,
-            'annotation.gtf')
+        snakemake_table.loc[index, 'gtf_filtered'] = options.abspath(
+            os.path.join(
+                options.genomes_path,
+                organism,
+                'annotation.gtf'))
 
-        snakemake_table.loc[index, 'genome'] = os.path.join(
-            options.genomes_path,
-            organism,
-            'genome.fa')
+        snakemake_table.loc[index, 'genome'] = options.abspath(
+            os.path.join(
+                options.genomes_path,
+                organism,
+                'genome.fa'))
 
-        snakemake_table.loc[index, 'tr_fasta_filtered'] = os.path.join(
-            options.genomes_path,
-            organism,
-            'transcriptome.fa')
+        snakemake_table.loc[index, 'tr_fasta_filtered'] = options.abspath(
+            os.path.join(
+                options.genomes_path,
+                organism,
+                'transcriptome.fa'))
 
         snakemake_table.loc[index, 'sd'] = row[
             input_dict.loc['sd', 'labkey']]
@@ -239,10 +273,22 @@ def main():
             get_kallisto_directionality(
                 row[input_dict.loc['mate1_direction', 'labkey']])
 
+        snakemake_table.loc[index, 'alfa_directionality'] = \
+            get_alfa_directionality(
+                row[input_dict.loc['mate1_direction', 'labkey']])
+
+        plus, minus = get_alfa_plus_minus(
+            row[input_dict.loc['mate1_direction', 'labkey']])
+
+        snakemake_table.loc[index, 'alfa_plus'] = plus
+        snakemake_table.loc[index, 'alfa_minus'] = minus
+
         if row[input_dict.loc['seqmode', 'labkey']] == 'PAIRED':
-            fq2 = os.path.join(
-                row[input_dict.loc['fastq_path', 'labkey']],
-                row[input_dict.loc['fq2', 'labkey']])
+            fq2 = options.abspath(
+                os.path.join(
+                    options.samples_dir,
+                    row[input_dict.loc['fastq_path', 'labkey']],
+                    row[input_dict.loc['fq2', 'labkey']]))
             snakemake_table.loc[index, 'fq2'] = fq2
 
             snakemake_table.loc[index, 'fq2_3p'] = row[
@@ -272,16 +318,65 @@ def main():
         header=True,
         index=False)
 
+    samples = options.abspath(
+        os.path.join(
+            options.samples_dir,
+            options.samples_table))
+
+    output_dir = options.abspath(
+        os.path.join(
+            options.output_dir,
+            "results"))
+
+    logdir = options.abspath(
+        os.path.join(
+            options.output_dir,
+            "logs"))
+
+    kallisto_indexes = options.abspath(
+        os.path.join(
+            options.output_dir,
+            "results",
+            "kallisto_indexes"))
+
+    salmon_indexes = options.abspath(
+        os.path.join(
+            options.output_dir,
+            "results",
+            "salmon_indexes"))
+
+    star_indexes = options.abspath(
+        os.path.join(
+            options.output_dir,
+            "results",
+            "star_indexes"))
+
+    alfa_indexes = options.abspath(
+        os.path.join(
+            options.output_dir,
+            "results",
+            "alfa_indexes"))
+
+    logo = options.abspath(
+        os.path.join(
+            options.logo))
+
+    multiqc_url = options.multiqc_url
+    multiqc_intro_text = options.multiqc_intro_text
+
     # Read file and infer read size for sjdbovwerhang
     with open(options.config_file, 'w') as config_file:
-        config_file.write('''---
-  samples: "''' + options.samples_table + '''"
-  output_dir: "results/"
-  log_dir: "logs/"
-  kallisto_indexes: "results/kallisto_indexes/"
-  salmon_indexes: "results/salmon_indexes/"
-  star_indexes: "results/star_indexes/"
-  alfa_indexes: "results/alfa_indexes/"
+        config_file.write(f'''---
+  samples: "{samples}"
+  output_dir: "{output_dir}"
+  log_dir: "{logdir}"
+  kallisto_indexes: "{kallisto_indexes}"
+  salmon_indexes: "{salmon_indexes}"
+  star_indexes: "{star_indexes}"
+  alfa_indexes: "{alfa_indexes}"
+  logo: "{logo}"
+  multiqc_url: "{multiqc_url}"
+  multiqc_intro_text: "{multiqc_intro_text}"
 ...''')
 
     sys.stdout.write('Create snakemake table finished successfully...\n')
@@ -310,7 +405,7 @@ def get_read_length(filename):
 
 def infer_kmer_length(read_length):
     if read_length <= 50:
-            kmer = 21
+        kmer = 21
     elif read_length > 50:
         kmer = 31
     return kmer
@@ -324,6 +419,29 @@ def get_kallisto_directionality(directionality):
     else:
         final_direction = ''
     return final_direction
+
+
+def get_alfa_directionality(directionality):
+    if directionality == 'SENSE':
+        final_direction = 'fr-firststrand'
+    elif directionality == 'ANTISENSE':
+        final_direction = 'fr-secondstrand'
+    else:
+        final_direction = ''
+    return final_direction
+
+
+def get_alfa_plus_minus(directionality):
+    if directionality == 'SENSE':
+        plus = 'str1'
+        minus = 'str2'
+    elif directionality == 'ANTISENSE':
+        minus = 'str1'
+        plus = 'str2'
+    else:
+        plus = ''
+        minus = ''
+    return plus, minus
 
 
 def trim_polya(sense):

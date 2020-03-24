@@ -6,4 +6,7 @@
   salmon_indexes: "results/salmon_indexes/"
   star_indexes: "results/star_indexes/"
   alfa_indexes: "results/alfa_indexes/"
+  logo: "../../images/logo.128px.png"
+  multiqc_intro_text: "No description provided by user"
+  multiqc_url: "https://zavolan.biozentrum.unibas.ch/"
 ...
