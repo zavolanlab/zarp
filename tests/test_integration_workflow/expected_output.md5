@@ -1,7 +1,7 @@
 cbaebdb67aee4784b64aff7fec9fda42  results/kallisto_indexes/homo_sapiens/kallisto.idx
 0ac1afd9a4f380afd70be75b21814c64  results/salmon_indexes/homo_sapiens/31/salmon.idx/versionInfo.json
 51b5292e3a874119c0e1aa566e95d70c  results/salmon_indexes/homo_sapiens/31/salmon.idx/duplicate_clusters.tsv
-4c1ab7841bbd1a1e8e3b15e7750ecc38  results/salmon_indexes/homo_sapiens/31/salmon.idx/info.json
+7f8679a6e6622e1b611642b5735f357c  results/salmon_indexes/homo_sapiens/31/salmon.idx/info.json
 dee7cdc194d5d0617552b7a3b5ad8dfb  results/star_indexes/homo_sapiens/75/STAR_index/chrLength.txt
 8e2e96e2d6b7f29940ad5de40662b7cb  results/star_indexes/homo_sapiens/75/STAR_index/chrNameLength.txt
 d0826904b8afa45352906ad9591f2bfb  results/star_indexes/homo_sapiens/75/STAR_index/chrName.txt

@@ -26,6 +26,18 @@
     "threads":"1",
     "mem":"1G"
   },
+  "extract_decoys_salmon":
+  {
+    "time": "00:30:00",
+    "threads":"1",
+    "mem":"10G"
+  },
+  "concatenate_transcriptome_and_genome":
+  {
+    "time": "00:30:00",
+    "threads":"1",
+    "mem":"10G"
+  },
   "create_index_salmon":
   {
     "time": "03:00:00",

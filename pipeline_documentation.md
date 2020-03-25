@@ -7,6 +7,8 @@ This document describes the individual rules of the pipeline for information pur
 * create log directories
 * **create_index_star**
 * **extract_transcriptome**
+* **extract_decoys_salmon**
+* **concatenate_transcriptome_and_genome**
 * **create_index_salmon**
 * **create_index_kallisto**
 * **extract_transcripts_as_bed12**
@@ -98,7 +100,23 @@ Create transcriptome from genome and gene annotations using [gffread](https://gi
 **Input:** `genome` and `gtf` of the input samples table    
 **Output:** transcriptome fasta file.    
 
- 
+
+#### extract_decoys_salmon
+Salmon indexing requires the names of the genome targets (https://combine-lab.github.io/alevin-tutorial/2019/selective-alignment/). Extract target names from the genome.
+
+
+**Input:** `genome` of the input samples table    
+**Output:** text file with the genome targert names   
+
+
+#### concatenate_transcriptome_and_genome
+Salmon indexing requires concatenated transcriptome and genome reference file (https://combine-lab.github.io/alevin-tutorial/2019/selective-alignment/).
+
+
+**Input:** `genome` of the input samples table and extracted transcriptome    
+**Output:** fasta file with concatenated genome and transcriptome   
+
+
 #### create_index_salmon
 Create index for [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) quantification. Salmon index of transcriptome, required for mapping-based mode of Salmon. The index is created via an auxiliary k-mer hash over k-mers of length 31. While mapping algorithms will make use of arbitrarily long matches between the query and reference, the k-mer size selected here will act as the minimum acceptable length for a valid match.  A k-mer size of 31 seems to work well for reads of 75bp or longer, although smaller size might improve sensitivity. A smaller k-mer size is suggested when working with shorter reads.
 
