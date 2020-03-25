@@ -121,6 +121,7 @@ rule create_index_star:
         --sjdbGTFfile {input.gtf}) \
         1> {log.stdout} 2> {log.stderr}"
 
+
 rule extract_transcriptome:
     """ Create transcriptome from genome and gene annotations """
     input:
@@ -154,9 +155,49 @@ rule extract_transcriptome:
         -g {input.genome} {input.gtf}) \
         1> {log.stdout} 2> {log.stderr}"
 
-rule create_index_salmon:
+
+rule extract_decoys_salmon:
     """
-        Create index for Salmon quantification
+        Extract names of the genome targets
+    """
+    input:
+        genome = lambda wildcards:
+            samples_table['genome']
+            [samples_table['organism'] == wildcards.organism]
+            [0],
+
+    output:
+        decoys = os.path.join(
+                config['output_dir'],
+                "transcriptome",
+                "{organism}",
+                "decoys.txt")
+
+    singularity:
+        "docker://bash:5.0.16"
+
+    log:
+        stderr = os.path.join(
+            config['log_dir'],
+            "{organism}_extract_decoys_salmon.stderr.log"),
+        stdout = os.path.join(
+            config['log_dir'],
+            "{organism}_extract_decoys_salmon.stdout.log")
+
+    threads: 1
+
+    shell:
+        """
+        (grep "^>" <{input.genome} \
+        | cut -d " " -f 1 > {output.decoys} && \
+        sed -i.bak -e 's/>//g' {output.decoys}) \
+        1> {log.stdout} 2> {log.stderr}
+        """
+
+
+rule concatenate_transcriptome_and_genome:
+    """
+        Concatenate genome and transcriptome
     """
     input:
         transcriptome = os.path.join(
@@ -164,7 +205,53 @@ rule create_index_salmon:
                 "transcriptome",
                 "{organism}",
                 "transcriptome.fa",
+            ),
+        genome = lambda wildcards:
+            samples_table['genome']
+            [samples_table['organism'] == wildcards.organism]
+            [0],
+
+    output:
+        genome_transcriptome = os.path.join(
+                config['output_dir'],
+                "transcriptome",
+                "{organism}",
+                "genome_transcriptome.fa",
             )
+
+    singularity:
+        "docker://bash:5.0.16"
+
+    log:
+        stderr = os.path.join(
+            config['log_dir'],
+            "{organism}_concatenate_transcriptome_and_genome.stderr.log"),
+        stdout = os.path.join(
+            config['log_dir'],
+            "{organism}_concatenate_transcriptome_and_genome.stdout.log")
+
+    shell:
+        "(cat {input.transcriptome} {input.genome} \
+        1> {output.genome_transcriptome}) \
+        1> {log.stdout} 2> {log.stderr}"
+
+
+rule create_index_salmon:
+    """
+        Create index for Salmon quantification
+    """
+    input:
+        genome_transcriptome = os.path.join(
+                config['output_dir'],
+                "transcriptome",
+                "{organism}",
+                "genome_transcriptome.fa",
+            ),
+        decoys = os.path.join(
+                config['output_dir'],
+                "transcriptome",
+                "{organism}",
+                "decoys.txt")
     output:
         index = directory(
             os.path.join(
@@ -191,7 +278,8 @@ rule create_index_salmon:
 
     shell:
         "(salmon index \
-        --transcripts {input.transcriptome} \
+        --transcripts {input.genome_transcriptome} \
+        --decoys {input.decoys} \
         --index {output.index} \
         --kmerLen {params.kmerLen} \
         --threads {threads}) \
