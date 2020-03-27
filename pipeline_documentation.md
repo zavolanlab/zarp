@@ -3,39 +3,36 @@ This document describes the individual rules of the pipeline for information pur
 
 ## Overview
 ### General
-* read samples table
-* create log directories
-* **create_index_star**
-* **extract_transcriptome**
-* **extract_decoys_salmon**
-* **concatenate_transcriptome_and_genome**
-* **create_index_salmon**
-* **create_index_kallisto**
-* **extract_transcripts_as_bed12**
-* **index_genomic_alignment_samtools**
-* **star_rpm**
-* **rename_star_rpm_for_alfa**
-* **calculate_TIN_scores**
-* **merge_TIN_scores**
-* **plot_TIN_scores**
-* **salmon_quantmerge_genes**
-* **salmon_quantmerge_transcripts**
-* **generate_alfa_index**
-* **alfa_qc**
-* **alfa_qc_all_samples**
-* **alfa_concat_results**
-* **prepare_files_for_report**
-* **prepare_MultiQC_config**
-* **MULTIQC_report**
+* [read samples table](#read-samples-table)
+* [create log directories](#create-log-directories)
+* **[create_index_star](#create_index_star)**
+* **[extract_transcriptome](#extract_transcriptome)**
+* **[create_index_salmon](#create_index_salmon)**
+* **[create_index_kallisto](#create_index_kallisto)**
+* **[extract_transcripts_as_bed12](#extract_transcripts_as_bed12)**
+* **[index_genomic_alignment_samtools](#index_genomic_alignment_samtools)**
+* **[star_rpm](#star_rpm)**
+* **[rename_star_rpm_for_alfa](#rename_star_rpm_for_alfa)**
+* **[calculate_TIN_scores](#calculate_TIN_scores)**
+* **[merge_TIN_scores](#merge_TIN_scores)**
+* **[plot_TIN_scores](#plot_TIN_scores)**
+* **[salmon_quantmerge_genes](#salmon_quantmerge_genes)**
+* **[salmon_quantmerge_transcripts](#salmon_quantmerge_transcripts)**
+* **[generate_alfa_index](#generate_alfa_index)**
+* **[alfa_qc](#alfa_qc)**
+* **[alfa_qc_all_samples](#alfa_qc_all_samples)**
+* **[prepare_files_for_report](#prepare_files_for_report)**
+* **[prepare_MultiQC_config](#prepare_MultiQC_config)**
+* **[MULTIQC_report](#MULTIQC_report)**
+* **[sort_bed_4_big](#sort_bed_4_big)**
 
 ### Sequencing mode specific
-* **(pe_)fastqc**
-* **(pe_)remove_adapters_cutadapt**
-* **(pe_)remove_polya_cutadapt**
-* **(pe_)map_genome_star**
-* **(pe_)quantification_salmon**
-* **(pe_)genome_quantification_kallisto**
-
+* **[(pe_)fastqc](#(pe_)fastqc)**
+* **[(pe_)remove_adapters_cutadapt](#(pe_)remove_adapters_cutadapt)**
+* **[(pe_)remove_polya_cutadapt](#(pe_)remove_polya_cutadapt)**
+* **[(pe_)map_genome_star](#(pe_)map_genome_star)**
+* **[(pe_)quantification_salmon](#(pe_)quantification_salmon)**
+* **[(pe_)genome_quantification_kallisto](#(pe_)genome_quantification_kallisto)**
 
 
 
@@ -100,23 +97,7 @@ Create transcriptome from genome and gene annotations using [gffread](https://gi
 **Input:** `genome` and `gtf` of the input samples table    
 **Output:** transcriptome fasta file.    
 
-
-#### extract_decoys_salmon
-Salmon indexing requires the names of the genome targets (https://combine-lab.github.io/alevin-tutorial/2019/selective-alignment/). Extract target names from the genome.
-
-
-**Input:** `genome` of the input samples table    
-**Output:** text file with the genome targert names   
-
-
-#### concatenate_transcriptome_and_genome
-Salmon indexing requires concatenated transcriptome and genome reference file (https://combine-lab.github.io/alevin-tutorial/2019/selective-alignment/).
-
-
-**Input:** `genome` of the input samples table and extracted transcriptome    
-**Output:** fasta file with concatenated genome and transcriptome   
-
-
+ 
 #### create_index_salmon
 Create index for [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) quantification. Salmon index of transcriptome, required for mapping-based mode of Salmon. The index is created via an auxiliary k-mer hash over k-mers of length 31. While mapping algorithms will make use of arbitrarily long matches between the query and reference, the k-mer size selected here will act as the minimum acceptable length for a valid match.  A k-mer size of 31 seems to work well for reads of 75bp or longer, although smaller size might improve sensitivity. A smaller k-mer size is suggested when working with shorter reads.
 
@@ -263,6 +244,18 @@ Interactive report of the various workflow steps. [MultiQC](https://multiqc.info
 **Input:** Config file fort MultiQC in .yaml format
 **Output:** Directory with automatically generated HTML report
 
+#### sort_bed_4_big
+Sorts bedgraph files for creating bigWig files. Using [bedtools sortBed](https://bedtools.readthedocs.io/en/latest/content/tools/sort.html)    
+
+**Input:**  bedgraph files from `rename_star_rpm_for_alfa`    
+**Output:** sorted bedgraph files    
+
+
+#### prepare_bigWig
+Check out some infos on bigWig files and [bedGraphtobigWig](http://genome.ucsc.edu/goldenPath/help/bigWig.html).    
+
+**Input:** sorted bedgraph files, chromosome sizes from create_STAR_index    
+**Output:** one bigWig file per sample and strand     
 
 
 ### Sequencing mode specific rules
