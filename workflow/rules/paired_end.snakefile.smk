@@ -259,7 +259,7 @@ rule pe_quantification_salmon:
             "{sample}",
             "{sample}.pe.remove_polya_mate2.fastq.gz"),
         gtf = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'gtf_filtered'],
+            samples_table.loc[wildcards.sample, 'gtf'],
         index = lambda wildcards:
             os.path.join(
                 config["salmon_indexes"],

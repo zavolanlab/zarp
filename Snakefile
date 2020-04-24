@@ -1121,9 +1121,9 @@ rule prepare_multiqc_config:
             "multiqc_config.yaml")
 
     params:
-        logo_path = config['logo'],
-        multiqc_intro_text = config['multiqc_intro_text'],
-        url = config['multiqc_url']
+        logo_path = config['report_logo'],
+        multiqc_intro_text = config['report_description'],
+        url = config['report_url']
 
     log:
         stderr = os.path.join(

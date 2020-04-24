@@ -243,9 +243,9 @@ you do not have these):
 
     ```bash
     cat << EOF | ( umask 0377; cat >> ${HOME}/.netrc; )
-    machine <remote-instance-of-labkey-server>  
+    machine <remote-instance-of-labkey-server>
     login <user-email>
-    password <user-password>  
+    password <user-password>
     EOF
     ```
 
@@ -255,13 +255,13 @@ help screen with option '--help' for further options and information):
 
     ```bash
     python scripts/labkey_to_snakemake.py \
-        --input_dict="scripts/labkey_to_snakemake.dict.tsv" \
+        --labkey-domain="my.labkey.service.io"
+        --labkey-domain="/my/project/path"
+        --input-to-output-mapping="scripts/labkey_to_snakemake.dict.tsv" \
+        --resources-dir="/path/to/my/genome/resources" \
+        --output-table="config/my_run/samples.tsv" \
         --config_file="config/my_run/config.yaml" \
-        --samples_table="config/my_run/samples.tsv" \
-        --remote \
-        --project-name="project_name" \
-        --table-name="table_name" \
-        <path_to_annotation_files>
+        <table_name>
     ```
 
 #### Additional information

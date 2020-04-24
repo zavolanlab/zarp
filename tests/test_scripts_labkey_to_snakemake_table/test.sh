@@ -22,13 +22,13 @@ cd $script_dir/
 
 # Run tests
 python "../../scripts/labkey_to_snakemake.py" \
-    --input-table="input_table.tsv" \
-    --input-dict="../../scripts/labkey_to_snakemake.dict.tsv" \
+    --input-to-output-mapping="../../scripts/labkey_to_snakemake.dict.tsv" \
+    --resources-dir="../input_files" \
+    --output-table="samples.tsv" \
     --config-file="config.yaml" \
-    --samples-table="samples.tsv" \
-    --logo="../../images/logo.128px.png" \
     --multimappers='10' \
-    "../input_files"
+    --logo="../../images/logo.128px.png" \
+    "input_table.tsv"
 
 
 # Check if dry run completes

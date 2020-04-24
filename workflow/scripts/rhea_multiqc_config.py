@@ -39,7 +39,6 @@ def main():
 
     parser.add_argument("--url",
                         help="Url of the lab",
-                        # default='https://zavolan.biozentrum.unibas.ch/',
                         metavar="STR")
 
     parser.add_argument("--author-name",

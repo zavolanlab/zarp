@@ -214,7 +214,7 @@ rule quantification_salmon:
                 str(samples_table.loc[wildcards.sample, "kmer"]),
                 "salmon.idx"),
         gtf = lambda wildcards:
-            samples_table.loc[wildcards.sample, "gtf_filtered"]
+            samples_table.loc[wildcards.sample, "gtf"]
 
     output:
         gn_estimates = os.path.join(
