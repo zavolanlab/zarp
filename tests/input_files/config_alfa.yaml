@@ -6,4 +6,7 @@
   salmon_indexes: "results/salmon_indexes/"
   star_indexes: "results/star_indexes/"
   alfa_indexes: "results/alfa_indexes/"
+  report_description: "No description provided by user"
+  report_logo: "../../images/logo.128px.png"
+  report_url: "https://zavolan.biozentrum.unibas.ch/"
 ...

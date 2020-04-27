@@ -1,72 +1,33 @@
-
-rule pe_fastqc:
-    '''
-        A quality control tool for high throughput sequence data
-    '''
-    input:
-        reads1 = lambda wildcards:
-            samples_table.loc[wildcards.sample, "fq1"],
-        reads2 = lambda wildcards:
-            samples_table.loc[wildcards.sample, "fq2"]
-
-    output:
-        outdir1 = directory(os.path.join(
-            config["output_dir"],
-            "paired_end",
-            "{sample}",
-            "mate1_fastqc")),
-        outdir2 = directory(os.path.join(
-            config["output_dir"],
-            "paired_end",
-            "{sample}",
-            "mate2_fastqc"))
-
-    threads: 2
-
-    singularity:
-        "docker://zavolab/fastqc:0.11.9-slim"
-
-    log:
-        stderr = os.path.join(
-            config["log_dir"],
-            "paired_end",
-            "{sample}",
-            "fastqc.stderr.log"),
-        stdout = os.path.join(
-            config["log_dir"],
-            "paired_end",
-            "{sample}",
-            "fastqc.stdout.log")
-
-    shell:
-        "(mkdir -p {output.outdir1}; \
-        mkdir -p {output.outdir2}; \
-        fastqc --outdir {output.outdir1} {input.reads1}; \
-        fastqc --outdir {output.outdir2} {input.reads2};) \
-        1> {log.stdout} 2> {log.stderr}"
-
-
 rule pe_remove_adapters_cutadapt:
     '''
         Remove adapters
     '''
     input:
-        reads1 = lambda wildcards:
-            samples_table.loc[wildcards.sample, "fq1"],
-        reads2 = lambda wildcards:
-            samples_table.loc[wildcards.sample, "fq2"]
+        reads1 = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "start",
+            "{sample}.fq1.fastq.gz"),
+
+        reads2 = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "start",
+            "{sample}.fq2.fastq.gz"),
 
     output:
         reads1 = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "{sample}.remove_adapters_mate1.fastq.gz"),
+            "{sample}.pe.remove_adapters_mate1.fastq.gz"),
         reads2 = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "{sample}.remove_adapters_mate2.fastq.gz")
+            "{sample}.pe.remove_adapters_mate2.fastq.gz")
 
     params:
         adapter_3_mate1 = lambda wildcards:
@@ -86,14 +47,14 @@ rule pe_remove_adapters_cutadapt:
     log:
         stderr = os.path.join(
             config["log_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "remove_adapters_cutadapt.stderr.log"),
+            "remove_adapters_cutadapt.pe.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "remove_adapters_cutadapt.stdout.log")
+            "remove_adapters_cutadapt.pe.stdout.log")
 
     shell:
         "(cutadapt \
@@ -120,26 +81,26 @@ rule pe_remove_polya_cutadapt:
     input:
         reads1 = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "{sample}.remove_adapters_mate1.fastq.gz"),
+            "{sample}.pe.remove_adapters_mate1.fastq.gz"),
         reads2 = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "{sample}.remove_adapters_mate2.fastq.gz")
+            "{sample}.pe.remove_adapters_mate2.fastq.gz")
 
     output:
         reads1 = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "{sample}.remove_polya_mate1.fastq.gz"),
+            "{sample}.pe.remove_polya_mate1.fastq.gz"),
         reads2 = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "{sample}.remove_polya_mate2.fastq.gz")
+            "{sample}.pe.remove_polya_mate2.fastq.gz")
 
     params:
         polya_3_mate1 = lambda wildcards:
@@ -159,14 +120,14 @@ rule pe_remove_polya_cutadapt:
     log:
         stderr = os.path.join(
             config["log_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "remove_polya_cutadapt.stderr.log"),
+            "remove_polya_cutadapt.pe.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "remove_polya_cutadapt.stdout.log")
+            "remove_polya_cutadapt.pe.stdout.log")
 
     shell:
         "(cutadapt \
@@ -201,28 +162,28 @@ rule pe_map_genome_star:
                 "chrNameLength.txt"),
         reads1 = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "{sample}.remove_polya_mate1.fastq.gz"),
+            "{sample}.pe.remove_polya_mate1.fastq.gz"),
         reads2 = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "{sample}.remove_polya_mate2.fastq.gz")
+            "{sample}.pe.remove_polya_mate2.fastq.gz")
 
     output:
         bam = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
             "map_genome",
-            "{sample}_Aligned.sortedByCoord.out.bam"),
+            "{sample}.pe.Aligned.sortedByCoord.out.bam"),
         logfile = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
             "map_genome",
-            "{sample}_Log.final.out")
+            "{sample}.pe.Log.final.out")
 
     params:
         sample_id = "{sample}",
@@ -234,10 +195,10 @@ rule pe_map_genome_star:
                 "STAR_index"),
         outFileNamePrefix = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
             "map_genome",
-            "{sample}_"),
+            "{sample}.pe."),
         multimappers = lambda wildcards:
             str(samples_table.loc[wildcards.sample, "multimappers"]),
         soft_clip = lambda wildcards:
@@ -253,9 +214,9 @@ rule pe_map_genome_star:
     log:
         stderr = os.path.join(
             config["log_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "map_genome_star.stderr.log")
+            "map_genome_star.pe.stderr.log")
 
     shell:
         "(STAR \
@@ -289,16 +250,16 @@ rule pe_quantification_salmon:
     input:
         reads1 = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "{sample}.remove_polya_mate1.fastq.gz"),
+            "{sample}.pe.remove_polya_mate1.fastq.gz"),
         reads2 = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "{sample}.remove_polya_mate2.fastq.gz"),
+            "{sample}.pe.remove_polya_mate2.fastq.gz"),
         gtf = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'gtf_filtered'],
+            samples_table.loc[wildcards.sample, 'gtf'],
         index = lambda wildcards:
             os.path.join(
                 config["salmon_indexes"],
@@ -309,37 +270,37 @@ rule pe_quantification_salmon:
     output:
         gn_estimates = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "salmon_quant",
+            "{sample}.salmon.pe",
             "quant.genes.sf"),
         tr_estimates = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "salmon_quant",
+            "{sample}.salmon.pe",
             "quant.sf")
 
     params:
         output_dir = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "salmon_quant"),
+            "{sample}.salmon.pe"),
         libType = lambda wildcards:
             samples_table.loc[wildcards.sample, 'libtype']
 
     log:
         stderr = os.path.join(
             config["log_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "genome_quantification_salmon.stderr.log"),
+            "genome_quantification_salmon.pe.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "genome_quantification_salmon.stdout.log"),
+            "genome_quantification_salmon.pe.stdout.log"),
 
     threads: 6
 
@@ -357,7 +318,8 @@ rule pe_quantification_salmon:
         --geneMap {input.gtf} \
         -1 {input.reads1} \
         -2 {input.reads2} \
-        -o {params.output_dir}) 1> {log.stdout} 2> {log.stderr}"
+        -o {params.output_dir}; \
+        ) 1> {log.stdout} 2> {log.stderr}"
 
 
 rule pe_genome_quantification_kallisto:
@@ -367,14 +329,14 @@ rule pe_genome_quantification_kallisto:
     input:
         reads1 = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "{sample}.remove_polya_mate1.fastq.gz"),
+            "{sample}.pe.remove_polya_mate1.fastq.gz"),
         reads2 = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "{sample}.remove_polya_mate2.fastq.gz"),
+            "{sample}.pe.remove_polya_mate2.fastq.gz"),
         index = lambda wildcards:
             os.path.join(
                 config["kallisto_indexes"],
@@ -384,15 +346,15 @@ rule pe_genome_quantification_kallisto:
     output:
         pseudoalignment = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
             "quant_kallisto",
-            "{sample}.kallisto.pseudo.sam")
+            "{sample}.pe.kallisto.pseudo.sam")
 
     params:
         output_dir = os.path.join(
             config["output_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
             "quant_kallisto"),
         directionality = lambda wildcards:
@@ -406,16 +368,16 @@ rule pe_genome_quantification_kallisto:
     log:
         stderr = os.path.join(
             config["log_dir"],
-            "paired_end",
+            "samples",
             "{sample}",
-            "genome_quantification_kallisto.stderr.log")
+            "genome_quantification_kallisto.pe.stderr.log")
 
     shell:
         "(kallisto quant \
         -i {input.index} \
         -o {params.output_dir} \
         --pseudobam \
-        {params.directionality} \
+        {params.directionality}-stranded \
         {input.reads1} {input.reads2} > {output.pseudoalignment}) \
         2> {log.stderr}"
 

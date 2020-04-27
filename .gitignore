@@ -333,4 +333,5 @@ runs/.*
 logs/
 results/
 !tests/test_alfa/results/
+tests/input_files/homo_sapiens/genome.fa.fai
 .java/
