@@ -394,20 +394,24 @@ rule extract_transcripts_as_bed12:
             "full_transcripts_protein_coding.bed")
 
     singularity:
-        "docker://zavolab/gtf_transcript_type_to_bed12:0.1.0-slim"
+        "docker://zavolab/zgtf:0.1"
 
     threads: 1
 
     log:
+        stdout = os.path.join(
+            config['log_dir'],
+            "extract_transcripts_as_bed12.stdout.log"),
         stderr = os.path.join(
             config['log_dir'],
             "extract_transcripts_as_bed12.stderr.log")
 
     shell:
-        "(gtf_transcript_type_to_bed12.pl \
-        --anno={input.gtf} \
-        --type=protein_coding > {output.bed12}); \
-        2> {log.stderr}"
+        "(gtf2bed12 \
+        --gtf {input.gtf} \
+        --transcript_type protein_coding \
+        --bed12 {output.bed12}); \
+        1> {log.stdout} 2> {log.stderr}"
 
 
 rule index_genomic_alignment_samtools:
