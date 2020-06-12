@@ -3,11 +3,14 @@
 # Tear down test environment
 cleanup () {
     rc=$?
+    rm -rf .cache/
+    rm -rf .config/
     rm -rf .fontconfig/
     rm -rf .java/
     rm -rf .snakemake/
     rm -rf logs/
     rm -rf results/
+    rm -rf snakemake_report.html
     cd $user_dir
     echo "Exit status: $rc"
 }
@@ -33,6 +36,12 @@ snakemake \
     --use-singularity \
     --singularity-args="--bind ${PWD}/../input_files,${PWD}/../../images" \
     --verbose
+
+# Create a Snakemake report after the workflow execution
+snakemake \
+    --snakefile="../../Snakefile" \
+    --configfile="../input_files/config.yaml" \
+    --report="snakemake_report.html"
 
 # Check md5 sum of some output files
 find results/ -type f -name \*\.gz -exec gunzip '{}' \;
