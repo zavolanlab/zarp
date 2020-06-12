@@ -182,7 +182,7 @@ rule map_genome_star:
         --readFilesCommand zcat \
         --outSAMunmapped None  \
         --outFilterMultimapNmax {params.multimappers} \
-        --outFilterMultimapScoreRange 1 \
+        --outFilterMultimapScoreRange 0 \
         --outFileNamePrefix {params.outFileNamePrefix} \
         --outSAMattributes All \
         --outStd BAM_SortedByCoordinate \
