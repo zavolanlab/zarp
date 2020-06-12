@@ -21,13 +21,15 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 cd $script_dir/
 
 # Run tests
-python "../../scripts/labkey_to_snakemake.py" \
-    --input-to-output-mapping="../../scripts/labkey_to_snakemake.dict.tsv" \
+python "../../scripts/prepare_inputs.py" \
+    --input-to-output-mapping="../../scripts/prepare_inputs.dict.tsv" \
     --resources-dir="../input_files" \
     --output-table="samples.tsv" \
     --config-file="config.yaml" \
     --multimappers='10' \
     --logo="../../images/logo.128px.png" \
+    --output-dir="" \
+    --no-process-paths \
     "input_table.tsv"
 
 

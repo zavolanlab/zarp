@@ -254,10 +254,10 @@ replacing the placeholders with the appropriate values (check out the
 help screen with option '--help' for further options and information):
 
     ```bash
-    python scripts/labkey_to_snakemake.py \
+    python scripts/prepare_inputs.py \
         --labkey-domain="my.labkey.service.io"
         --labkey-domain="/my/project/path"
-        --input-to-output-mapping="scripts/labkey_to_snakemake.dict.tsv" \
+        --input-to-output-mapping="scripts/prepare_inputs.dict.tsv" \
         --resources-dir="/path/to/my/genome/resources" \
         --output-table="config/my_run/samples.tsv" \
         --config_file="config/my_run/config.yaml" \
