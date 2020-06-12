@@ -328,6 +328,7 @@ pip-selfcheck.json
 .DS_Store
 runs/.*
 !runs/PUT_YOUR_WORKFLOW_RUN_CONFIGS_HERE
+._*
 ._.DS_Store
 .snakemake/
 logs/
