@@ -1,4 +1,4 @@
-# Rhea pipeline
+# ZARP pipeline
 
 [Snakemake][snakemake] workflow for general purpose RNA-Seq library annotation
 developed by the [Zavolan lab][zavolan-lab].
@@ -32,8 +32,8 @@ Traverse to the desired path on your file system, then clone the repository and
 move into it with:
 
 ```bash
-git clone ssh://git@git.scicore.unibas.ch:2222/zavolan_group/pipelines/rhea.git
-cd rhea
+git clone ssh://git@git.scicore.unibas.ch:2222/zavolan_group/pipelines/zarp.git
+cd zarp
 ```
 
 ### Installing Conda
@@ -90,7 +90,7 @@ conda env create -f install/environment.root.yml
 Activate the Conda environment with:
 
 ```bash
-conda activate rhea
+conda activate zarp
 ```
 
 ### Installing non-essential dependencies

@@ -1,4 +1,4 @@
-name: rhea
+name: zarp
 channels:
   - conda-forge
   - defaults
