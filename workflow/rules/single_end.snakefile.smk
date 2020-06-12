@@ -237,7 +237,11 @@ rule quantification_salmon:
             "{sample}",
             "{sample}.salmon.se"),
         libType = lambda wildcards:
-                samples_table.loc[wildcards.sample, "libtype"]
+            samples_table.loc[wildcards.sample, "libtype"],
+        fraglen = lambda wildcards:
+            samples_table.loc[wildcards.sample, 'mean'],
+        fragsd = lambda wildcards:
+            samples_table.loc[wildcards.sample, 'sd']
 
     log:
         stderr = os.path.join(
@@ -262,6 +266,8 @@ rule quantification_salmon:
         --seqBias \
         --validateMappings \
         --threads {threads} \
+        --fldMean {params.fraglen} \
+        --fldSD {params.fragsd} \
         --writeUnmappedNames \
         --index {input.index} \
         --geneMap {input.gtf} \
