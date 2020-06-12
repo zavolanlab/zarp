@@ -1,4 +1,4 @@
-# Rhea: workflow documentation
+# ZARP: workflow documentation
 
 This document describes the individual steps of the workflow. For instructions
 on installation and usage please see [here](README.md).

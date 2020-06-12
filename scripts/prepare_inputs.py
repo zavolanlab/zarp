@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Create input table and config for Rhea."""
+"""Create input table and config for ZARP."""
 
 import argparse
 from functools import partial
@@ -79,14 +79,14 @@ def parse_cli_args() -> argparse.Namespace:
         "--output-table",
         type=argparse.FileType('w'),
         default="samples.tsv",
-        help="output sample table for use in Rhea (default: %(default)s)",
+        help="output sample table for use in ZARP (default: %(default)s)",
         metavar="FILE",
     )
     io.add_argument(
         "--config-file",
         type=argparse.FileType('w'),
         default="config.yaml",
-        help="output Snakemake configuration file for use in Rhea (default: "
+        help="output Snakemake configuration file for use in ZARP (default: "
              "%(default)s)",
         metavar="FILE",
     )
@@ -94,7 +94,7 @@ def parse_cli_args() -> argparse.Namespace:
         "--output-dir",
         type=str,
         default=os.getcwd(),
-        help="directory to which Rhea results and logs are to be written "
+        help="directory to which ZARP results and logs are to be written "
              "(default: %(default)s)",
         metavar="DIR",
     )
@@ -453,7 +453,7 @@ def expand_path(
 
 def main(args):
     """
-    Create input table and config for Rhea.
+    Create input table and config for ZARP.
     """
     setup_logging(
         logger=logger,

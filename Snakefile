@@ -1117,7 +1117,7 @@ rule prepare_multiqc_config:
             workflow.basedir,
             "workflow",
             "scripts",
-            "rhea_multiqc_config.py")
+            "zarp_multiqc_config.py")
 
     output:
         multiqc_config = os.path.join(
