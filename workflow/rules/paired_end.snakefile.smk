@@ -31,13 +31,13 @@ rule pe_remove_adapters_cutadapt:
 
     params:
         adapter_3_mate1 = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'fq1_3p'],
+            get_sample('fq1_3p', search_id='index', search_value=wildcards.sample),
         adapter_5_mate1 = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'fq1_5p'],
+            get_sample('fq1_5p', search_id='index', search_value=wildcards.sample),
         adapter_3_mate2 = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'fq2_3p'],
+            get_sample('fq2_3p', search_id='index', search_value=wildcards.sample),
         adapter_5_mate2 = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'fq2_5p']
+            get_sample('fq2_5p', search_id='index', search_value=wildcards.sample)
 
     singularity:
         "docker://zavolab/cutadapt:1.16-slim"
@@ -104,13 +104,25 @@ rule pe_remove_polya_cutadapt:
 
     params:
         polya_3_mate1 = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'fq1_polya_3p'],
+            get_sample(
+                'fq1_polya_3p',
+                search_id='index',
+                search_value=wildcards.sample),
         polya_5_mate1 = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'fq1_polya_5p'],
+            get_sample(
+                'fq1_polya_5p',
+                search_id='index',
+                search_value=wildcards.sample),
         polya_3_mate2 = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'fq2_polya_3p'],
+            get_sample(
+                'fq2_polya_3p',
+                search_id='index',
+                search_value=wildcards.sample),
         polya_5_mate2 = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'fq2_polya_5p']
+            get_sample(
+                'fq2_polya_5p',
+                search_id='index',
+                search_value=wildcards.sample)
 
     singularity:
         "docker://zavolab/cutadapt:1.16-slim"
@@ -156,8 +168,14 @@ rule pe_map_genome_star:
         index = lambda wildcards:
             os.path.join(
                 config["star_indexes"],
-                str(samples_table.loc[wildcards.sample, "organism"]),
-                str(samples_table.loc[wildcards.sample, "index_size"]),
+                get_sample(
+                    'organism',
+                    search_id='index',
+                    search_value=wildcards.sample),
+                get_sample(
+                    'index_size',
+                    search_id='index',
+                    search_value=wildcards.sample),
                 "STAR_index",
                 "chrNameLength.txt"),
         reads1 = os.path.join(
@@ -190,8 +208,14 @@ rule pe_map_genome_star:
         index = lambda wildcards:
             os.path.join(
                 config["star_indexes"],
-                str(samples_table.loc[wildcards.sample, "organism"]),
-                str(samples_table.loc[wildcards.sample, "index_size"]),
+                get_sample(
+                    'organism',
+                    search_id='index',
+                    search_value=wildcards.sample),
+                get_sample(
+                    'index_size',
+                    search_id='index',
+                    search_value=wildcards.sample),
                 "STAR_index"),
         outFileNamePrefix = os.path.join(
             config["output_dir"],
@@ -200,11 +224,20 @@ rule pe_map_genome_star:
             "map_genome",
             "{sample}.pe."),
         multimappers = lambda wildcards:
-            str(samples_table.loc[wildcards.sample, "multimappers"]),
+            get_sample(
+                'multimappers',
+                search_id='index',
+                search_value=wildcards.sample),
         soft_clip = lambda wildcards:
-            samples_table.loc[wildcards.sample, "soft_clip"],
+            get_sample(
+                'soft_clip',
+                search_id='index',
+                search_value=wildcards.sample),
         pass_mode = lambda wildcards:
-            samples_table.loc[wildcards.sample, "pass_mode"]
+            get_sample(
+                'pass_mode',
+                search_id='index',
+                search_value=wildcards.sample),
 
     singularity:
         "docker://zavolab/star:2.7.3a-slim"
@@ -259,12 +292,21 @@ rule pe_quantification_salmon:
             "{sample}",
             "{sample}.pe.remove_polya_mate2.fastq.gz"),
         gtf = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'gtf'],
+            get_sample(
+                'gtf',
+                search_id='index',
+                search_value=wildcards.sample),
         index = lambda wildcards:
             os.path.join(
                 config["salmon_indexes"],
-                str(samples_table.loc[wildcards.sample, "organism"]),
-                str(samples_table.loc[wildcards.sample, "kmer"]),
+                get_sample(
+                    'organism',
+                    search_id='index',
+                    search_value=wildcards.sample),
+                get_sample(
+                    'kmer',
+                    search_id='index',
+                    search_value=wildcards.sample),
                 "salmon.idx")
 
     output:
@@ -288,7 +330,10 @@ rule pe_quantification_salmon:
             "{sample}",
             "{sample}.salmon.pe"),
         libType = lambda wildcards:
-            samples_table.loc[wildcards.sample, 'libtype']
+            get_sample(
+                'libtype',
+                search_id='index',
+                search_value=wildcards.sample)
 
     log:
         stderr = os.path.join(
@@ -340,7 +385,10 @@ rule pe_genome_quantification_kallisto:
         index = lambda wildcards:
             os.path.join(
                 config["kallisto_indexes"],
-                samples_table.loc[wildcards.sample, 'organism'],
+                get_sample(
+                    'organism',
+                    search_id='index',
+                    search_value=wildcards.sample),
                 "kallisto.idx")
 
     output:
@@ -358,7 +406,10 @@ rule pe_genome_quantification_kallisto:
             "{sample}",
             "quant_kallisto"),
         directionality = lambda wildcards:
-            samples_table.loc[wildcards.sample, "kallisto_directionality"]
+            get_sample(
+                'kallisto_directionality',
+                search_id='index',
+                search_value=wildcards.sample)
 
     singularity:
         "docker://zavolab/kallisto:0.46.1-slim"
