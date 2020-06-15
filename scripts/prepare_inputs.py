@@ -512,7 +512,7 @@ def main(args):
     for index, row in input_table.iterrows():
 
         # extract data from LabKey-like table
-        lk_replicate_name = row[input_dict.loc['replicate_name', 'labkey']]
+        lk_sample_name = row[input_dict.loc['sample_name', 'labkey']]
         lk_condition = row[input_dict.loc['condition', 'labkey']]
         lk_seqmode = row[input_dict.loc['seqmode', 'labkey']]
         lk_fastq_path = row[input_dict.loc['fastq_path', 'labkey']]
@@ -539,7 +539,7 @@ def main(args):
             )
         else:
             anchor = os.path.abspath(os.path.dirname(args.table))
-        sample = "_".join([lk_replicate_name, lk_condition])
+        sample = "_".join([lk_sample_name, lk_condition])
         if lk_seqmode == 'PAIRED':
             seqmode = 'pe'
             fq2 = expand_path(
