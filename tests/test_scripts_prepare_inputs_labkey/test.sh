@@ -40,7 +40,7 @@ python "../../scripts/prepare_inputs.py" \
     --multimappers='10' \
     --logo="../../images/logo.128px.png" \
     --debug \
-    "RNA_Seq_data_template"
+    "RNA_Seq_data_template_raw"
 
 # Check if dry run completes
 snakemake \
