@@ -13,6 +13,15 @@ samples_table = pd.read_csv(
     sep="\t",
 )
 
+
+def get_sample(column_id, search_id=None, search_value=None):
+    if search_id:
+        if search_id == 'index':
+            return str(samples_table[column_id][samples_table.index == search_value][0])
+        else:
+            return str(samples_table[column_id][samples_table[search_id] == search_value][0])
+    else:
+        return str(samples_table[column_id][0])
 # Global config
 localrules: start, finish, rename_star_rpm_for_alfa, prepare_multiqc_config
 
@@ -45,7 +54,7 @@ rule finish:
                 "bigWig",
                 "{unique_type}",
                 "{sample}_{unique_type}_{strand}.bw"),
-            sample=samples_table.index.values,
+            sample=pd.unique(samples_table.index.values),
             strand=["plus", "minus"],
             unique_type=["Unique", "UniqueMultiple"]),
 
@@ -72,7 +81,10 @@ rule start:
     '''
     input:
         reads = lambda wildcards:
-            samples_table.loc[wildcards.sample, wildcards.mate],
+            expand(
+                pd.Series(
+                    samples_table.loc[wildcards.sample, wildcards.mate]
+                ).values)
 
     output:
         reads = os.path.join(
@@ -98,7 +110,7 @@ rule start:
         "docker://bash:5.0.16"
 
     shell:
-        "(cp {input.reads} {output.reads}) \
+        "(cat {input.reads} > {output.reads}) \
         1> {log.stdout} 2> {log.stderr} "
 
 
@@ -152,13 +164,16 @@ rule create_index_star:
     """
     input:
         genome = lambda wildcards:
-            samples_table['genome']
-            [samples_table['organism'] == wildcards.organism]
-            [0],
+            get_sample(
+                'genome',
+                search_id='organism',
+                search_value=wildcards.organism),
+
         gtf = lambda wildcards:
-            samples_table['gtf']
-            [samples_table['organism'] == wildcards.organism]
-            [0]
+            get_sample(
+                'gtf',
+                search_id='organism',
+                search_value=wildcards.organism)
 
     output:
         chromosome_info = os.path.join(
@@ -220,12 +235,15 @@ rule extract_transcriptome:
     """
     input:
         genome = lambda wildcards:
-            samples_table['genome'][
-                samples_table['organism'] == wildcards.organism][0],
+            get_sample(
+                'genome',
+                search_id='organism',
+                search_value=wildcards.organism),
         gtf = lambda wildcards:
-            samples_table['gtf'][
-                samples_table['organism'] == wildcards.organism][0]
-
+            get_sample(
+                'gtf',
+                search_id='organism',
+                search_value=wildcards.organism)
     output:
         transcriptome = os.path.join(
             config['output_dir'],
@@ -263,9 +281,10 @@ rule concatenate_transcriptome_and_genome:
             "transcriptome.fa"),
 
         genome = lambda wildcards:
-            samples_table['genome']
-            [samples_table['organism'] == wildcards.organism]
-            [0]
+            get_sample(
+                'genome',
+                search_id='organism',
+                search_value=wildcards.organism)
 
     output:
         genome_transcriptome = os.path.join(
@@ -301,8 +320,8 @@ rule create_index_salmon:
         chr_names = lambda wildcards:
             os.path.join(
                 config['star_indexes'],
-                samples_table["organism"][0],
-                str(samples_table["index_size"][0]),
+                get_sample('organism'),
+                get_sample("index_size"),
                 "STAR_index",
                 "chrName.txt")
 
@@ -386,7 +405,7 @@ rule extract_transcripts_as_bed12:
     """
     input:
         gtf = lambda wildcards:
-            samples_table['gtf'][0]
+            get_sample('gtf')
 
     output:
         bed12 = os.path.join(
@@ -469,7 +488,10 @@ rule calculate_TIN_scores:
                     "map_genome",
                     "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam"),
                 sample=wildcards.sample,
-                seqmode=samples_table.loc[wildcards.sample, 'seqmode']),
+                seqmode=get_sample(
+                    'seqmode',
+                    search_id='index',
+                    search_value=wildcards.sample)),
         bai = lambda wildcards:
             expand(
                 os.path.join(
@@ -479,7 +501,10 @@ rule calculate_TIN_scores:
                     "map_genome",
                     "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam.bai"),
                 sample=wildcards.sample,
-                seqmode=samples_table.loc[wildcards.sample, 'seqmode']),
+                seqmode=get_sample(
+                    'seqmode',
+                    search_id='index',
+                    search_value=wildcards.sample)),
         transcripts_bed12 = os.path.join(
             config['output_dir'],
             "full_transcripts_protein_coding.bed")
@@ -528,7 +553,7 @@ rule merge_TIN_scores:
                 "{sample}",
                 "TIN",
                 "TIN_score.tsv"),
-            sample=samples_table.index.values),
+            sample=pd.unique(samples_table.index.values)),
 
     output:
         TIN_scores_merged = os.path.join(
@@ -552,9 +577,10 @@ rule merge_TIN_scores:
                 "TIN",
                 "TIN_score.tsv"),
             zip,
-            sample=[i for i in list(samples_table.index.values)],
-            seqmode=[samples_table.loc[i, 'seqmode']
-                     for i in list(samples_table.index.values)]))
+            sample=[i for i in pd.unique(samples_table.index.values)],
+            seqmode=[get_sample('seqmode',
+                    search_id='index',
+                    search_value=i) for i in pd.unique(samples_table.index.values)]))
 
     threads: 1
 
@@ -623,9 +649,12 @@ rule salmon_quantmerge_genes:
                 "{sample}.salmon.{seqmode}",
                 "quant.sf"),
             zip,
-            sample=samples_table.index.values,
-            seqmode=[samples_table.loc[i, 'seqmode']
-                     for i in list(samples_table.index.values)])
+            sample=pd.unique(samples_table.index.values),
+            seqmode=[get_sample(
+                'seqmode',
+                search_id='index',
+                search_value=i)
+                for i in pd.unique(samples_table.index.values)])
 
     output:
         salmon_out = os.path.join(
@@ -642,12 +671,15 @@ rule salmon_quantmerge_genes:
                 "{sample}",
                 "{sample}.salmon.{seqmode}"),
             zip,
-            sample=[i for i in list(samples_table.index.values)],
-            seqmode=[samples_table.loc[i, 'seqmode']
-                     for i in list(samples_table.index.values)]),
+            sample=[i for i in pd.unique(samples_table.index.values)],
+            seqmode=[get_sample(
+                'seqmode',
+                search_id='index',
+                search_value=i)
+                for i in pd.unique(samples_table.index.values)]),
         sample_name_list = expand(
             "{sample}",
-            sample=list(samples_table.index.values)),
+            sample=pd.unique(samples_table.index.values)),
         salmon_merge_on = "{salmon_merge_on}"
 
     log:
@@ -686,9 +718,12 @@ rule salmon_quantmerge_transcripts:
                 "{sample}.salmon.{seqmode}",
                 "quant.sf"),
             zip,
-            sample=[i for i in list(samples_table.index.values)],
-            seqmode=[samples_table.loc[i, 'seqmode']
-                     for i in list(samples_table.index.values)])
+            sample=[i for i in pd.unique(samples_table.index.values)],
+            seqmode=[get_sample(
+                'seqmode',
+                search_id='index',
+                search_value=i)
+                for i in pd.unique(samples_table.index.values)])
 
     output:
         salmon_out = os.path.join(
@@ -705,13 +740,16 @@ rule salmon_quantmerge_transcripts:
                 "{sample}",
                 "{sample}.salmon.{seqmode}"),
             zip,
-            sample=[i for i in list(samples_table.index.values)],
-            seqmode=[samples_table.loc[i, 'seqmode']
-                     for i in list(samples_table.index.values)]),
+            sample=[i for i in pd.unique(samples_table.index.values)],
+            seqmode=[get_sample(
+                'seqmode',
+                search_id='index',
+                search_value=i)
+                for i in pd.unique(samples_table.index.values)]),
 
         sample_name_list = expand(
             "{sample}",
-            sample=list(samples_table.index.values)),
+            sample=pd.unique(samples_table.index.values)),
         salmon_merge_on = "{salmon_merge_on}"
 
     log:
@@ -750,7 +788,10 @@ rule star_rpm:
                     "map_genome",
                     "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam"),
                 sample=wildcards.sample,
-                seqmode=samples_table.loc[wildcards.sample, 'seqmode']),
+                seqmode=get_sample(
+                    'seqmode',
+                    search_id='index',
+                    search_value=wildcards.sample)),
         bai = lambda wildcards:
             expand(
                 os.path.join(
@@ -760,7 +801,10 @@ rule star_rpm:
                     "map_genome",
                     "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam.bai"),
                 sample=wildcards.sample,
-                seqmode=samples_table.loc[wildcards.sample, 'seqmode']),
+                seqmode=get_sample(
+                    'seqmode',
+                    search_id='index',
+                    search_value=wildcards.sample))
 
     output:
         str1 = os.path.join(
@@ -840,8 +884,10 @@ rule rename_star_rpm_for_alfa:
                     "{sample}_Signal.{unique}.{plus}.out.bg"),
                 sample=wildcards.sample,
                 unique=wildcards.unique,
-                plus=samples_table.loc[wildcards.sample, 'alfa_plus']),
-
+                plus=get_sample(
+                    'alfa_plus',
+                    search_id='index',
+                    search_value=wildcards.sample)),
         minus = lambda wildcards:
             expand(
                 os.path.join(
@@ -852,7 +898,10 @@ rule rename_star_rpm_for_alfa:
                     "{sample}_Signal.{unique}.{minus}.out.bg"),
                 sample=wildcards.sample,
                 unique=wildcards.unique,
-                minus=samples_table.loc[wildcards.sample, 'alfa_minus'])
+                minus=get_sample(
+                    'alfa_minus',
+                    search_id='index',
+                    search_value=wildcards.sample))
 
     output:
         plus = os.path.join(
@@ -872,7 +921,10 @@ rule rename_star_rpm_for_alfa:
 
     params:
         orientation = lambda wildcards:
-            samples_table.loc[wildcards.sample, "kallisto_directionality"]
+            get_sample(
+                'kallisto_directionality',
+                search_id='index',
+                search_value=wildcards.sample),
 
     log:
         stderr = os.path.join(
@@ -899,8 +951,11 @@ rule generate_alfa_index:
     ''' Generate ALFA index files from sorted GTF file '''
     input:
         gtf = lambda wildcards:
-            samples_table["gtf"]
-            [samples_table["organism"] == wildcards.organism][0],
+            get_sample(
+                'gtf',
+                search_id='organism',
+                search_value=wildcards.organism),
+
         chr_len = os.path.join(
             config["star_indexes"],
             "{organism}",
@@ -967,8 +1022,14 @@ rule alfa_qc:
         gtf = lambda wildcards:
             os.path.join(
                 config["alfa_indexes"],
-                samples_table.loc[wildcards.sample, "organism"],
-                str(samples_table.loc[wildcards.sample, "index_size"]),
+                get_sample(
+                    'organism',
+                    search_id='index',
+                    search_value=wildcards.sample),
+                get_sample(
+                    'index_size',
+                    search_id='index',
+                    search_value=wildcards.sample),
                 "ALFA",
                 "sorted_genes.stranded.ALFA_index")
 
@@ -1003,8 +1064,10 @@ rule alfa_qc:
         minus = lambda wildcards, input:
             os.path.basename(input.minus),
         alfa_orientation = lambda wildcards:
-            [samples_table.loc[
-                wildcards.sample, "alfa_directionality"]],
+            get_sample(
+                'alfa_directionality',
+                search_id='index',
+                search_value=wildcards.sample),
         genome_index = lambda wildcards, input:
             os.path.abspath(
                 os.path.join(
@@ -1045,7 +1108,7 @@ rule alfa_qc_all_samples:
                     "ALFA",
                     "{unique}",
                     "{sample}.ALFA_feature_counts.tsv"),
-                sample=samples_table.index.values,
+                sample=pd.unique(samples_table.index.values),
                 unique=wildcards.unique)
     output:
         biotypes = os.path.join(
@@ -1158,7 +1221,7 @@ rule multiqc_report:
                 "{sample}",
                 "fastqc",
                 "{mate}"),
-            sample=samples_table.index.values,
+            sample=pd.unique(samples_table.index.values),
             mate="fq1"),
 
         fastqc_pe = expand(
@@ -1168,7 +1231,7 @@ rule multiqc_report:
                 "{sample}",
                 "fastqc",
                 "{mate}"),
-            sample=[i for i in list(
+            sample=[i for i in pd.unique(
                 samples_table[samples_table['seqmode'] == 'pe'].index.values)],
             mate="fq2"),
 
@@ -1180,9 +1243,9 @@ rule multiqc_report:
                 "quant_kallisto",
                 "{sample}.{seqmode}.kallisto.pseudo.sam"),
             zip,
-            sample=[i for i in list(samples_table.index.values)],
-            seqmode=[samples_table.loc[i, 'seqmode']
-                     for i in list(samples_table.index.values)]),
+            sample=[i for i in pd.unique(samples_table.index.values)],
+            seqmode=[get_sample('seqmode', search_id='index', search_value=i) 
+                for i in pd.unique(samples_table.index.values)]),
 
         TIN_boxplot_PNG = os.path.join(
             config['output_dir'],
@@ -1284,8 +1347,14 @@ rule prepare_bigWig:
         chr_sizes = lambda wildcards:
             os.path.join(
                 config['star_indexes'],
-                samples_table.loc[wildcards.sample, "organism"],
-                str(samples_table.loc[wildcards.sample, "index_size"]),
+                get_sample(
+                    'organism',
+                    search_id='index',
+                    search_value=wildcards.sample),
+                get_sample(
+                    'index_size',
+                    search_id='index',
+                    search_value=wildcards.sample),
                 "STAR_index",
                 "chrNameLength.txt")
 

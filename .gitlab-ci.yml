@@ -19,4 +19,5 @@ test:
     - bash tests/test_create_dag_image/test.sh
     - bash tests/test_create_rule_graph/test.sh
     - bash tests/test_integration_workflow/test.local.sh
+    - bash tests/test_integration_workflow_multiple_lanes/test.local.sh
 
