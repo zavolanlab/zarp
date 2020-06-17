@@ -4,7 +4,7 @@
     "queue": "6hours",
     "time": "01:00:00",
     "threads": "1",
-    "mem": "4G",
+    "mem": "8G",
     "name": "{rule}.{wildcards}",
     "out": "logs/cluster/{rule}.{wildcards}-%j-%N.out"
   },
@@ -42,7 +42,7 @@
   {
     "time": "03:00:00",
     "threads":"8",
-    "mem":"10G"
+    "mem":"20G"
   },
   "create_index_kallisto":
   {
