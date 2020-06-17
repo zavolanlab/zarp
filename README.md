@@ -1,19 +1,20 @@
-# ZARP pipeline
+# ZARP
 
-[Snakemake][snakemake] workflow for general purpose RNA-Seq library annotation
-developed by the [Zavolan lab][zavolan-lab].
+[Snakemake][snakemake] workflow that covers common steps of short read RNA-Seq 
+library analysis developed by the [Zavolan lab][zavolan-lab].
 
-Reads are processed, aligned, quantified and analyzed with state-of-the-art
-tools to give meaningful initial insights into various aspects of an RNA-Seq
-library while cutting down on hands-on time for bioinformaticians.
+Reads are analyzed (pre-processed, aligned, quantified) with state-of-the-art
+tools to give meaningful initial insights into the quality and composition 
+of an RNA-Seq library, reducing hands-on time for bioinformaticians and giving
+experimentalists the possibility to rapidly assess their data.
 
-Below is a schematic representation of the individual workflow steps ("pe"
-refers to "paired-end"):
+Below is a schematic representation of the individual steps of the workflow 
+("pe" refers to "paired-end"):
 
 > ![rule_graph][rule-graph]
 
-For a more detailed description of each step, please refer to the [pipeline
-documentation][pipeline-documentation].
+For a more detailed description of each step, please refer to the [workflow
+documentation][workflow-documentation].
 
 ## Requirements
 
@@ -28,8 +29,8 @@ on the following distributions:
 
 ### Cloning the repository
 
-Traverse to the desired path on your file system, then clone the repository and
-move into it with:
+Traverse to the desired directory/folder on your file system, then clone/get the 
+repository and move into the respective directory with:
 
 ```bash
 git clone ssh://git@git.scicore.unibas.ch:2222/zavolan_group/pipelines/zarp.git
@@ -49,8 +50,8 @@ Other versions are not guaranteed to work as expected.
 For improved reproducibility and reusability of the workflow,
 each individual step of the workflow runs in its own [Singularity][singularity]
 container. As a consequence, running this workflow has very few
-individual dependencies. It does, however, require Singularity to be installed
-on the system running the workflow. As the functional installation of
+individual dependencies. However, it requires Singularity to be installed
+on the system where the workflow is executed. As the functional installation of
 Singularity requires root privileges, and Conda currently only provides
 Singularity for Linux architectures, the installation instructions are
 slightly different depending on your system/setup:
@@ -105,15 +106,14 @@ conda env update -f install/environment.dev.yml
 
 ## Testing the installation
 
-We have prepared several tests to check the integrity of the workflow, its
-components and non-essential processing scripts. These can be found in
-subdirectories of the `tests/` directory. The most critical of these tests
-lets you execute the entire workflow on a small set of example input files.
-Note that for this and other tests to complete without issues,
-[additional dependencies](#installing-non-essential-dependencies) need to be
-installed.
+We have prepared several tests to check the integrity of the workflow and its
+components. These can be found in subdirectories of the `tests/` directory. 
+The most critical of these tests enable you execute the entire workflow on a 
+set of small example input files. Note that for this and other tests to complete
+successfully, [additional dependencies](#installing-non-essential-dependencies) 
+need to be installed.
 
-### Run workflow on local machine
+### Test workflow on local machine
 
 Execute the following command to run the test workflow on your local machine:
 
@@ -121,7 +121,7 @@ Execute the following command to run the test workflow on your local machine:
 bash tests/test_integration_workflow/test.local.sh
 ```
 
-### Run workflow via Slurm
+### Test workflow via Slurm
 
 Execute the following command to run the test workflow on a
 [Slurm][slurm]-managed high-performance computing (HPC) cluster:
@@ -131,15 +131,15 @@ bash tests/test_integration_workflow/test.slurm.sh
 ```
 
 > **NOTE:** Depending on the configuration of your Slurm installation or if
-> using a different workflow manager, you may need to adapt file `cluster.json`
-> and the arguments to options `--config` and `--cores` in file
+> using a different workload manager, you may need to adapt file `cluster.json`
+> and the arguments to options `--config` and `--cores` in the file
 > `test.slurm.sh`, both located in directory `tests/test_integration_workflow`.
 > Consult the manual of your workload manager as well as the section of the
 > Snakemake manual dealing with [cluster execution].
 
 ## Running the workflow on your own samples
 
-1. Assuming that you are currently inside the repository's root directory,
+1. Assuming that your current directory is the repository's root directory,
 create a directory for your workflow run and traverse inside it with:
 
     ```bash
@@ -156,7 +156,7 @@ configuration files:
     touch cluster.json
     ```
 
-3. Use your editor of choice to manually populate these files with appropriate
+3. Use your editor of choice to populate these files with appropriate
 values. Have a look at the examples in the `tests/` directory to see what the
 files should look like, specifically:
 
@@ -166,7 +166,7 @@ files should look like, specifically:
 
 4. Create a runner script. Pick one of the following choices for either local
 or cluster execution. Before execution of the respective command, you must
-replace the data directory placeholders in the argument to the
+replace the data directory placeholders in the argument of the
 `--singularity-args` option with a comma-separated list of _all_ directories
 containing input data files (samples and any annoation files etc) required for
 your run.
@@ -223,9 +223,11 @@ Our lab stores metadata for sequencing samples in a locally deployed
 programmatic access to the LabKey data table and convert it to the
 corresponding workflow inputs (`samples.tsv` and `config.yaml`), respectively.
 As such, these scripts largely automate step 3. of the above instructions.
-However, as these scripts were specifically for the needs of our lab, they are
-likely not portable or, at least, will require considerable modification for
-other setups (e.g., different LabKey table structure).
+However, as these scripts were written specifically for the needs of our lab, 
+they are likely not directly usable or, at least, will require considerable 
+modification for other setups (e.g., different LabKey table structure).
+Nevertheless, they can serve as an example for interfacing between LabKey and
+your workflow.
 
 > **NOTE:** All of the below steps assume that your current working directory
 > is the repository's root directory.
