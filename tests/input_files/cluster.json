@@ -42,7 +42,13 @@
   {
     "time": "03:00:00",
     "threads":"8",
-    "mem":"10G"
+    "mem":"40G"
+  },
+  "sort_bed_4_big":
+  {
+    "time": "03:00:00",
+    "threads":"8",
+    "mem":"20G"
   },
   "create_index_kallisto":
   {
@@ -168,13 +174,13 @@
   {
     "time": "03:00:00",
     "threads":"6",
-    "mem":"10G"
+    "mem":"20G"
   }, 
   "quantification_salmon":
   {
     "time": "03:00:00",
     "threads":"6",
-    "mem":"10G"
+    "mem":"20G"
   }, 
   "pe_genome_quantification_kallisto":
   {
