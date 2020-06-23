@@ -57,7 +57,6 @@ rule finish:
             sample=pd.unique(samples_table.index.values),
             strand=["plus", "minus"],
             unique_type=["Unique", "UniqueMultiple"]),
-
         salmon_merge_genes = expand(
             os.path.join(
                 config["output_dir"],
@@ -65,7 +64,6 @@ rule finish:
                 "quantmerge",
                 "genes_{salmon_merge_on}.tsv"),
             salmon_merge_on=["tpm", "numreads"]),
-
         salmon_merge_transcripts = expand(
             os.path.join(
                 config["output_dir"],
@@ -73,6 +71,14 @@ rule finish:
                 "quantmerge",
                 "transcripts_{salmon_merge_on}.tsv"),
             salmon_merge_on=["tpm", "numreads"]),
+        kallisto_merge_transcripts = os.path.join(
+            config["output_dir"],
+            "summary_kallisto",
+            "transcripts_tpm.tsv"),
+        kallisto_merge_genes = os.path.join(
+            config["output_dir"],
+            "summary_kallisto",
+            "genes_tpm.tsv")
 
 
 rule start:
@@ -707,7 +713,7 @@ rule salmon_quantmerge_genes:
 
 rule salmon_quantmerge_transcripts:
     '''
-        Merge gene quantifications into a single file
+        Merge transcript quantifications into a single file
     '''
     input:
         salmon_in = expand(
@@ -771,6 +777,137 @@ rule salmon_quantmerge_transcripts:
         --names {params.sample_name_list} \
         --column {params.salmon_merge_on} \
         --output {output.salmon_out}) \
+        1> {log.stdout} 2> {log.stderr}"
+
+
+rule kallisto_merge_genes:
+    '''
+        Merge gene quantifications into single file
+    '''
+    input:
+        pseudoalignment = expand(
+            os.path.join(
+                config["output_dir"],
+                "samples",
+                "{sample}",
+                "quant_kallisto",
+                "{sample}.{seqmode}.kallisto.pseudo.sam"),
+            zip,
+            sample=[i for i in pd.unique(samples_table.index.values)],
+            seqmode=[get_sample(
+                'seqmode',
+                search_id='index',
+                search_value=i)
+                for i in pd.unique(samples_table.index.values)]),
+        gtf = get_sample('gtf')
+
+    output:
+        gn_out = os.path.join(
+            config["output_dir"],
+            "summary_kallisto",
+            "genes_tpm.tsv")
+
+    params:
+        dir_out = os.path.join(
+            config["output_dir"],
+            "summary_kallisto"),
+        tables = ','.join(expand(
+            os.path.join(
+                config["output_dir"],
+                "samples",
+                "{sample}",
+                "quant_kallisto",
+                "abundance.h5"),
+            sample=[i for i in pd.unique(samples_table.index.values)])),
+        sample_name_list = ','.join(expand(
+            "{sample}",
+            sample=pd.unique(samples_table.index.values))),
+
+    log:
+        stderr = os.path.join(
+            config["log_dir"],
+            "kallisto_merge_genes.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "kallisto_merge_genes.stdout.log")
+
+    threads: 1
+
+    singularity:
+        "docker://zavolab/merge_kallisto:0.6"
+
+    shell:
+        "(merge_kallisto.R \
+        --input {params.tables} \
+        --names {params.sample_name_list} \
+        --txOut FALSE \
+        --anno {input.gtf} \
+        --output {params.dir_out} \
+        --verbose) \
+        1> {log.stdout} 2> {log.stderr}"
+
+
+rule kallisto_merge_transcripts:
+    '''
+        Merge transcript quantifications into a single files
+    '''
+    input:
+        pseudoalignment = expand(
+            os.path.join(
+                config["output_dir"],
+                "samples",
+                "{sample}",
+                "quant_kallisto",
+                "{sample}.{seqmode}.kallisto.pseudo.sam"),
+            zip,
+            sample=[i for i in pd.unique(samples_table.index.values)],
+            seqmode=[get_sample(
+                'seqmode',
+                search_id='index',
+                search_value=i)
+                for i in pd.unique(samples_table.index.values)]),
+
+    output:
+        tx_out = os.path.join(
+            config["output_dir"],
+            "summary_kallisto",
+            "transcripts_tpm.tsv")
+
+    params:
+        dir_out = os.path.join(
+            config["output_dir"],
+            "summary_kallisto"),
+        tables = ','.join(expand(
+            os.path.join(
+                config["output_dir"],
+                "samples",
+                "{sample}",
+                "quant_kallisto",
+                "abundance.h5"),
+            sample=[i for i in pd.unique(samples_table.index.values)])),
+        sample_name_list = ','.join(expand(
+            "{sample}",
+            sample=pd.unique(samples_table.index.values))),
+
+    log:
+        stderr = os.path.join(
+            config["log_dir"],
+            "kallisto_merge_transcripts.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "kallisto_merge_transcripts.stdout.log")
+
+    threads: 1
+
+    singularity:
+        "docker://zavolab/merge_kallisto:0.6"
+
+    shell:
+        "(merge_kallisto.R \
+        --input {params.tables} \
+        --names {params.sample_name_list} \
+        --output {params.dir_out} \
+        --verbose) \
         1> {log.stdout} 2> {log.stderr}"
 
 

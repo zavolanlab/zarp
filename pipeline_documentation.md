@@ -30,6 +30,8 @@ on installation and usage please see [here](README.md).
     - [**plot_TIN_scores**](#plot_tin_scores)
     - [**salmon_quantmerge_genes**](#salmon_quantmerge_genes)
     - [**salmon_quantmerge_transcripts**](#salmon_quantmerge_transcripts)
+    - [**kallisto_merge_genes**](#kallisto_merge_genes)
+    - [**kallisto_merge_transcripts**](#kallisto_merge_transcripts)
     - [**generate_alfa_index**](#generate_alfa_index)
     - [**alfa_qc**](#alfa_qc)
     - [**alfa_qc_all_samples**](#alfa_qc_all_samples)
@@ -37,7 +39,7 @@ on installation and usage please see [here](README.md).
     - [**prepare_multiqc_config**](#prepare_multiqc_config)
     - [**multiqc_report**](#multiqc_report)
     - [**finish**](#finish)
-  - [**Sequencing mode-specific**](#sequencing-mode-specific)
+    - [**Sequencing mode-specific**](#sequencing-mode-specific)
     - [**remove_adapters_cutadapt**](#remove_adapters_cutadapt)
     - [**remove_polya_cutadapt**](#remove_polya_cutadapt)
     - [**map_genome_star**](#map_genome_star)
@@ -416,6 +418,36 @@ Merge transcript-level expression estimates for all samples with
   - Transcript read count table (custom `.tsv`); used in
     [**multiqc_report**](#multiqc_report)
 
+#### `kallisto_merge_genes`
+
+Merge gene-level expression estimates for all samples with 
+[custom script][custom-script-merge-kallisto].
+
+> Rule is run once per sequencing mode
+
+- **Input**
+  - Transcript expression tables (custom `.h5`) for samples of same sequencing
+    mode; from [**genome_quantification_kallisto**](#genome_quantification_kallisto) 
+  - Gene annotation file (custom `.gtf`)
+- **Output**
+  - Gene TPM table (custom `.tsv`)
+  - Gene read count table (custom `.tsv`)
+  - Mapping gene/transcript IDs table (custom `.tsv`)
+
+#### `kallisto_merge_transcripts`
+
+Merge transcript-level expression estimates for all samples with 
+[custom script][custom-script-merge-kallisto].
+
+> Rule is run once per sequencing mode
+
+- **Input**
+  - Transcript expression tables (custom `.h5`) for samples of same sequencing
+    mode; from [**genome_quantification_kallisto**](#genome_quantification_kallisto) 
+- **Output**
+  - Transcript TPM table (custom `.tsv`)
+  - Transcript read count table (custom `.tsv`)
+
 #### `generate_alfa_index`
 
 Create index for [**ALFA**](#third-party-software-used).
@@ -681,6 +713,7 @@ Generate pseudoalignments of reads to transcripts with
 [code-star]: <https://github.com/alexdobin/STAR>
 [custom-script-gtf-to-bed12]: <https://git.scicore.unibas.ch/zavolan_group/tools/gtf_transcript_type_to_bed12>
 [custom-script-tin]: <https://git.scicore.unibas.ch/zavolan_group/tools/tin_score_calculation>
+[custom-script-merge-kallisto]: <https://github.com/zavolanlab/merge_kallisto>
 [docs-alfa]: <https://github.com/biocompibens/ALFA#manual>
 [docs-bedgraphtobigwig]: <http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/>
 [docs-bedtools]: <https://bedtools.readthedocs.io/en/latest/>
