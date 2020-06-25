@@ -4,7 +4,7 @@ before_script:
   - apt update && apt install -y gcc
   - conda init bash && source ~/.bashrc && echo $CONDA_DEFAULT_ENV
   - conda env create -f install/environment.root.yml
-  - conda activate rhea && echo $CONDA_DEFAULT_ENV
+  - conda activate zarp && echo $CONDA_DEFAULT_ENV
   - conda env update -f install/environment.dev.yml
 
 test:
@@ -12,11 +12,12 @@ test:
     # add code quality tests here
     # add unit tests here
     # add script tests here
-    - bash tests/test_scripts_labkey_to_snakemake_table/test.sh
-    - bash tests/test_scripts_labkey_to_snakemake_api/test.sh
+    - bash tests/test_scripts_prepare_inputs_table/test.sh
+    - bash tests/test_scripts_prepare_inputs_labkey/test.sh
     - bash tests/test_alfa/test.sh
     # add integration tests here
     - bash tests/test_create_dag_image/test.sh
     - bash tests/test_create_rule_graph/test.sh
     - bash tests/test_integration_workflow/test.local.sh
+    - bash tests/test_integration_workflow_multiple_lanes/test.local.sh
 

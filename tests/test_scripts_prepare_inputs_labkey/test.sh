@@ -30,17 +30,17 @@ password ${LABKEY_PASS}
 EOF
 
 # Run tests
-python "../../scripts/labkey_to_snakemake.py" \
+python "../../scripts/prepare_inputs.py" \
     --labkey-domain="${LABKEY_HOST}" \
     --labkey-path="/Zavolan Group/TEST_LABKEY" \
-    --input-to-output-mapping="../../scripts/labkey_to_snakemake.dict.tsv" \
+    --input-to-output-mapping="../../scripts/prepare_inputs.dict.tsv" \
     --resources-dir="../input_files" \
     --output-table="samples.tsv" \
     --config-file="config.yaml" \
     --multimappers='10' \
     --logo="../../images/logo.128px.png" \
     --debug \
-    "RNA_Seq_data_template"
+    "RNA_Seq_data_template_raw"
 
 # Check if dry run completes
 snakemake \

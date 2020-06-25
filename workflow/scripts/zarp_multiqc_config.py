@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Author : Maria Katsantoni, Maciek Bak
 # Company: Mihaela Zavolan, Biozentrum, Basel
-# This script is part of the Zavolan lab Rhea pipeline.
+# This script is part of the Zavolan lab ZARP pipeline.
 # In this script the config file used by multiqc
 # (https://multiqc.info) is created.
 # -----------------------------------------------------------------------------
@@ -62,9 +62,9 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    title = "Rhea"
+    title = "ZARP"
     subtitle = "RNA-Seq processing pipeline developed by Zavolan Lab"
-    logo_title = 'Rhea'
+    logo_title = "ZARP"
     project_type = "Snakemake workflow"
     analysis_type = "RNA-seq"
 

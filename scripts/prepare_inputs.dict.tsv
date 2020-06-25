@@ -2,7 +2,7 @@ labkey	snakemake
 Entry_Date	entry_date
 Path_Fastq_Files	fastq_path
 Condition_Name	condition
-Replicate_Name	replicate_name
+Sample_Name	sample_name
 Single_Paired	seqmode
 Mate1_File	fq1
 Mate2_File	fq2
