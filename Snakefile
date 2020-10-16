@@ -80,7 +80,6 @@ rule finish:
             "summary_kallisto",
             "genes_tpm.tsv")
 
-
 rule start:
     '''
        Get samples
@@ -802,10 +801,14 @@ rule kallisto_merge_genes:
         gtf = get_sample('gtf')
 
     output:
-        gn_out = os.path.join(
+        gn_tpm = os.path.join(
             config["output_dir"],
             "summary_kallisto",
-            "genes_tpm.tsv")
+            "genes_tpm.tsv"),
+        gn_counts = os.path.join(
+            config["output_dir"],
+            "summary_kallisto",
+            "genes_counts.tsv")
 
     params:
         dir_out = os.path.join(
@@ -868,10 +871,14 @@ rule kallisto_merge_transcripts:
                 for i in pd.unique(samples_table.index.values)]),
 
     output:
-        tx_out = os.path.join(
+        tx_tpm = os.path.join(
             config["output_dir"],
             "summary_kallisto",
-            "transcripts_tpm.tsv")
+            "transcripts_tpm.tsv"),
+        tx_counts = os.path.join(
+            config["output_dir"],
+            "summary_kallisto",
+            "transcripts_counts.tsv")
 
     params:
         dir_out = os.path.join(
@@ -907,6 +914,87 @@ rule kallisto_merge_transcripts:
         --input {params.tables} \
         --names {params.sample_name_list} \
         --output {params.dir_out} \
+        --verbose) \
+        1> {log.stdout} 2> {log.stderr}"
+
+
+rule pca_salmon:
+    input:
+        tpm = os.path.join(
+            config["output_dir"],
+            "summary_salmon",
+            "quantmerge",
+            "{molecule}_tpm.tsv"),
+
+    params:
+        tpm_filter = "0",
+        tpm_pseudocount = "1"
+
+    output:
+        out = directory(os.path.join(
+            config["output_dir"],
+            "zpca",
+            "pca_salmon_{molecule}"))
+
+    log:
+        stderr = os.path.join(
+            config["log_dir"],
+            "pca_salmon_{molecule}.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "pca_salmon_{molecule}.stdout.log")
+
+    threads: 1
+
+    singularity:
+        "docker://zavolab/zpca:0.8"
+
+    shell:
+        "(zpca-tpm  \
+        --tpm {input.tpm} \
+        --tpm-filter {params.tpm_filter} \
+        --tpm-pseudocount {params.tpm_pseudocount} \
+        --out {output.out} \
+        --verbose) \
+        1> {log.stdout} 2> {log.stderr}"
+
+
+rule pca_kallisto:
+    input:
+        tpm = os.path.join(
+            config["output_dir"],
+            "summary_kallisto",
+            "{molecule}_tpm.tsv")
+
+    params:
+        tpm_filter = "0",
+        tpm_pseudocount = "1"
+
+    output:
+        out = directory(os.path.join(
+            config["output_dir"],
+            "zpca",
+            "pca_kallisto_{molecule}"))
+
+    log:
+        stderr = os.path.join(
+            config["log_dir"],
+            "pca_kallisto_{molecule}.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "pca_kallisto_{molecule}.stdout.log")
+
+    threads: 1
+
+    singularity:
+        "docker://zavolab/zpca:0.8"
+
+    shell:
+        "(zpca-tpm  \
+        --tpm {input.tpm} \
+        --tpm-filter {params.tpm_filter} \
+        --tpm-pseudocount {params.tpm_pseudocount} \
+        --out {output.out} \
         --verbose) \
         1> {log.stdout} 2> {log.stderr}"
 
@@ -1230,7 +1318,6 @@ rule alfa_qc:
         -s {params.alfa_orientation}) &> {log}"
 
 
-# cd {params.out_dir};
 rule alfa_qc_all_samples:
     '''
         Run ALFA from stranded bedgraph files on all samples
@@ -1396,6 +1483,19 @@ rule multiqc_report:
             config["output_dir"],
             "ALFA",
             "ALFA_plots_mqc.png"),
+
+        zpca_salmon = expand(os.path.join(
+            config["output_dir"],
+            "zpca",
+            "pca_salmon_{molecule}"),
+            molecule=["genes", "transcripts"]),
+
+        zpca_kallisto = expand(os.path.join(
+            config["output_dir"],
+            "zpca",
+            "pca_kallisto_{molecule}"),
+            molecule=["genes", "transcripts"]
+        ),
 
         multiqc_config = os.path.join(
             config["output_dir"],
