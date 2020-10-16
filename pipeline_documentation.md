@@ -32,6 +32,8 @@ on installation and usage please see [here](README.md).
     - [**salmon_quantmerge_transcripts**](#salmon_quantmerge_transcripts)
     - [**kallisto_merge_genes**](#kallisto_merge_genes)
     - [**kallisto_merge_transcripts**](#kallisto_merge_transcripts)
+    - [**pca_kallisto**](#pca_kallisto)
+    - [**pca_salmon**](#pca_salmon)
     - [**generate_alfa_index**](#generate_alfa_index)
     - [**alfa_qc**](#alfa_qc)
     - [**alfa_qc_all_samples**](#alfa_qc_all_samples)
@@ -400,7 +402,7 @@ Merge gene-level expression estimates for all samples with
   - Gene TPM table (custom `.tsv`); used in
     [**multiqc_report**](#multiqc_report)
   - Gene read count table (custom `.tsv`); used in
-    [**multiqc_report**](#multiqc_report)
+    [**pca_salmon**](#pca_salmon) and [**pca_kallisto**](#pca_kallisto)
 
 #### `salmon_quantmerge_transcripts`
 
@@ -416,7 +418,7 @@ Merge transcript-level expression estimates for all samples with
   - Transcript TPM table (custom `.tsv`); used in
     [**multiqc_report**](#multiqc_report)
   - Transcript read count table (custom `.tsv`); used in
-    [**multiqc_report**](#multiqc_report)
+    [**pca_salmon**](#pca_salmon) and [**pca_kallisto**](#pca_kallisto)
 
 #### `kallisto_merge_genes`
 
@@ -447,6 +449,28 @@ Merge transcript-level expression estimates for all samples with
 - **Output**
   - Transcript TPM table (custom `.tsv`)
   - Transcript read count table (custom `.tsv`)
+
+#### `pca_kallisto`
+
+Run PCA analysis on kallisto genes and transcripts with [custom script][custom-script-zpca].
+
+> Rule is run one time for transcript estimates and one time for genes estimates
+
+- **Input**
+  - Transcript/Genes TPM table (custom `.tsv`)
+- **Output**
+  - Directory with PCA plots, scree plot and top loading scores.
+
+#### `pca_salmon`
+
+Run PCA analysis on salmon genes and transcripts with [custom script][custom-script-zpca].
+
+> Rule is run one time for transcript estimates and one time for genes estimates
+
+- **Input**
+  - Transcript/Genes TPM table (custom `.tsv`)
+- **Output**
+  - Directory with PCA plots, scree plot and top loading scores.
 
 #### `generate_alfa_index`
 
@@ -714,6 +738,7 @@ Generate pseudoalignments of reads to transcripts with
 [custom-script-gtf-to-bed12]: <https://git.scicore.unibas.ch/zavolan_group/tools/gtf_transcript_type_to_bed12>
 [custom-script-tin]: <https://git.scicore.unibas.ch/zavolan_group/tools/tin_score_calculation>
 [custom-script-merge-kallisto]: <https://github.com/zavolanlab/merge_kallisto>
+[custom-script-zpca]: <https://github.com/zavolanlab/zpca>
 [docs-alfa]: <https://github.com/biocompibens/ALFA#manual>
 [docs-bedgraphtobigwig]: <http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/>
 [docs-bedtools]: <https://bedtools.readthedocs.io/en/latest/>
