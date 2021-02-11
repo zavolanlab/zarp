@@ -103,6 +103,7 @@ results/samples/synthetic_10_reads_paired_synthetic_10_reads_paired/bigWig/Uniqu
 results/samples/synthetic_10_reads_paired_synthetic_10_reads_paired/bigWig/Unique/synthetic_10_reads_paired_synthetic_10_reads_paired_Unique_plus.bw
 results/multiqc_summary/multiqc_data/multiqc_fastqc.txt
 results/multiqc_summary/multiqc_data/multiqc_cutadapt.txt
+results/multiqc_summary/multiqc_data/multiqc_cutadapt_1.txt
 results/multiqc_summary/multiqc_data/multiqc_star.txt
 results/multiqc_summary/multiqc_data/multiqc_kallisto.txt
 results/multiqc_summary/multiqc_data/multiqc_general_stats.txt

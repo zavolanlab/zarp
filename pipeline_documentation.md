@@ -26,8 +26,6 @@ on installation and usage please see [here](README.md).
     - [**sort_bed_4_big**](#sort_bed_4_big)
     - [**prepare_bigWig**](#prepare_bigwig)
     - [**calculate_TIN_scores**](#calculate_tin_scores)
-    - [**merge_TIN_scores**](#merge_tin_scores)
-    - [**plot_TIN_scores**](#plot_tin_scores)
     - [**salmon_quantmerge_genes**](#salmon_quantmerge_genes)
     - [**salmon_quantmerge_transcripts**](#salmon_quantmerge_transcripts)
     - [**kallisto_merge_genes**](#kallisto_merge_genes)
@@ -36,8 +34,6 @@ on installation and usage please see [here](README.md).
     - [**pca_salmon**](#pca_salmon)
     - [**generate_alfa_index**](#generate_alfa_index)
     - [**alfa_qc**](#alfa_qc)
-    - [**alfa_qc_all_samples**](#alfa_qc_all_samples)
-    - [**alfa_concat_results**](#alfa_concat_results)
     - [**prepare_multiqc_config**](#prepare_multiqc_config)
     - [**multiqc_report**](#multiqc_report)
     - [**finish**](#finish)
@@ -365,29 +361,6 @@ Calculates the Transcript Integrity Number (TIN) for each transcript with
   - TIN score table (custom `tsv`); used in
     [**merge_TIN_scores**](#merge_tin_scores)
 
-#### `merge_TIN_scores`
-
-Merges TIN score tables for all samples with [custom script][custom-script-tin].
-
-- **Input**
-  - TIN score table (custom `tsv`); per sample; from
-    [**calculate_TIN_scores**](#calculate_tin_scores)
-- **Output**
-  - TIN score table (custom `tsv`); for all samples; used in
-    [**plot_TIN_scores**](#plot_tin_scores)
-
-#### `plot_TIN_scores`
-
-Generate sample-wise [box plots](https://en.wikipedia.org/wiki/Box_plot) of
-TIN scores with [custom script][custom-script-tin].
-
-- **Input**
-  - TIN score table (custom `tsv`); for all samples; from
-    [**merge_TIN_scores**](#merge_tin_scores)
-- **Output**
-  - TIN score box plots (`.pdf` and `.png`); used in
-    [**multiqc_report**](#multiqc_report)
-
 #### `salmon_quantmerge_genes`
 
 Merge gene-level expression estimates for all samples with
@@ -501,27 +474,6 @@ Annotate alignments with [**ALFA**](#third-party-software-used).
   - Figures for biotypes and feature categories (`.pdf`)
   - Feature counts table (custom `.tsv`); used in
     [**alfa_qc_all_samples**](#alfa_qc_all_samples)
-
-#### `alfa_qc_all_samples`
-
-Combines output of all samples with [**ALFA**](#third-party-software-used).
-
-- **Input**
-  - Feature counts table (custom `.tsv`); from [**alfa_qc**](#alfa_qc)
-- **Output**
-  - Figures for biotypes and feature categories (`.pdf`); summarized for all
-    samples together; used in [**alfa_concat_results**](#alfa_concat_results)
-
-#### `alfa_concat_results`
-
-Concatenate and convert ALFA output plots into single plot with
-[**ImageMagick**](#third-party-software-used).
-
-- **Input**
-  - Figures for biotypes and feature categories (`.pdf`); for individual and
-    summarized for all samples
-- **Output**
-  - ALFA plot (`.png`), combined; used in [**multiqc_report**](#multiqc_report)
 
 #### `prepare_multiqc_config`
 

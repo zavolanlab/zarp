@@ -89,7 +89,7 @@ report_header_info:
   - Analysis Author: "{author_name}"
   - Contact E-mail: "{author_email}"
 
-top_modules:
+module_order:
 
   - fastqc:
       path_filters:
@@ -109,17 +109,13 @@ top_modules:
       path_filters:
       - "*/*/map_genome/*"
 
-  - alfa:
-      name: "ALFA"
-      anchor: "ALFA"
+  - ALFA:
       path_filters:
-      - "*/ALFA_plots.concat_mqc.png"
+      - "*/*/ALFA/*/*ALFA_feature_counts.tsv"
 
-  - TIN_scores:
-      name: "TIN_scores"
-      anchor: "TIN_scores"
+  - tin-score:
       path_filters:
-      - "*/TIN_scores_boxplot_mqc.png"
+      - "*/*/TIN/TIN_score.tsv"
 
   - salmon:
       path_filters:
@@ -143,8 +139,6 @@ fn_clean_exts:
   - '.pseudo'
   - '.salmon'
   - '.sam'
-  - 'mqc'
-  - '.png'
 ..."""
 
     with open(options.config, "w") as config:
