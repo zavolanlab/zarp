@@ -546,101 +546,6 @@ rule calculate_TIN_scores:
         -n 100 > {output.TIN_score};) 2> {log.stderr}"
 
 
-rule merge_TIN_scores:
-    """
-        Merge TIN scores tables
-    """
-    input:
-        TIN_score = expand(
-            os.path.join(
-                config['output_dir'],
-                "samples",
-                "{sample}",
-                "TIN",
-                "TIN_score.tsv"),
-            sample=pd.unique(samples_table.index.values)),
-
-    output:
-        TIN_scores_merged = os.path.join(
-            config['output_dir'],
-            "TIN_scores_merged.tsv")
-
-    log:
-        stderr = os.path.join(
-            config['log_dir'],
-            "merge_TIN_scores.stderr.log"),
-        stdout = os.path.join(
-            config["log_dir"],
-            "merge_TIN_scores.stdout.log")
-
-    params:
-        TIN_score_merged_paths = ",".join(expand(
-            os.path.join(
-                config['output_dir'],
-                "samples",
-                "{sample}",
-                "TIN",
-                "TIN_score.tsv"),
-            zip,
-            sample=[i for i in pd.unique(samples_table.index.values)],
-            seqmode=[get_sample('seqmode',
-                    search_id='index',
-                    search_value=i) for i in pd.unique(samples_table.index.values)]))
-
-    threads: 1
-
-    singularity:
-        "docker://zavolab/tin_score_calculation:0.2.0-slim"
-
-    shell:
-        "(tin_score_merge.py \
-        --input-files {params.TIN_score_merged_paths} \
-        --output-file {output.TIN_scores_merged}) \
-        1> {log.stdout} 2> {log.stderr}"
-
-
-rule plot_TIN_scores:
-    """
-        Generate TIN scores boxplots
-    """
-    input:
-        TIN_scores_merged = os.path.join(
-            config['output_dir'],
-            "TIN_scores_merged.tsv"),
-
-    output:
-        TIN_boxplot_PNG = os.path.join(
-            config['output_dir'],
-            "TIN_scores_boxplot_mqc.png"),
-        TIN_boxplot_PDF = os.path.join(
-            config['output_dir'],
-            "TIN_scores_boxplot_mqc.pdf")
-
-    params:
-        TIN_boxplot_prefix = os.path.join(
-            config['output_dir'],
-            "TIN_scores_boxplot_mqc")
-
-    log:
-        stderr = os.path.join(
-            config['log_dir'],
-            "plot_TIN_scores.stderr.log"),
-        stdout = os.path.join(
-            config["log_dir"],
-            "plot_TIN_scores.stdout.log")
-
-    threads: 1
-
-    singularity:
-        "docker://zavolab/tin_score_calculation:0.2.0-slim"
-
-    shell:
-        "(tin_score_plot.py \
-        --input-file {input.TIN_scores_merged} \
-        --output-file-prefix {params.TIN_boxplot_prefix}) \
-        1> {log.stdout} 2> {log.stderr}"
-
-
 rule salmon_quantmerge_genes:
     '''
         Merge gene quantifications into a single file
@@ -1318,83 +1223,6 @@ rule alfa_qc:
         -s {params.alfa_orientation}) &> {log}"
 
 
-rule alfa_qc_all_samples:
-    '''
-        Run ALFA from stranded bedgraph files on all samples
-    '''
-    input:
-        tables = lambda wildcards:
-            expand(
-                os.path.join(
-                    config["output_dir"],
-                    "samples",
-                    "{sample}",
-                    "ALFA",
-                    "{unique}",
-                    "{sample}.ALFA_feature_counts.tsv"),
-                sample=pd.unique(samples_table.index.values),
-                unique=wildcards.unique)
-    output:
-        biotypes = os.path.join(
-            config["output_dir"],
-            "ALFA",
-            "{unique}",
-            "ALFA_plots.Biotypes.pdf"),
-        categories = os.path.join(
-            config["output_dir"],
-            "ALFA",
-            "{unique}",
-            "ALFA_plots.Categories.pdf")
-
-    params:
-        out_dir = lambda wildcards, output:
-            os.path.dirname(output.biotypes)
-
-    log:
-        os.path.join(
-            config["log_dir"],
-            "alfa_qc_all_samples.{unique}.log")
-
-    singularity:
-        "docker://zavolab/alfa:1.1.1-slim"
-
-    shell:
-        "(alfa -c {input.tables} -o {params.out_dir}) &> {log}"
-
-
-rule alfa_concat_results:
-    input:
-        expand(
-            os.path.join(
-                config["output_dir"],
-                "ALFA",
-                "{unique}",
-                "ALFA_plots.{annotation}.pdf"),
-            unique=["Unique", "UniqueMultiple"],
-            annotation=["Categories", "Biotypes"])
-
-    output:
-        os.path.join(
-            config["output_dir"],
-            "ALFA",
-            "ALFA_plots_mqc.png")
-
-    params:
-        density = 300
-
-    log:
-        os.path.join(
-            config["log_dir"],
-            "alfa_qc_all_samples.concat.log")
-
-    singularity:
-        "docker://zavolab/imagemagick:7.0.8"
-
-    shell:
-        "(convert -append -density {params.density} \
-            {input} {output}) &> {log}"
-
-
 rule prepare_multiqc_config:
     '''
         Prepare config for the MultiQC
@@ -1471,18 +1299,26 @@ rule multiqc_report:
             seqmode=[get_sample('seqmode', search_id='index', search_value=i) 
                 for i in pd.unique(samples_table.index.values)]),
 
-        TIN_boxplot_PNG = os.path.join(
-            config['output_dir'],
-            "TIN_scores_boxplot_mqc.png"),
+        TIN_score = expand(
+            os.path.join(
+                config['output_dir'],
+                "samples",
+                "{sample}",
+                "TIN",
+                "TIN_score.tsv"),
+            sample=pd.unique(samples_table.index.values)),
 
-        TIN_boxplot_PDF = os.path.join(
-            config['output_dir'],
-            "TIN_scores_boxplot_mqc.pdf"),
-
-        alfa_concat_out = os.path.join(
-            config["output_dir"],
-            "ALFA",
-            "ALFA_plots_mqc.png"),
+        tables = lambda wildcards:
+            expand(
+                os.path.join(
+                    config["output_dir"],
+                    "samples",
+                    "{sample}",
+                    "ALFA",
+                    "{unique}",
+                    "{sample}.ALFA_feature_counts.tsv"),
+                sample=pd.unique(samples_table.index.values),
+                unique=["Unique", "UniqueMultiple"]),
 
         zpca_salmon = expand(os.path.join(
             config["output_dir"],
@@ -1521,7 +1357,7 @@ rule multiqc_report:
             "multiqc_report.stdout.log")
 
     singularity:
-        "docker://ewels/multiqc:1.7"
+        "docker://zavolab/multiqc-plugins:1.0.0"
 
     shell:
         "(multiqc \
