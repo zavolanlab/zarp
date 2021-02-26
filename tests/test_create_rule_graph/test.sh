@@ -26,5 +26,7 @@ snakemake \
     --printshellcmds \
     --dryrun \
     --verbose \
+    --notemp \
+    --no-hooks \
     | dot -Tsvg > "../../images/rule_graph.svg"
 

@@ -18,16 +18,16 @@ rule pe_remove_adapters_cutadapt:
             "{sample}.fq2.fastq.gz"),
 
     output:
-        reads1 = os.path.join(
+        reads1 = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_adapters_mate1.fastq.gz"),
-        reads2 = os.path.join(
+            "{sample}.pe.remove_adapters_mate1.fastq.gz")),
+        reads2 = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_adapters_mate2.fastq.gz")
+            "{sample}.pe.remove_adapters_mate2.fastq.gz"))
 
     params:
         adapter_3_mate1 = lambda wildcards:
@@ -91,16 +91,16 @@ rule pe_remove_polya_cutadapt:
             "{sample}.pe.remove_adapters_mate2.fastq.gz")
 
     output:
-        reads1 = os.path.join(
+        reads1 = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_polya_mate1.fastq.gz"),
-        reads2 = os.path.join(
+            "{sample}.pe.remove_polya_mate1.fastq.gz")),
+        reads2 = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_polya_mate2.fastq.gz")
+            "{sample}.pe.remove_polya_mate2.fastq.gz"))
 
     params:
         polya_3_mate1 = lambda wildcards:
@@ -203,10 +203,12 @@ rule pe_map_genome_star:
             "map_genome",
             "{sample}.pe.Log.final.out")
 
+    shadow: "minimal"
+
     params:
         sample_id = "{sample}",
         index = lambda wildcards:
-            os.path.join(
+            os.path.abspath(os.path.join(
                 config["star_indexes"],
                 get_sample(
                     'organism',
@@ -216,7 +218,7 @@ rule pe_map_genome_star:
                     'index_size',
                     search_id='index',
                     search_value=wildcards.sample),
-                "STAR_index"),
+                "STAR_index")),
         outFileNamePrefix = os.path.join(
             config["output_dir"],
             "samples",
@@ -292,10 +294,10 @@ rule pe_quantification_salmon:
             "{sample}",
             "{sample}.pe.remove_polya_mate2.fastq.gz"),
         gtf = lambda wildcards:
-            get_sample(
+            os.path.abspath(get_sample(
                 'gtf',
                 search_id='index',
-                search_value=wildcards.sample),
+                search_value=wildcards.sample)),
         index = lambda wildcards:
             os.path.join(
                 config["salmon_indexes"],
@@ -321,7 +323,23 @@ rule pe_quantification_salmon:
             "samples",
             "{sample}",
             "{sample}.salmon.pe",
-            "quant.sf")
+            "quant.sf"),
+        meta_info = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "{sample}.salmon.pe",
+            "aux_info",
+            "meta_info.json"),
+        flenDist = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "{sample}.salmon.pe",
+            "libParams",
+            "flenDist.txt")
+
+    shadow: "minimal"
 
     params:
         output_dir = os.path.join(
@@ -397,7 +415,15 @@ rule pe_genome_quantification_kallisto:
             "samples",
             "{sample}",
             "quant_kallisto",
-            "{sample}.pe.kallisto.pseudo.sam")
+            "{sample}.pe.kallisto.pseudo.sam"),
+        abundances = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "quant_kallisto",
+            "abundance.h5")
+
+    shadow: "minimal"
 
     params:
         output_dir = os.path.join(
@@ -428,6 +454,7 @@ rule pe_genome_quantification_kallisto:
         -i {input.index} \
         -o {params.output_dir} \
         --pseudobam \
+        -t {threads} \
         {params.directionality}-stranded \
         {input.reads1} {input.reads2} > {output.pseudoalignment}) \
         2> {log.stderr}"

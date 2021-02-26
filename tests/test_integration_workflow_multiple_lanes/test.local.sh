@@ -33,6 +33,8 @@ snakemake \
     --rerun-incomplete \
     --use-singularity \
     --singularity-args="--bind ${PWD}/../input_files,${PWD}/../../images" \
+    --notemp \
+    --no-hooks \
     --verbose
 
 # Create a Snakemake report after the workflow execution
