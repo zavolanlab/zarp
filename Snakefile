@@ -159,7 +159,7 @@ rule fastqc:
 
     shell:
         "(mkdir -p {output.outdir}; \
-        fastqc --outdir {output.outdir} {input.reads}) \
+        fastqc --outdir {output.outdir} --threads {threads} {input.reads}) \
         1> {log.stdout} 2> {log.stderr}"
 
 
@@ -169,16 +169,16 @@ rule create_index_star:
     """
     input:
         genome = lambda wildcards:
-            get_sample(
+            os.path.abspath(get_sample(
                 'genome',
                 search_id='organism',
-                search_value=wildcards.organism),
+                search_value=wildcards.organism)),
 
         gtf = lambda wildcards:
-            get_sample(
+            os.path.abspath(get_sample(
                 'gtf',
                 search_id='organism',
-                search_value=wildcards.organism)
+                search_value=wildcards.organism))
 
     output:
         chromosome_info = os.path.join(
@@ -250,11 +250,11 @@ rule extract_transcriptome:
                 search_id='organism',
                 search_value=wildcards.organism)
     output:
-        transcriptome = os.path.join(
+        transcriptome = temp(os.path.join(
             config['output_dir'],
             "transcriptome",
             "{organism}",
-            "transcriptome.fa")
+            "transcriptome.fa"))
 
     log:
         stderr = os.path.join(
@@ -292,11 +292,11 @@ rule concatenate_transcriptome_and_genome:
                 search_value=wildcards.organism)
 
     output:
-        genome_transcriptome = os.path.join(
+        genome_transcriptome = temp(os.path.join(
             config['output_dir'],
             "transcriptome",
             "{organism}",
-            "genome_transcriptome.fa")
+            "genome_transcriptome.fa"))
 
     singularity:
         "docker://bash:5.0.16"
@@ -413,9 +413,9 @@ rule extract_transcripts_as_bed12:
             get_sample('gtf')
 
     output:
-        bed12 = os.path.join(
+        bed12 = temp(os.path.join(
             config['output_dir'],
-            "full_transcripts_protein_coding.bed")
+            "full_transcripts_protein_coding.bed"))
 
     singularity:
         "docker://zavolab/zgtf:0.1"
@@ -515,12 +515,12 @@ rule calculate_TIN_scores:
             "full_transcripts_protein_coding.bed")
 
     output:
-        TIN_score = os.path.join(
+        TIN_score = temp(os.path.join(
             config['output_dir'],
             "samples",
             "{sample}",
             "TIN",
-            "TIN_score.tsv")
+            "TIN_score.tsv"))
 
     params:
         sample = "{sample}"
@@ -937,30 +937,32 @@ rule star_rpm:
                     search_value=wildcards.sample))
 
     output:
-        str1 = os.path.join(
+        str1 = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "STAR_coverage",
-            "{sample}_Signal.Unique.str1.out.bg"),
-        str2 = os.path.join(
+            "{sample}_Signal.Unique.str1.out.bg")),
+        str2 = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "STAR_coverage",
-            "{sample}_Signal.UniqueMultiple.str1.out.bg"),
-        str3 = os.path.join(
+            "{sample}_Signal.UniqueMultiple.str1.out.bg")),
+        str3 = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "STAR_coverage",
-            "{sample}_Signal.Unique.str2.out.bg"),
-        str4 = os.path.join(
+            "{sample}_Signal.Unique.str2.out.bg")),
+        str4 = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "STAR_coverage",
-            "{sample}_Signal.UniqueMultiple.str2.out.bg")
+            "{sample}_Signal.UniqueMultiple.str2.out.bg"))
+
+    shadow: "full"
 
     params:
         out_dir = lambda wildcards, output:
@@ -1034,20 +1036,20 @@ rule rename_star_rpm_for_alfa:
                     search_value=wildcards.sample))
 
     output:
-        plus = os.path.join(
+        plus = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "ALFA",
             "{unique}",
-            "{sample}.{unique}.plus.bg"),
-        minus = os.path.join(
+            "{sample}.{unique}.plus.bg")),
+        minus = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "ALFA",
             "{unique}",
-            "{sample}.{unique}.minus.bg")
+            "{sample}.{unique}.minus.bg"))
 
     params:
         orientation = lambda wildcards:
@@ -1081,10 +1083,10 @@ rule generate_alfa_index:
     ''' Generate ALFA index files from sorted GTF file '''
     input:
         gtf = lambda wildcards:
-            get_sample(
+            os.path.abspath(get_sample(
                 'gtf',
                 search_id='organism',
-                search_value=wildcards.organism),
+                search_value=wildcards.organism)),
 
         chr_len = os.path.join(
             config["star_indexes"],
@@ -1164,20 +1166,20 @@ rule alfa_qc:
                 "sorted_genes.stranded.ALFA_index")
 
     output:
-        biotypes = os.path.join(
+        biotypes = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "ALFA",
             "{unique}",
-            "ALFA_plots.Biotypes.pdf"),
-        categories = os.path.join(
+            "ALFA_plots.Biotypes.pdf")),
+        categories = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "ALFA",
             "{unique}",
-            "ALFA_plots.Categories.pdf"),
+            "ALFA_plots.Categories.pdf")),
         table = os.path.join(
             config["output_dir"],
             "samples",
@@ -1382,13 +1384,13 @@ rule sort_bed_4_big:
             "{sample}.{unique}.{strand}.bg")
 
     output:
-        sorted_bg = os.path.join(
+        sorted_bg = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "bigWig",
             "{unique}",
-            "{sample}_{unique}_{strand}.sorted.bg")
+            "{sample}_{unique}_{strand}.sorted.bg"))
 
     singularity:
         "docker://cjh4zavolab/bedtools:2.27"

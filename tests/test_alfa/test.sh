@@ -33,6 +33,8 @@ snakemake \
     --use-singularity \
     --singularity-args="--bind ${PWD}/../input_files,${PWD}/../../images" \
     --verbose \
+    --notemp \
+    --no-hooks \
     results/ALFA/ALFA_plots_mqc.png
 
 # Check md5 sum of some output files

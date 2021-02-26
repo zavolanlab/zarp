@@ -26,5 +26,7 @@ snakemake \
     --printshellcmds \
     --dryrun \
     --verbose \
+    --notemp \
+    --no-hooks \
     | dot -Tsvg > "../../images/dag_test_workflow.svg"
 

@@ -11,11 +11,11 @@ rule remove_adapters_cutadapt:
             "{sample}.fq1.fastq.gz")
 
     output:
-        reads = os.path.join(
+        reads = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.se.remove_adapters_mate1.fastq.gz")
+            "{sample}.se.remove_adapters_mate1.fastq.gz"))
 
     params:
         adapters_3 = lambda wildcards:
@@ -70,11 +70,11 @@ rule remove_polya_cutadapt:
             "{sample}.se.remove_adapters_mate1.fastq.gz")
 
     output:
-        reads = os.path.join(
+        reads = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.se.remove_polya_mate1.fastq.gz")
+            "{sample}.se.remove_polya_mate1.fastq.gz"))
 
     params:
         polya_3 = lambda wildcards:
@@ -151,14 +151,16 @@ rule map_genome_star:
             "map_genome",
             "{sample}.se.Log.final.out")
 
+    shadow: "minimal"
+
     params:
         sample_id = "{sample}",
         index = lambda wildcards:
-            os.path.join(
+            os.path.abspath(os.path.join(
                 config["star_indexes"],
                 get_sample('organism', search_id='index', search_value=wildcards.sample),
                 get_sample('index_size', search_id='index', search_value=wildcards.sample),
-                "STAR_index"),
+                "STAR_index")),
         outFileNamePrefix = os.path.join(
             config["output_dir"],
             "samples",
@@ -241,10 +243,10 @@ rule quantification_salmon:
                     search_value=wildcards.sample),
                 "salmon.idx"),
         gtf = lambda wildcards:
-            get_sample(
+            os.path.abspath(get_sample(
                 'gtf',
                 search_id='index',
-                search_value=wildcards.sample)
+                search_value=wildcards.sample))
 
     output:
         gn_estimates = os.path.join(
@@ -258,7 +260,23 @@ rule quantification_salmon:
             "samples",
             "{sample}",
             "{sample}.salmon.se",
-            "quant.sf")
+            "quant.sf"),
+        meta_info = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "{sample}.salmon.se",
+            "aux_info",
+            "meta_info.json"),
+        flenDist = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "{sample}.salmon.se",
+            "libParams",
+            "flenDist.txt")
+
+    shadow: "minimal"
 
     params:
         output_dir = os.path.join(
@@ -339,7 +357,15 @@ rule genome_quantification_kallisto:
             "samples",
             "{sample}",
             "quant_kallisto",
-            "{sample}.se.kallisto.pseudo.sam")
+            "{sample}.se.kallisto.pseudo.sam"),
+        abundances = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "quant_kallisto",
+            "abundance.h5")
+
+    shadow: "minimal"
 
     params:
         output_dir = os.path.join(
@@ -383,6 +409,7 @@ rule genome_quantification_kallisto:
         -l {params.fraglen} \
         -s {params.fragsd} \
         --pseudobam \
+        -t {threads} \
         {params.directionality}-stranded \
         {input.reads} > {output.pseudoalignment};) \
         2> {log.stderr}"
