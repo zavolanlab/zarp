@@ -433,7 +433,6 @@ rule extract_transcripts_as_bed12:
     shell:
         "(gtf2bed12 \
         --gtf {input.gtf} \
-        --transcript_type protein_coding \
         --bed12 {output.bed12}); \
         1> {log.stdout} 2> {log.stderr}"
 
@@ -543,7 +542,7 @@ rule calculate_TIN_scores:
         -r {input.transcripts_bed12} \
         -c 0 \
         --names {params.sample} \
-        -n 100 > {output.TIN_score};) 2> {log.stderr}"
+        > {output.TIN_score};) 2> {log.stderr}"
 
 
 rule salmon_quantmerge_genes:
@@ -831,10 +830,6 @@ rule pca_salmon:
             "quantmerge",
             "{molecule}_tpm.tsv"),
 
-    params:
-        tpm_filter = "0",
-        tpm_pseudocount = "1"
-
     output:
         out = directory(os.path.join(
             config["output_dir"],
@@ -857,8 +852,6 @@ rule pca_salmon:
     shell:
         "(zpca-tpm  \
         --tpm {input.tpm} \
-        --tpm-filter {params.tpm_filter} \
-        --tpm-pseudocount {params.tpm_pseudocount} \
         --out {output.out} \
         --verbose) \
         1> {log.stdout} 2> {log.stderr}"
@@ -871,9 +864,6 @@ rule pca_kallisto:
             "summary_kallisto",
             "{molecule}_tpm.tsv")
 
-    params:
-        tpm_filter = "0",
-        tpm_pseudocount = "1"
 
     output:
         out = directory(os.path.join(
@@ -897,8 +887,6 @@ rule pca_kallisto:
     shell:
         "(zpca-tpm  \
         --tpm {input.tpm} \
-        --tpm-filter {params.tpm_filter} \
-        --tpm-pseudocount {params.tpm_pseudocount} \
         --out {output.out} \
         --verbose) \
         1> {log.stdout} 2> {log.stderr}"
@@ -970,8 +958,7 @@ rule star_rpm:
         prefix = lambda wildcards, output:
             os.path.join(
                 os.path.dirname(output.str1),
-                str(wildcards.sample) + "_"),
-        stranded = "Stranded"
+                str(wildcards.sample) + "_")
 
     singularity:
         "docker://zavolab/star:2.7.3a-slim"
@@ -998,8 +985,6 @@ rule star_rpm:
         --runThreadN {threads} \
         --inputBAMfile {input.bam} \
         --outWigType bedGraph \
-        --outWigStrand {params.stranded} \
-        --outWigNorm RPM \
         --outFileNamePrefix {params.prefix}) \
         1> {log.stdout} 2> {log.stderr}"
 
@@ -1050,13 +1035,6 @@ rule rename_star_rpm_for_alfa:
             "ALFA",
             "{unique}",
             "{sample}.{unique}.minus.bg"))
-
-    params:
-        orientation = lambda wildcards:
-            get_sample(
-                'kallisto_directionality',
-                search_id='index',
-                search_value=wildcards.sample),
 
     log:
         stderr = os.path.join(
