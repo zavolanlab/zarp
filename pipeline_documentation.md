@@ -236,7 +236,7 @@ Create index for [**kallisto**](#third-party-software-used) quantification.
 #### `extract_transcripts_as_bed12`
 
 Convert transcripts from `.gtf` to extended 12-column `.bed` format with
-[custom-script][custom-script-gtf-to-bed12].
+[custom-script][custom-script-gtf-to-bed12]. Note that the default transcript type setting is used, which is "protein_coding".
 
 - **Input**
   - Gene annotation file (`.gtf`)
@@ -290,9 +290,6 @@ Create stranded bedGraph coverage (`.bg`) with
 - **Output**
   - Coverage file (`.bg`); used in [**multiqc_report**](#multiqc_report) and
     [**rename_star_rpm_for_alfa**](#rename_star_rpm_for_alfa)
-- **Non-configurable & non-default**
-  - `--outWigStrans="Stranded"`
-  - `--outWigNorm="RPM"`
 
 #### `rename_star_rpm_for_alfa`
 
@@ -360,6 +357,8 @@ Calculates the Transcript Integrity Number (TIN) for each transcript with
 - **Output**
   - TIN score table (custom `tsv`); used in
     [**merge_TIN_scores**](#merge_tin_scores)
+- **Non-configurable & non-default**
+  - `-c 0`: minimum number of read mapped to a transcript
 
 #### `salmon_quantmerge_genes`
 
@@ -408,6 +407,8 @@ Merge gene-level expression estimates for all samples with
   - Gene TPM table (custom `.tsv`)
   - Gene read count table (custom `.tsv`)
   - Mapping gene/transcript IDs table (custom `.tsv`)
+- **Non-configurable & non-default**
+  - `-txOut FALSE`: gene-level summarization (default would be transcript level) 
 
 #### `kallisto_merge_transcripts`
 
@@ -444,6 +445,7 @@ Run PCA analysis on salmon genes and transcripts with [custom script][custom-scr
   - Transcript/Genes TPM table (custom `.tsv`)
 - **Output**
   - Directory with PCA plots, scree plot and top loading scores.
+
 
 #### `generate_alfa_index`
 
@@ -548,13 +550,10 @@ Remove adapter sequences from reads with
   - Reads file (`.fastq.gz`); used in
     [**remove_polya_cutadapt**](#remove_polya_cutadapt)
 - **Non-configurable & non-default**
-  - `-e 0.1`: maximum error-rate of 10%
   - `-j 8`: use 8 threads
-  - `-m 10`: Discard processed reads that are shorter than 10
+  - `-m 10`: Discard processed reads that are shorter than 10 (default 0, that might cause problems in downstream programs)
   - `-n 2`: search for all the given adapter sequences repeatedly, either until
-    no adapter match was found or until 2 rounds have been performed.
-  - `--pair-filter=any`: **(paired-end only)** filtering criteria must apply to
-    any of the two reads in order for a read pair to be discarded
+    no adapter match was found or until 2 rounds have been performed. (default 1)
 
 #### `remove_polya_cutadapt`
 
@@ -573,14 +572,9 @@ Remove poly(A) tails from reads with
     [**map_genome_star**](#map_genome_star) and
     [**quantification_salmon**](#quantification_salmon)
 - **Non-configurable & non-default**
-  - `-e 0.1`: maximum error-rate of 10%
   - `-j 8`: use 8 threads
   - `-m 10`: Discard processed reads that are shorter than 10
-  - `-n 1`: search for all the given adapter sequences repeatedly, either until
-    no adapter match was found or until 1 round has been performed.
-  - `--pair-filter=any`: **(paired-end only)** filtering criteria must apply to
-    any of the two reads in order for a read pair to be discarded
-  - `-O 1`: **(single-end only)** minimal overlap of 1
+  - `-O 1`: minimal overlap of 1 (default: 3)
 
 #### `map_genome_star`
 
@@ -608,19 +602,13 @@ Align short reads to reference genome and/or transcriptome with
     and [**star_rpm**](#star_rpm)
   - STAR log file
 - **Non-configurable & non-default**
-  - `--outSAMunmapped=None`: do not output unmapped reads in SAM file
   - `--outFilterMultimapScoreRange=0`: the score range below the maximum score
-    for multimapping alignments
+    for multimapping alignments (default 1)
   - `--outSAMattributes=All`: NH HI AS nM NM MD jM jI MC ch
-  - `--outStd=BAM_SortedByCoordinate`: which output will be directed to `STDOUT`
-  - `--outSAMtype=BAM_SortedByCoordinate`: type of SAM/BAM output
-  - `--outFilterMismatchNoverLmax=0.04`: alignment will be output only if its
-    ratio of mismatches to *mapped* length is less than or equal to this value
-  - `--outFilterScoreMinOverLread=0.3`: same as outFilterScoreMin, but
-    normalized to read length (sum of mates’ lengths for paired-end reads)
-  - `--outFilterMatchNminOverLread=0.3`: minimal fraction of aligned bases
+  - `--outStd=BAM_SortedByCoordinate`: which output will be directed to `STDOUT` (default 'Log')
+  - `--outSAMtype=BAM SortedByCoordinate`: type of SAM/BAM output (default SAM)
   - `--outFilterType=BySJout`: reduces the number of ”spurious” junctions
-  - `--outReadsUnmapped=None`: do not output unmapped reads
+  - `--outSAMattrRGline`: ID:rnaseq_pipeline SM: *sampleID*
 
 #### `quantification_salmon`
 
@@ -640,10 +628,12 @@ Estimate transcript- and gene-level expression with
   - `--fldSD`: standard deviation of distribution of fragment lengths; specify
     in sample table column `sd` **(single-end only)**
 - **Output**
-  - Gene expression table (custom `.tsv`); used in
+  - Gene expression table (`quant.sf`); used in
     [**salmon_quantmerge_genes**](#salmon_quantmerge_genes)
-  - Transcript expression table (custom `.tsv`); used in
+  - Transcript expression table ( `quant.sf`); used in
     [**salmon_quantmerge_transcripts**](#salmon_quantmerge_transcripts)
+  - `meta_info.json`
+  - `flenDist.txt`
 - **Non-configurable & non-default**
   - `--seqBias`: [correct for sequence specific
     biases](https://salmon.readthedocs.io/en/latest/salmon.html#seqbias)
@@ -652,8 +642,6 @@ Estimate transcript- and gene-level expression with
     sensitivity and specificity of mapping and, as a result, can [improve
     quantification
     accuracy](https://salmon.readthedocs.io/en/latest/salmon.html#validatemappings).
-  - `--writeUnmappedNames`: write out the names of reads (or mates in paired-end
-    reads) that do not map to the transcriptome.
 
 #### `genome_quantification_kallisto`
 
@@ -671,8 +659,11 @@ Generate pseudoalignments of reads to transcripts with
   - `-s`: standard deviation of distribution of fragment lengths; specify in
     sample table column `sd` **(single-end only)**
 - **Output**
-  - Pseudoalignments file (`.sam`); used in
-    [**multiqc_report**](#multiqc_report)
+  - Pseudoalignments file (`.sam`) and
+  - abundance (`.h5`) 
+  used in [**kallisto_merge_genes**](#kallisto_merge_genes)
+- **Non-configurable & non-default**
+  - `--pseudobam`: Save pseudoalignments to transcriptome to BAM file
 
 [code-alfa]: <https://github.com/biocompibens/ALFA>
 [code-bedgraphtobigwig]: <https://github.com/ucscGenomeBrowser/kent>
@@ -687,8 +678,8 @@ Generate pseudoalignments of reads to transcripts with
 [code-salmon]: <https://github.com/COMBINE-lab/salmon>
 [code-samtools]: <https://github.com/samtools/samtools>
 [code-star]: <https://github.com/alexdobin/STAR>
-[custom-script-gtf-to-bed12]: <https://git.scicore.unibas.ch/zavolan_group/tools/gtf_transcript_type_to_bed12>
-[custom-script-tin]: <https://git.scicore.unibas.ch/zavolan_group/tools/tin_score_calculation>
+[custom-script-gtf-to-bed12]: <https://github.com/zavolanlab/zgtf>
+[custom-script-tin]: <https://github.com/zavolanlab/tin-score-calculation>
 [custom-script-merge-kallisto]: <https://github.com/zavolanlab/merge_kallisto>
 [custom-script-zpca]: <https://github.com/zavolanlab/zpca>
 [docs-alfa]: <https://github.com/biocompibens/ALFA#manual>

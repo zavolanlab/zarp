@@ -58,9 +58,7 @@ rule pe_remove_adapters_cutadapt:
 
     shell:
         "(cutadapt \
-        -e 0.1 \
         -j {threads} \
-        --pair-filter=any \
         -m 10 \
         -n 2 \
         -a {params.adapter_3_mate1} \
@@ -144,10 +142,7 @@ rule pe_remove_polya_cutadapt:
     shell:
         "(cutadapt \
         -j {threads} \
-        --pair-filter=any \
         -m 10 \
-        -n 1 \
-        -e 0.1 \
         -O 1 \
         -a {params.polya_3_mate1} \
         -g {params.polya_5_mate1} \
@@ -255,24 +250,18 @@ rule pe_map_genome_star:
 
     shell:
         "(STAR \
-        --runMode alignReads \
         --twopassMode {params.pass_mode} \
         --runThreadN {threads} \
         --genomeDir {params.index} \
         --readFilesIn {input.reads1} {input.reads2} \
         --readFilesCommand zcat \
-        --outSAMunmapped None  \
         --outFilterMultimapNmax {params.multimappers} \
         --outFilterMultimapScoreRange 0 \
         --outFileNamePrefix {params.outFileNamePrefix} \
         --outSAMattributes All \
         --outStd BAM_SortedByCoordinate \
         --outSAMtype BAM SortedByCoordinate \
-        --outFilterMismatchNoverLmax 0.04 \
-        --outFilterScoreMinOverLread 0.3 \
-        --outFilterMatchNminOverLread 0.3 \
         --outFilterType BySJout \
-        --outReadsUnmapped None \
         --outSAMattrRGline ID:rnaseq_pipeline SM:{params.sample_id} \
         --alignEndsType {params.soft_clip} > {output.bam};) \
         2> {log.stderr}"
