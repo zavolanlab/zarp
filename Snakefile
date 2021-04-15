@@ -2,7 +2,11 @@
 import os
 import pandas as pd
 import shutil
+import yaml
+from shlex import quote
+from typing import Tuple
 
+## Preparations
 # Get sample table
 samples_table = pd.read_csv(
     config['samples'],
@@ -13,19 +17,20 @@ samples_table = pd.read_csv(
     sep="\t",
 )
 
+# Parse YAML rule config file
+if 'rule_config' in config and config['rule_config']:
+    try:
+        with open(config['rule_config']) as _file:
+            rule_config = yaml.safe_load(_file)
+        logger.info(f"Loaded rule_config from {config['rule_config']}.")
+    except FileNotFoundError:
+        logger.error(f"No rule config file found at {config['rule_config']}. Either provide file or remove rule_config parameter from config.yaml! ")
+        raise
+else:
+    rule_config = {}
+    logger.warning(f"No rule config specified: using default values for all tools.")
 
-def get_sample(column_id, search_id=None, search_value=None):
-    if search_id:
-        if search_id == 'index':
-            return str(samples_table[column_id][samples_table.index == search_value][0])
-        else:
-            return str(samples_table[column_id][samples_table[search_id] == search_value][0])
-    else:
-        return str(samples_table[column_id][0])
-# Global config
-localrules: start, finish, rename_star_rpm_for_alfa, prepare_multiqc_config
-
-
+# Create dir for cluster logs, if applicable
 if cluster_config:
     os.makedirs(
         os.path.join(
@@ -34,9 +39,70 @@ if cluster_config:
         ),
         exist_ok=True)
 
+
+## Function definitions
+
+def get_sample(column_id, search_id=None, search_value=None):
+    """ Get relevant per sample information from samples table"""
+    if search_id:
+        if search_id == 'index':
+            return str(samples_table[column_id][samples_table.index == search_value][0])
+        else:
+            return str(samples_table[column_id][samples_table[search_id] == search_value][0])
+    else:
+        return str(samples_table[column_id][0])
+
+
+def parse_rule_config(rule_config: dict, current_rule: str, immutable: Tuple[str, ...] = ()):
+    """Get rule specific parameters from rule_config file"""
+    
+    # If rule config file not present, emtpy string will be returned
+    if not rule_config:
+        logger.info(f"No rule config specified: using default values for all tools.")
+        return ''
+    # Same if current rule not specified in rule config
+    if current_rule not in rule_config or not rule_config[current_rule]:
+        logger.info(f"No additional parameters for rule {current_rule} specified: using default settings.")
+        return ''
+
+    # Subset only section for current rule
+    rule_config = rule_config[current_rule]
+    
+    # Build list of parameters and values
+    params_vals = []
+    for param, val in rule_config.items():
+        # Do not allow the user to change wiring-critical, fixed arguments, or arguments that are passed through samples table
+        if param in immutable:
+            raise ValueError(
+                f"The following parameter in rule {current_rule} is critical for the pipeline to "
+                f"function as expected and cannot be modified: {param}"
+            )
+        # Accept only strings; this prevents unintended results potentially
+        # arising from users entering reserved YAML keywords or nested
+        # structures (lists, dictionaries)
+        if isinstance(val, str):
+            params_vals.append(str(param))
+            # Do not include a value for flags (signified by empty strings)
+            if val:
+                params_vals.append(val)
+        else:
+            raise ValueError(
+                "Only string values allowed for tool parameters: Found type "
+                f"'{type(val).__name__}' for value of parameter '{param}'"
+            )
+    # Return quoted string
+    add_params = ' '.join(quote(item) for item in params_vals)
+    logger.info(f"User specified additional parameters for rule {current_rule}:\n {add_params}")
+    return add_params
+
+
+# Global config
+localrules: start, finish, rename_star_rpm_for_alfa, prepare_multiqc_config
+
 # Include subworkflows
 include: os.path.join("workflow", "rules", "paired_end.snakefile.smk")
 include: os.path.join("workflow", "rules", "single_end.snakefile.smk")
+
 
 rule finish:
     """
@@ -80,6 +146,8 @@ rule finish:
             "summary_kallisto",
             "genes_tpm.tsv")
 
+
+current_rule = 'start'
 rule start:
     '''
        Get samples
@@ -104,12 +172,12 @@ rule start:
             config["log_dir"],
             "samples",
             "{sample}",
-            "start_{sample}.{mate}.stderr.log"),
+            current_rule + "_{sample}.{mate}.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "start_{sample}.{mate}.stdout.log")
+            current_rule + "_{sample}.{mate}.stdout.log")
 
     singularity:
         "docker://bash:5.0.16"
@@ -119,6 +187,7 @@ rule start:
         1> {log.stdout} 2> {log.stderr} "
 
 
+current_rule = 'fastqc'
 rule fastqc:
     '''
         A quality control tool for high throughput sequence data
@@ -139,6 +208,15 @@ rule fastqc:
                 "{sample}",
                 "fastqc",
                 "{mate}"))
+    
+    params:
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--outdir',
+                )
+            )
 
     threads: 2
 
@@ -150,19 +228,23 @@ rule fastqc:
             config["log_dir"],
             "samples",
             "{sample}",
-            "fastqc_{mate}.stderr.log"),
+            current_rule + "_{mate}.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "fastqc_{mate}.stdout.log")
+            current_rule + "_{mate}.stdout.log")
 
     shell:
         "(mkdir -p {output.outdir}; \
-        fastqc --outdir {output.outdir} --threads {threads} {input.reads}) \
+        fastqc --outdir {output.outdir} \
+        --threads {threads} \
+        {params.additional_params} \
+        {input.reads}) \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'create_index_star'
 rule create_index_star:
     """
         Create index for STAR alignments
@@ -205,7 +287,19 @@ rule create_index_star:
             "{organism}",
             "{index_size}",
             "STAR_index/STAR_"),
-        sjdbOverhang = "{index_size}"
+        sjdbOverhang = "{index_size}",
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--runMode',
+                '--sjdbOverhang',
+                '--genomeDir',
+                '--genomeFastaFiles',
+                '--outFileNamePrefix',
+                '--sjdbGTFfile',
+                )
+            )
 
     singularity:
         "docker://zavolab/star:2.7.3a-slim"
@@ -215,10 +309,10 @@ rule create_index_star:
     log:
         stderr = os.path.join(
             config['log_dir'],
-            "{organism}_{index_size}_create_index_star.stderr.log"),
+            current_rule + "_{organism}_{index_size}.stderr.log"),
         stdout = os.path.join(
             config['log_dir'],
-            "{organism}_{index_size}_create_index_star.stdout.log")
+            current_rule + "_{organism}_{index_size}.stdout.log")
 
     shell:
         "(mkdir -p {params.output_dir}; \
@@ -231,9 +325,11 @@ rule create_index_star:
         --runThreadN {threads} \
         --outFileNamePrefix {params.outFileNamePrefix} \
         --sjdbGTFfile {input.gtf}) \
+        {params.additional_params} \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'extract_transcriptome'
 rule extract_transcriptome:
     """
         Create transcriptome from genome and gene annotations
@@ -256,13 +352,23 @@ rule extract_transcriptome:
             "{organism}",
             "transcriptome.fa"))
 
+    params:
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '-w',
+                '-g',
+                )
+            )
+
     log:
         stderr = os.path.join(
             config['log_dir'],
-            "{organism}_extract_transcriptome.log"),
+            current_rule + "_{organism}.log"),
         stdout = os.path.join(
             config['log_dir'],
-            "{organism}_extract_transcriptome.log")
+            current_rule + "_{organism}.log")
 
     singularity:
         "docker://zavolab/gffread:0.11.7-slim"
@@ -270,10 +376,13 @@ rule extract_transcriptome:
     shell:
         "(gffread \
         -w {output.transcriptome} \
-        -g {input.genome} {input.gtf}) \
+        -g {input.genome} \
+        {params.additional_params} \
+        {input.gtf}) \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'concatenate_transcriptome_and_genome' 
 rule concatenate_transcriptome_and_genome:
     """
         Concatenate genome and transcriptome
@@ -304,7 +413,7 @@ rule concatenate_transcriptome_and_genome:
     log:
         stderr = os.path.join(
             config['log_dir'],
-            "{organism}_concatenate_transcriptome_and_genome.stderr.log")
+            current_rule + "_{organism}.stderr.log")
 
     shell:
         "(cat {input.transcriptome} {input.genome} \
@@ -312,6 +421,7 @@ rule concatenate_transcriptome_and_genome:
         2> {log.stderr}"
 
 
+current_rule = 'create_index_salmon'
 rule create_index_salmon:
     """
         Create index for Salmon quantification
@@ -339,7 +449,17 @@ rule create_index_salmon:
                 "salmon.idx"))
 
     params:
-        kmerLen = "{kmer}"
+        kmerLen = "{kmer}",
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--transcripts',
+                '--decoys',
+                '--index',
+                '--kmerLen',
+                )
+            )
 
     singularity:
         "docker://zavolab/salmon:1.1.0-slim"
@@ -347,10 +467,10 @@ rule create_index_salmon:
     log:
         stderr = os.path.join(
             config['log_dir'],
-            "{organism}_{kmer}_create_index_salmon.stderr.log"),
+            current_rule + "_{organism}_{kmer}.stderr.log"),
         stdout = os.path.join(
             config['log_dir'],
-            "{organism}_{kmer}_create_index_salmon.stdout.log")
+            current_rule + "_{organism}_{kmer}.stdout.log")
 
     threads: 8
 
@@ -361,9 +481,11 @@ rule create_index_salmon:
         --index {output.index} \
         --kmerLen {params.kmerLen} \
         --threads {threads}) \
+        {params.additional_params} \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'create_index_kallisto'
 rule create_index_kallisto:
     """
         Create index for Kallisto quantification
@@ -384,7 +506,14 @@ rule create_index_kallisto:
     params:
         output_dir = os.path.join(
             config['kallisto_indexes'],
-            "{organism}")
+            "{organism}"),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '-i',
+                )
+            )
 
     singularity:
         "docker://zavolab/kallisto:0.46.1-slim"
@@ -392,18 +521,22 @@ rule create_index_kallisto:
     log:
         stderr = os.path.join(
             config['log_dir'],
-            "{organism}_create_index_kallisto.stderr.log"),
+            current_rule + "_{organism}.stderr.log"),
         stdout = os.path.join(
             config['log_dir'],
-            "{organism}_create_index_kallisto.stdout.log")
+            current_rule + "_{organism}.stdout.log")
 
     shell:
         "(mkdir -p {params.output_dir}; \
         chmod -R 777 {params.output_dir}; \
-        kallisto index -i {output.index} {input.transcriptome}) \
+        kallisto index \
+        {params.additional_params} \
+        -i {output.index} \
+        {input.transcriptome}) \
         1> {log.stdout}  2> {log.stderr}"
 
 
+current_rule = 'extract_transcripts_as_bed12'
 rule extract_transcripts_as_bed12:
     """
         Convert transcripts to BED12 format
@@ -417,6 +550,16 @@ rule extract_transcripts_as_bed12:
             config['output_dir'],
             "full_transcripts_protein_coding.bed"))
 
+    params:
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--gtf',
+                '--bed12',
+                )
+            )
+
     singularity:
         "docker://zavolab/zgtf:0.1"
 
@@ -425,18 +568,20 @@ rule extract_transcripts_as_bed12:
     log:
         stdout = os.path.join(
             config['log_dir'],
-            "extract_transcripts_as_bed12.stdout.log"),
+            current_rule + ".stdout.log"),
         stderr = os.path.join(
             config['log_dir'],
-            "extract_transcripts_as_bed12.stderr.log")
+            current_rule + ".stderr.log")
 
     shell:
         "(gtf2bed12 \
         --gtf {input.gtf} \
         --bed12 {output.bed12}); \
+        {params.additional_params} \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'index_genomic_alignment_samtools'
 rule index_genomic_alignment_samtools:
     '''
         Index genome bamfile using samtools
@@ -456,6 +601,13 @@ rule index_genomic_alignment_samtools:
             "map_genome",
             "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam.bai")
 
+    params:
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=()
+            )
+
     singularity:
         "docker://zavolab/samtools:1.10-slim"
 
@@ -466,18 +618,21 @@ rule index_genomic_alignment_samtools:
             config["log_dir"],
             "samples",
             "{sample}",
-            "index_genomic_alignment_samtools.{seqmode}.stderr.log"),
+            current_rule + ".{seqmode}.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "index_genomic_alignment_samtools.{seqmode}.stdout.log")
+            current_rule + ".{seqmode}.stdout.log")
 
     shell:
-        "(samtools index {input.bam} {output.bai};) \
+        "(samtools index \
+        {params.additional_params} \
+        {input.bam} {output.bai};) \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'calculate_TIN_scores'
 rule calculate_TIN_scores:
     """
         Calculate transcript integrity (TIN) score
@@ -522,14 +677,23 @@ rule calculate_TIN_scores:
             "TIN_score.tsv"))
 
     params:
-        sample = "{sample}"
+        sample = "{sample}",
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '-i',
+                '-r',
+                '--names',
+                )
+            )
 
     log:
         stderr = os.path.join(
             config['log_dir'],
             "samples",
             "{sample}",
-            "calculate_TIN_scores.log")
+            current_rule + ".log")
 
     threads: 8
 
@@ -540,11 +704,12 @@ rule calculate_TIN_scores:
         "(tin_score_calculation.py \
         -i {input.bam} \
         -r {input.transcripts_bed12} \
-        -c 0 \
         --names {params.sample} \
+        {params.additional_params} \
         > {output.TIN_score};) 2> {log.stderr}"
 
 
+current_rule = 'salmon_quantmerge_genes'
 rule salmon_quantmerge_genes:
     '''
         Merge gene quantifications into a single file
@@ -589,15 +754,27 @@ rule salmon_quantmerge_genes:
         sample_name_list = expand(
             "{sample}",
             sample=pd.unique(samples_table.index.values)),
-        salmon_merge_on = "{salmon_merge_on}"
+        salmon_merge_on = "{salmon_merge_on}",
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--quants',
+                '--genes',
+                '--transcripts',
+                '--names',
+                '--column',
+                '--output',
+                )
+            )
 
     log:
         stderr = os.path.join(
             config["log_dir"],
-            "salmon_quantmerge_genes_{salmon_merge_on}.stderr.log"),
+            current_rule + "_{salmon_merge_on}.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
-            "salmon_quantmerge_genes_{salmon_merge_on}.stdout.log")
+            current_rule + "_{salmon_merge_on}.stdout.log")
 
     threads: 1
 
@@ -611,9 +788,11 @@ rule salmon_quantmerge_genes:
         --names {params.sample_name_list} \
         --column {params.salmon_merge_on} \
         --output {output.salmon_out};) \
+        {params.additional_params} \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'salmon_quantmerge_transcripts'
 rule salmon_quantmerge_transcripts:
     '''
         Merge transcript quantifications into a single file
@@ -655,19 +834,30 @@ rule salmon_quantmerge_transcripts:
                 search_id='index',
                 search_value=i)
                 for i in pd.unique(samples_table.index.values)]),
-
         sample_name_list = expand(
             "{sample}",
             sample=pd.unique(samples_table.index.values)),
-        salmon_merge_on = "{salmon_merge_on}"
+        salmon_merge_on = "{salmon_merge_on}",
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--quants',
+                '--genes',
+                '--transcripts',
+                '--names',
+                '--column',
+                '--output',
+                )
+            )
 
     log:
         stderr = os.path.join(
             config["log_dir"],
-            "salmon_quantmerge_transcripts_{salmon_merge_on}.stderr.log"),
+            current_rule + "_{salmon_merge_on}.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
-            "salmon_quantmerge_transcripts_{salmon_merge_on}.stdout.log")
+            current_rule + "_{salmon_merge_on}.stdout.log")
 
     threads: 1
 
@@ -680,9 +870,11 @@ rule salmon_quantmerge_transcripts:
         --names {params.sample_name_list} \
         --column {params.salmon_merge_on} \
         --output {output.salmon_out}) \
+        {params.additional_params} \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule= 'kallisto_merge_genes'
 rule kallisto_merge_genes:
     '''
         Merge gene quantifications into single file
@@ -729,14 +921,25 @@ rule kallisto_merge_genes:
         sample_name_list = ','.join(expand(
             "{sample}",
             sample=pd.unique(samples_table.index.values))),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--input',
+                '--names',
+                '--txOut',
+                '--anno',
+                '--output',
+                )
+            )
 
     log:
         stderr = os.path.join(
             config["log_dir"],
-            "kallisto_merge_genes.stderr.log"),
+            current_rule + ".stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
-            "kallisto_merge_genes.stdout.log")
+            current_rule + ".stdout.log")
 
     threads: 1
 
@@ -750,10 +953,11 @@ rule kallisto_merge_genes:
         --txOut FALSE \
         --anno {input.gtf} \
         --output {params.dir_out} \
-        --verbose) \
+        {params.additional_params} ) \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'kallisto_merge_transcripts'
 rule kallisto_merge_transcripts:
     '''
         Merge transcript quantifications into a single files
@@ -799,14 +1003,24 @@ rule kallisto_merge_transcripts:
         sample_name_list = ','.join(expand(
             "{sample}",
             sample=pd.unique(samples_table.index.values))),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--input',
+                '--names',
+                '--txOut',
+                '--output',
+                )
+            )
 
     log:
         stderr = os.path.join(
             config["log_dir"],
-            "kallisto_merge_transcripts.stderr.log"),
+            current_rule + ".stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
-            "kallisto_merge_transcripts.stdout.log")
+            current_rule + ".stdout.log")
 
     threads: 1
 
@@ -818,10 +1032,11 @@ rule kallisto_merge_transcripts:
         --input {params.tables} \
         --names {params.sample_name_list} \
         --output {params.dir_out} \
-        --verbose) \
+        {params.additional_params}) \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'pca_salmon'
 rule pca_salmon:
     input:
         tpm = os.path.join(
@@ -836,13 +1051,23 @@ rule pca_salmon:
             "zpca",
             "pca_salmon_{molecule}"))
 
+    params:
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--tpm',
+                '--out',
+                )
+            )
+
     log:
         stderr = os.path.join(
             config["log_dir"],
-            "pca_salmon_{molecule}.stderr.log"),
+            current_rule + "_{molecule}.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
-            "pca_salmon_{molecule}.stdout.log")
+            current_rule + "_{molecule}.stdout.log")
 
     threads: 1
 
@@ -853,10 +1078,11 @@ rule pca_salmon:
         "(zpca-tpm  \
         --tpm {input.tpm} \
         --out {output.out} \
-        --verbose) \
+        {params.additional_params}) \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'pca_kallisto'
 rule pca_kallisto:
     input:
         tpm = os.path.join(
@@ -871,13 +1097,23 @@ rule pca_kallisto:
             "zpca",
             "pca_kallisto_{molecule}"))
 
+    params:
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--tpm',
+                '--out',
+                )
+            )
+
     log:
         stderr = os.path.join(
             config["log_dir"],
-            "pca_kallisto_{molecule}.stderr.log"),
+            current_rule + "_{molecule}.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
-            "pca_kallisto_{molecule}.stdout.log")
+            current_rule + "_{molecule}.stdout.log")
 
     threads: 1
 
@@ -888,10 +1124,11 @@ rule pca_kallisto:
         "(zpca-tpm  \
         --tpm {input.tpm} \
         --out {output.out} \
-        --verbose) \
+        {params.additional_params}) \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'star_rpm'
 rule star_rpm:
     '''
         Create stranded bedgraph coverage with STARs RPM normalisation
@@ -958,7 +1195,17 @@ rule star_rpm:
         prefix = lambda wildcards, output:
             os.path.join(
                 os.path.dirname(output.str1),
-                str(wildcards.sample) + "_")
+                str(wildcards.sample) + "_"),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--runMode',
+                '--inputBAMfile',
+                '--outWigType',
+                '--outFileNamePrefix',
+                )
+            )
 
     singularity:
         "docker://zavolab/star:2.7.3a-slim"
@@ -968,12 +1215,12 @@ rule star_rpm:
             config["log_dir"],
             "samples",
             "{sample}",
-            "star_rpm.stderr.log"),
+            current_rule + ".stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "star_rpm.stdout.log")
+            current_rule + ".stdout.log")
 
     threads: 4
 
@@ -986,9 +1233,11 @@ rule star_rpm:
         --inputBAMfile {input.bam} \
         --outWigType bedGraph \
         --outFileNamePrefix {params.prefix}) \
+        {params.additional_params} \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'rename_star_rpm_for_alfa'
 rule rename_star_rpm_for_alfa:
     input:
         plus = lambda wildcards:
@@ -1041,12 +1290,12 @@ rule rename_star_rpm_for_alfa:
             config["log_dir"],
             "samples",
             "{sample}",
-            "rename_star_rpm_for_alfa__{unique}.stderr.log"),
+            current_rule + "_{unique}.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "rename_star_rpm_for_alfa__{unique}.stdout.log")
+            current_rule + "_{unique}.stdout.log")
 
     singularity:
         "docker://bash:5.0.16"
@@ -1057,6 +1306,7 @@ rule rename_star_rpm_for_alfa:
          1>{log.stdout} 2>{log.stderr}"
 
 
+current_rule = 'generate_alfa_index'
 rule generate_alfa_index:
     ''' Generate ALFA index files from sorted GTF file '''
     input:
@@ -1065,7 +1315,6 @@ rule generate_alfa_index:
                 'gtf',
                 search_id='organism',
                 search_value=wildcards.organism)),
-
         chr_len = os.path.join(
             config["star_indexes"],
             "{organism}",
@@ -1090,7 +1339,17 @@ rule generate_alfa_index:
     params:
         genome_index = "sorted_genes",
         out_dir = lambda wildcards, output:
-            os.path.dirname(output.index_stranded)
+            os.path.dirname(output.index_stranded),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '-a',
+                '-g',
+                '--chr_len',
+                '-o',
+                )
+            )
 
     threads: 4
 
@@ -1100,16 +1359,19 @@ rule generate_alfa_index:
     log:
         os.path.join(
             config["log_dir"],
-            "{organism}_{index_size}_generate_alfa_index.log")
+            current_rule + "_{organism}_{index_size}.log")
 
     shell:
         "(alfa -a {input.gtf} \
         -g {params.genome_index} \
         --chr_len {input.chr_len} \
         -p {threads} \
-        -o {params.out_dir}) &> {log}"
+        -o {params.out_dir} \
+        {params.additional_params}) \
+        &> {log}"
 
 
+current_rule = 'alfa_qc'
 rule alfa_qc:
     '''
         Run ALFA from stranded bedgraph files
@@ -1169,21 +1431,30 @@ rule alfa_qc:
     params:
         out_dir = lambda wildcards, output:
             os.path.dirname(output.biotypes),
-        plus = lambda wildcards, input:
-            os.path.basename(input.plus),
-        minus = lambda wildcards, input:
-            os.path.basename(input.minus),
-        alfa_orientation = lambda wildcards:
-            get_sample(
-                'alfa_directionality',
-                search_id='index',
-                search_value=wildcards.sample),
         genome_index = lambda wildcards, input:
             os.path.abspath(
                 os.path.join(
                     os.path.dirname(input.gtf),
                     "sorted_genes")),
-        name = "{sample}"
+        plus = lambda wildcards, input:
+            os.path.basename(input.plus),
+        minus = lambda wildcards, input:
+            os.path.basename(input.minus),
+        name = "{sample}",
+        alfa_orientation = lambda wildcards:
+            get_sample(
+                'alfa_directionality',
+                search_id='index',
+                search_value=wildcards.sample),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '-g',
+                '--bedgraph',
+                '-s',
+                )
+            )
 
     singularity:
         "docker://zavolab/alfa:1.1.1-slim"
@@ -1193,16 +1464,19 @@ rule alfa_qc:
             config["log_dir"],
             "samples",
             "{sample}",
-            "alfa_qc.{unique}.log")
+            current_rule + ".{unique}.log")
 
     shell:
         "(cd {params.out_dir}; \
         alfa \
         -g {params.genome_index} \
         --bedgraph {params.plus} {params.minus} {params.name} \
-        -s {params.alfa_orientation}) &> {log}"
+        -s {params.alfa_orientation} \
+        {params.additional_params}) \
+        &> {log}"
 
 
+current_rule = 'prepare_multiqc_config'
 rule prepare_multiqc_config:
     '''
         Prepare config for the MultiQC
@@ -1222,25 +1496,36 @@ rule prepare_multiqc_config:
     params:
         logo_path = config['report_logo'],
         multiqc_intro_text = config['report_description'],
-        url = config['report_url']
+        url = config['report_url'],
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--config',
+                '--intro-text',
+                '--custom-logo',
+                '--url',
+                )
+            )
 
     log:
         stderr = os.path.join(
             config["log_dir"],
-            "prepare_multiqc_config.stderr.log"),
+            current_rule + ".stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
-            "prepare_multiqc_config.stdout.log")
+            current_rule + ".stdout.log")
 
     shell:
         "(python {input.script} \
         --config {output.multiqc_config} \
         --intro-text '{params.multiqc_intro_text}' \
         --custom-logo {params.logo_path} \
-        --url '{params.url}') \
+        --url '{params.url}' \
+        {params.additional_params}) \
         1> {log.stdout} 2> {log.stderr}"
 
-
+current_rule = 'multiqc_report'
 rule multiqc_report:
     '''
         Create report with MultiQC
@@ -1326,15 +1611,23 @@ rule multiqc_report:
     params:
         results_dir = os.path.join(
             config["output_dir"]),
-        log_dir = config["log_dir"]
+        log_dir = config["log_dir"],
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--outdir',
+                '--config',
+                )
+            )
 
     log:
         stderr = os.path.join(
             config["log_dir"],
-            "multiqc_report.stderr.log"),
+            current_rule + ".stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
-            "multiqc_report.stdout.log")
+            current_rule + ".stdout.log")
 
     singularity:
         "docker://zavolab/multiqc-plugins:1.0.0"
@@ -1343,11 +1636,12 @@ rule multiqc_report:
         "(multiqc \
         --outdir {output.multiqc_report} \
         --config {input.multiqc_config} \
+        {params.additional_params} \
         {params.results_dir} \
         {params.log_dir};) \
         1> {log.stdout} 2> {log.stderr}"
 
-
+current_rule = 'sort_bed_4_big'
 rule sort_bed_4_big:
     '''
         sort bedGraphs in order to work with bedGraphtobigWig
@@ -1370,6 +1664,15 @@ rule sort_bed_4_big:
             "{unique}",
             "{sample}_{unique}_{strand}.sorted.bg"))
 
+    params:
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '-i',
+                )
+            )
+
     singularity:
         "docker://cjh4zavolab/bedtools:2.27"
 
@@ -1378,13 +1681,16 @@ rule sort_bed_4_big:
             config["log_dir"],
             "samples",
             "{sample}",
-            "sort_bg_{unique}_{strand}.stderr.log")
+            current_rule + "_{unique}_{strand}.stderr.log")
 
     shell:
         "(sortBed \
-         -i {input.bg} \
-         > {output.sorted_bg};) 2> {log.stderr}"
+        -i {input.bg} \
+        {params.additional_params} \
+        > {output.sorted_bg};) 2> {log.stderr}"
 
+
+current_rule = 'prepare_bigWig'
 rule prepare_bigWig:
     '''
         bedGraphtobigWig, for viewing in genome browsers
@@ -1420,6 +1726,13 @@ rule prepare_bigWig:
             "{unique}",
             "{sample}_{unique}_{strand}.bw")
 
+    params:
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=()
+            )
+
     singularity:
         "docker://zavolab/bedgraphtobigwig:4-slim"
 
@@ -1428,17 +1741,18 @@ rule prepare_bigWig:
             config["log_dir"],
             "samples",
             "{sample}",
-            "bigwig_{unique}_{strand}.stderr.log"),
+            current_rule + "_{unique}_{strand}.stderr.log"),
 
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "bigwig_{unique}_{strand}.stdout.log")
+            current_rule + "_{unique}_{strand}.stdout.log")
 
     shell:
         "(bedGraphToBigWig \
-         {input.sorted_bg} \
-         {input.chr_sizes} \
-         {output.bigWig};) \
-         1> {log.stdout} 2> {log.stderr}"
+        {params.additional_params} \
+        {input.sorted_bg} \
+        {input.chr_sizes} \
+        {output.bigWig};) \
+        1> {log.stdout} 2> {log.stderr}"

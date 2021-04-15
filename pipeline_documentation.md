@@ -104,7 +104,7 @@ sample | Descriptive sample name | `str`
 seqmode | Required for various steps of the workflow. One of `pe` (for paired-end libraries) or `se` (for single-end libraries). | `str`
 fq1 | Path of library file in `.fastq.gz` format (or mate 1 read file for paired-end libraries) | `str`
 index_size | Required for [STAR](#third-party-software-used). Ideally the maximum read length minus 1 (`max(ReadLength)-1`). Values lower than maximum read length may result in lower mapping accuracy, while higher values may result in longer processing times. | `int`
-kmer | Required for [Salmon](#third-party-software-used). Default value of 31 usually works fine for reads of 75 bp or longer. Consider using lower values of poor mapping is observed. | `int`
+kmer | Required for [Salmon](#third-party-software-used). Default value of 31 usually works fine for reads of 75 bp or longer. Consider using lower values if poor mapping is observed. | `int`
 fq2 | Path of mate 2 read file in `.fastq.gz` format. Value ignored for for single-end libraries. | `str`
 fq1_3p | Required for [Cutadapt](#third-party-software-used). 3' adapter of mate 1. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. | `str`
 fq1_5p | Required for [Cutadapt](#third-party-software-used). 5' adapter of mate 1. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. | `str`
@@ -156,9 +156,8 @@ Create index for [**STAR**](#third-party-software-used) short read aligner.
   - Genome sequence file (`.fasta`)
   - Gene annotation file (`.gtf`)
 - **Parameters**
-  - `--sjdbOverhang`: maximum read length - 1; lower values may reduce accuracy,
-    higher values may increase STAR runtime; specify in sample table column
-    `index_size`
+  - **samples.tsv**
+    - `--sjdbOverhang`: maximum read length - 1; lower values may reduce accuracy, higher values may increase STAR runtime; specify in sample table column `index_size`
 - **Output**
   - STAR index; used in [**map_genome_star**](#map_genome_star)
   - Index includes files:
@@ -215,7 +214,8 @@ Create index for [**Salmon**](#third-party-software-used) quantification.
   - Chromosome name list `chrName.txt`; from
     [**create_index_star**](#create_index_star)
 - **Parameters**
-  - `--kmerLen`: k-mer length; specify in sample table column `kmer`
+  - **samples.tsv**
+    - `--kmerLen`: k-mer length; specify in sample table column `kmer`
 - **Output**
   - Salmon index; used in [**quantification_salmon**](#quantification_salmon)
 
@@ -354,11 +354,13 @@ Calculates the Transcript Integrity Number (TIN) for each transcript with
     [**index_genomic_alignment_samtools**](#index_genomic_alignment_samtools)
   - Transcript annotations file (12-column `.bed`); from
     [**extract_transcripts_as_bed12**](#extract_transcripts_as_bed12)
+- **Parameters**
+  - **rule_config.yaml**
+    - `-c 0`: minimum number of read mapped to a transcript (default 10)
 - **Output**
   - TIN score table (custom `tsv`); used in
     [**merge_TIN_scores**](#merge_tin_scores)
-- **Non-configurable & non-default**
-  - `-c 0`: minimum number of read mapped to a transcript
+  
 
 #### `salmon_quantmerge_genes`
 
@@ -470,8 +472,8 @@ Annotate alignments with [**ALFA**](#third-party-software-used).
     [**rename_star_rpm_for_alfa**](#rename_star_rpm_for_alfa)
   - ALFA index, stranded; from [**generate_alfa_index**](#generate_alfa_index)
 - **Parameters**
-  - `-s`: library orientation; specified by user in sample table column
-    `kallisto_directionality`
+  - **samples.tsv**
+    - `-s`: library orientation; specified by user in sample table column `kallisto_directionality`
 - **Output**
   - Figures for biotypes and feature categories (`.pdf`)
   - Feature counts table (custom `.tsv`); used in
@@ -486,6 +488,11 @@ Prepare config file for [**MultiQC**](#third-party-software-used).
 - **Input**
   - Directories created during
     [**prepare_files_for_report**](#prepare_files_for_report)
+- **Parameters**
+  All parameters for this rule have to be specified in main `config.yaml`
+  - `--intro-text`
+  - `--custom-logo`
+  - `--url`
 - **Output**
   - Config file (`.yaml`); used in [**multiqc_report**](#multiqc_report)
 
@@ -529,6 +536,8 @@ Target rule as required by [Snakemake][docs-snakemake-target-rule].
   - Coverage files, one per strand and sample (`.bw`); used in
     [**prepare_bigWig**](#prepare_bigwig)
 
+
+
 ### Sequencing mode-specific
 
 > Steps described here have two variants, one with the specified names for
@@ -544,16 +553,19 @@ Remove adapter sequences from reads with
 - **Input**
   - Reads file (`.fastq.gz`); from [**start**](#start)
 - **Parameters**
-  - Adapters to be removed; specify in sample table columns `fq1_3p`, `fq1_5p`,
+  - **samples.tsv**
+    - Adapters to be removed; specify in sample table columns `fq1_3p`, `fq1_5p`,
     `fq2_3p`, `fq2_5p`
+  - **rule_config.yaml:**
+    - `-m 10`: Discard processed reads that are shorter than 10 (default 0, that might cause problems in downstream programs)
+    - `-n 2`: search for all the given adapter sequences repeatedly, either until
+    no adapter match was found or until 2 rounds have been performed. (default 1)
+
 - **Output**
   - Reads file (`.fastq.gz`); used in
     [**remove_polya_cutadapt**](#remove_polya_cutadapt)
-- **Non-configurable & non-default**
-  - `-j 8`: use 8 threads
-  - `-m 10`: Discard processed reads that are shorter than 10 (default 0, that might cause problems in downstream programs)
-  - `-n 2`: search for all the given adapter sequences repeatedly, either until
-    no adapter match was found or until 2 rounds have been performed. (default 1)
+
+
 
 #### `remove_polya_cutadapt`
 
@@ -564,17 +576,18 @@ Remove poly(A) tails from reads with
   - Reads file (`.fastq.gz`); from
     [**remove_adapters_cutadapt**](#remove_adapters_cutadapt)
 - **Parameters**
-  - Poly(A) stretches to be removed; specify in sample table columns `fq1_polya`
-    and `fq2_polya`
+  - **samples.tsv**
+    - Poly(A) stretches to be removed; specify in sample table columns `fq1_polya` and `fq2_polya`
+  - **rule_config.yaml**
+      - `-m 10`: Discard processed reads that are shorter than 10 (default 0, that might cause problems in downstream programs)
+      - `-O 1`: minimal overlap of 1 (default: 3)
 - **Output**
   - Reads file (`.fastq.gz`); used in
     [**genome_quantification_kallisto**](#genome_quantification_kallisto),
     [**map_genome_star**](#map_genome_star) and
     [**quantification_salmon**](#quantification_salmon)
-- **Non-configurable & non-default**
-  - `-j 8`: use 8 threads
-  - `-m 10`: Discard processed reads that are shorter than 10
-  - `-O 1`: minimal overlap of 1 (default: 3)
+
+
 
 #### `map_genome_star`
 
@@ -586,15 +599,13 @@ Align short reads to reference genome and/or transcriptome with
     [**remove_polya_cutadapt**](#remove_polya_cutadapt)
   - Index; from [**create_index_star**](#create_index_star)
 - **Parameters**
-  - `--outFilterMultimapNmax`: maximum number of multiple alignments allowed;
-    if exceeded, read is considered unmapped; specify in sample table column
-    `multimappers`
-  - `--alignEndsType`: one of `Local` (standard local alignment with
-    soft-clipping allowed) or `EndToEnd` (force end-to-end read alignment, do
-    not soft-clip); specify in sample table column `soft_clip`
-  - `--twopassMode`: one of `None` (1-pass mapping) or `Basic` (basic 2-pass
-    mapping, with all 1st-pass junctions inserted into the genome indices on
-    the fly); specify in sample table column `pass_mode`
+  - **samples.tsv**
+    - `--outFilterMultimapNmax`: maximum number of multiple alignments allowed; if exceeded, read is considered unmapped; specify in sample table column `multimappers`
+    - `--alignEndsType`: one of `Local` (standard local alignment with soft-clipping allowed) or `EndToEnd` (force end-to-end read alignment, do not soft-clip); specify in sample table column `soft_clip`
+    - `--twopassMode`: one of `None` (1-pass mapping) or `Basic` (basic 2-pass mapping, with all 1st-pass junctions inserted into the genome indices on the fly); specify in sample table column `pass_mode`
+  - **rule_config.yaml**
+    - `--outFilterMultimapScoreRange=0`: the score range below the maximum score for multimapping alignments (default 1)
+    - `--outFilterType=BySJout`: reduces the number of ”spurious” junctions
 - **Output**
   - Aligned reads file (`.bam`); used in
     [**calculate_TIN_scores**](#calculate_TIN_scores),
@@ -602,12 +613,9 @@ Align short reads to reference genome and/or transcriptome with
     and [**star_rpm**](#star_rpm)
   - STAR log file
 - **Non-configurable & non-default**
-  - `--outFilterMultimapScoreRange=0`: the score range below the maximum score
-    for multimapping alignments (default 1)
   - `--outSAMattributes=All`: NH HI AS nM NM MD jM jI MC ch
   - `--outStd=BAM_SortedByCoordinate`: which output will be directed to `STDOUT` (default 'Log')
   - `--outSAMtype=BAM SortedByCoordinate`: type of SAM/BAM output (default SAM)
-  - `--outFilterType=BySJout`: reduces the number of ”spurious” junctions
   - `--outSAMattrRGline`: ID:rnaseq_pipeline SM: *sampleID*
 
 #### `quantification_salmon`
@@ -621,12 +629,15 @@ Estimate transcript- and gene-level expression with
   - Filtered annotation file (`.gtf`)
   - Index; from [**create_index_salmon**](#create_index_salmon)
 - **Parameters**
-  - `libType`: see [Salmon manual][docs-salmon] for allowed values; specify in
-    sample table column `libtype`
-  - `--fldMean`: mean of distribution of fragment lengths; specify in sample
-    table column `mean` **(single-end only)**
-  - `--fldSD`: standard deviation of distribution of fragment lengths; specify
-    in sample table column `sd` **(single-end only)**
+  - **samples.tsv**
+    - `libType`: see [Salmon manual][docs-salmon] for allowed values; specify in sample table column `libtype`
+    - `--fldMean`: mean of distribution of fragment lengths; specify in sample table column `mean` **(single-end only)**
+    - `--fldSD`: standard deviation of distribution of fragment lengths; specify in sample table column `sd` **(single-end only)**
+  - **rule_config.yaml**
+    - `--seqBias`: [correct for sequence specific
+    biases](https://salmon.readthedocs.io/en/latest/salmon.html#seqbias)
+    - `--validateMappings`: enables selective alignment of the sequencing reads when mapping them to the transcriptome; this can improve both the sensitivity and specificity of mapping and, as a result, can [improve quantification accuracy](https://salmon.readthedocs.io/en/latest/salmon.html#validatemappings).
+    - `--writeUnmappedNames`: write out the names of reads (or mates in paired-end reads) that do not map to the transcriptome. For paired-end this gives flags that indicate how a read failed to map **(paired-end only)**
 - **Output**
   - Gene expression table (`quant.sf`); used in
     [**salmon_quantmerge_genes**](#salmon_quantmerge_genes)
@@ -634,14 +645,7 @@ Estimate transcript- and gene-level expression with
     [**salmon_quantmerge_transcripts**](#salmon_quantmerge_transcripts)
   - `meta_info.json`
   - `flenDist.txt`
-- **Non-configurable & non-default**
-  - `--seqBias`: [correct for sequence specific
-    biases](https://salmon.readthedocs.io/en/latest/salmon.html#seqbias)
-  - `--validateMappings`: enables selective alignment of the sequencing reads
-    when mapping them to the transcriptome; this can improve both the
-    sensitivity and specificity of mapping and, as a result, can [improve
-    quantification
-    accuracy](https://salmon.readthedocs.io/en/latest/salmon.html#validatemappings).
+  
 
 #### `genome_quantification_kallisto`
 
@@ -653,16 +657,16 @@ Generate pseudoalignments of reads to transcripts with
     [**remove_polya_cutadapt**](#remove_polya_cutadapt)
   - Index; from [**create_index_kallisto**](#create_index_kallisto)
 - **Parameters**
-  - `directionality`; specify in sample table column `kallisto_directionality`
-  - `-l`: mean of distribution of fragment lengths; specify in sample table
-    column `mean` **(single-end only)**
-  - `-s`: standard deviation of distribution of fragment lengths; specify in
-    sample table column `sd` **(single-end only)**
+  - **samples.tsv**
+    - `directionality`; specify in sample table column `kallisto_directionality`
+    - `-l`: mean of distribution of fragment lengths; specify in sample table column `mean` **(single-end only)**
+    - `-s`: standard deviation of distribution of fragment lengths; specify in sample table column `sd` **(single-end only)**
 - **Output**
   - Pseudoalignments file (`.sam`) and
   - abundance (`.h5`) 
   used in [**kallisto_merge_genes**](#kallisto_merge_genes)
 - **Non-configurable & non-default**
+  - `--single`: Quantify single-end reads **(single-end only)**
   - `--pseudobam`: Save pseudoalignments to transcriptome to BAM file
 
 [code-alfa]: <https://github.com/biocompibens/ALFA>

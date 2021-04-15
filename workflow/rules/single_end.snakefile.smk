@@ -1,3 +1,4 @@
+current_rule = 'remove_adapters_cutadapt'
 rule remove_adapters_cutadapt:
     '''
         Remove adapters
@@ -27,7 +28,19 @@ rule remove_adapters_cutadapt:
             get_sample(
                 'fq1_5p',
                 search_id='index',
-                search_value=wildcards.sample)
+                search_value=wildcards.sample),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '-a',
+                '-A',
+                '-g',
+                '-G',
+                '-o',
+                '-p',
+                )
+            )
 
     singularity:
         "docker://zavolab/cutadapt:1.16-slim"
@@ -39,24 +52,24 @@ rule remove_adapters_cutadapt:
             config["log_dir"],
             "samples",
             "{sample}",
-            "remove_adapters_cutadapt.se.stderr.log"),
+            current_rule + ".se.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "remove_adapters_cutadapt.se.stdout.log")
+            current_rule + ".se.stdout.log")
     shell:
         "(cutadapt \
         -j {threads} \
-        -m 10 \
-        -n 2 \
         -a {params.adapters_3} \
         -g {params.adapters_5} \
+        {params.additional_params} \
         -o {output.reads} \
         {input.reads}) \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'remove_polya_cutadapt'
 rule remove_polya_cutadapt:
     '''
         Remove ployA  tails
@@ -85,7 +98,19 @@ rule remove_polya_cutadapt:
             get_sample(
                 'fq1_polya_5p',
                 search_id='index',
-                search_value=wildcards.sample)
+                search_value=wildcards.sample),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '-a',
+                '-A',
+                '-g',
+                '-G',
+                '-o',
+                '-p',
+                )
+            )
 
     singularity:
         "docker://zavolab/cutadapt:1.16-slim"
@@ -97,25 +122,25 @@ rule remove_polya_cutadapt:
             config["log_dir"],
             "samples",
             "{sample}",
-            "remove_polya_cutadapt.se.stderr.log"),
+            current_rule + ".se.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "remove_polya_cutadapt.se.stdout.log")
+            current_rule + ".se.stdout.log")
 
     shell:
         "(cutadapt \
         -j {threads} \
-        -O 1 \
-        -m 10  \
         -a {params.polya_3} \
         -g {params.polya_5} \
+        {params.additional_params} \
         -o {output.reads} \
         {input.reads};) \
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'map_genome_star'
 rule map_genome_star:
     '''
         Map to genome using STAR
@@ -178,7 +203,24 @@ rule map_genome_star:
             get_sample(
                 'pass_mode',
                 search_id='index',
-                search_value=wildcards.sample)
+                search_value=wildcards.sample),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--twopassMode',
+                '--genomeDir',
+                '--readFilesIn',
+                '--readFilesCommand',
+                '--outFilterMultimapNmax',
+                '--outFileNamePrefix',
+                '--outSAMattributes',
+                '--outStd',
+                '--outSAMtype',
+                '--outSAMattrRGline',
+                '--alignEndsType',
+                )
+            )
 
     singularity:
         "docker://zavolab/star:2.7.3a-slim"
@@ -190,7 +232,7 @@ rule map_genome_star:
             config["log_dir"],
             "samples",
             "{sample}",
-            "map_genome_star.se.stderr.log")
+            current_rule + ".se.stderr.log")
 
     shell:
         "(STAR \
@@ -200,17 +242,18 @@ rule map_genome_star:
         --readFilesIn {input.reads} \
         --readFilesCommand zcat \
         --outFilterMultimapNmax {params.multimappers} \
-        --outFilterMultimapScoreRange 0 \
         --outFileNamePrefix {params.outFileNamePrefix} \
         --outSAMattributes All \
         --outStd BAM_SortedByCoordinate \
         --outSAMtype BAM SortedByCoordinate \
-        --outFilterType BySJout \
         --outSAMattrRGline ID:rnaseq_pipeline SM:{params.sample_id} \
-        --alignEndsType {params.soft_clip} > {output.bam};) \
+        --alignEndsType {params.soft_clip} \
+        {params.additional_params} \
+        > {output.bam};) \
         2> {log.stderr}"
 
 
+current_rule = 'quantification_salmon'
 rule quantification_salmon:
     '''
         Quantification at transcript and gene level using Salmon
@@ -289,18 +332,31 @@ rule quantification_salmon:
             get_sample(
                 'sd',
                 search_id='index',
-                search_value=wildcards.sample)
+                search_value=wildcards.sample),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--libType',
+                '--fldMean',
+                '--fldSD',
+                '--index',
+                '--geneMap',
+                '--unmatedReads',
+                '-o',
+                )
+            )
     log:
         stderr = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "quantification_salmon.se.stderr.log"),
+            current_rule + ".se.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "quantification_salmon.se.stdout.log")
+            current_rule + ".se.stdout.log")
 
     threads: 12
 
@@ -310,11 +366,10 @@ rule quantification_salmon:
     shell:
         "(salmon quant \
         --libType {params.libType} \
-        --seqBias \
-        --validateMappings \
         --threads {threads} \
         --fldMean {params.fraglen} \
         --fldSD {params.fragsd} \
+        {params.additional_params} \
         --index {input.index} \
         --geneMap {input.gtf} \
         --unmatedReads {input.reads} \
@@ -322,6 +377,7 @@ rule quantification_salmon:
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'genome_quantification_kallisto'
 rule genome_quantification_kallisto:
     '''
         Quantification at transcript and gene level using Kallisto
@@ -377,7 +433,21 @@ rule genome_quantification_kallisto:
             get_sample(
                 'kallisto_directionality',
                 search_id='index',
-                search_value=wildcards.sample)
+                search_value=wildcards.sample),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--single',
+                '-i',
+                '-o',
+                '-l',
+                '-s',
+                '--pseudobam',
+                '--fr-stranded',
+                '--rf-stranded',
+                )
+            )
 
     threads: 8
 
@@ -386,21 +456,22 @@ rule genome_quantification_kallisto:
             config["log_dir"],
             "samples",
             "{sample}",
-            "genome_quantification_kallisto.se.stderr.log")
+            current_rule + ".se.stderr.log")
 
     singularity:
         "docker://zavolab/kallisto:0.46.1-slim"
 
     shell:
         "(kallisto quant \
+        --single \
         -i {input.index} \
         -o {params.output_dir} \
-        --single \
         -l {params.fraglen} \
         -s {params.fragsd} \
-        --pseudobam \
         -t {threads} \
         {params.directionality}-stranded \
+        {params.additional_params} \
+        --pseudobam \
         {input.reads} > {output.pseudoalignment};) \
         2> {log.stderr}"
 
