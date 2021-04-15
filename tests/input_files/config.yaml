@@ -1,5 +1,6 @@
 ---
   samples: "../input_files/samples.tsv"
+  rule_config: "../input_files/rule_config.yaml"
   output_dir: "results"
   log_dir: "logs"
   kallisto_indexes: "results/kallisto_indexes"

@@ -98,12 +98,12 @@ module_order:
   - cutadapt:
       name: "Cutadapt: adapter removal"
       path_filters:
-      - "*/*/remove_adapters_cutadapt*.stdout.log"
+      - "*/*/*remove_adapters_cutadapt*.stdout.log"
 
   - cutadapt:
       name: "Cutadapt: polyA tails removal"
       path_filters:
-      - "*/*/remove_polya_cutadapt*.stdout.log"
+      - "*/*/*remove_polya_cutadapt*.stdout.log"
 
   - star:
       path_filters:
@@ -123,7 +123,7 @@ module_order:
 
   - kallisto:
       path_filters:
-      - "*/*/genome_quantification_kallisto*.stderr.log"
+      - "*/*/*genome_quantification_kallisto*.stderr.log"
 
 fn_clean_exts:
   - '.fq1'
