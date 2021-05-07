@@ -43,7 +43,7 @@ rule remove_adapters_cutadapt:
             )
 
     singularity:
-        "docker://zavolab/cutadapt:1.16-slim"
+        "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
 
     threads: 8
 
@@ -113,7 +113,7 @@ rule remove_polya_cutadapt:
             )
 
     singularity:
-        "docker://zavolab/cutadapt:1.16-slim"
+        "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
 
     threads: 8
 
@@ -223,7 +223,7 @@ rule map_genome_star:
             )
 
     singularity:
-        "docker://zavolab/star:2.7.3a-slim"
+        "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
 
     threads: 12
 
@@ -236,7 +236,7 @@ rule map_genome_star:
 
     shell:
         "(STAR \
-        -- twopassMode {params.pass_mode} \
+        --twopassMode {params.pass_mode} \
         --runThreadN {threads} \
         --genomeDir {params.index} \
         --readFilesIn {input.reads} \
@@ -361,7 +361,7 @@ rule quantification_salmon:
     threads: 12
 
     singularity:
-        "docker://zavolab/salmon:1.1.0-slim"
+        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
 
     shell:
         "(salmon quant \
@@ -459,7 +459,7 @@ rule genome_quantification_kallisto:
             current_rule + ".se.stderr.log")
 
     singularity:
-        "docker://zavolab/kallisto:0.46.1-slim"
+        "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
 
     shell:
         "(kallisto quant \

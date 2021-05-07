@@ -180,7 +180,7 @@ rule start:
             current_rule + "_{sample}.{mate}.stdout.log")
 
     singularity:
-        "docker://bash:5.0.16"
+        "docker://ubuntu:focal-20210416"
 
     shell:
         "(cat {input.reads} > {output.reads}) \
@@ -221,7 +221,7 @@ rule fastqc:
     threads: 2
 
     singularity:
-        "docker://zavolab/fastqc:0.11.9-slim"
+        "docker://quay.io/biocontainers/fastqc:0.11.9--hdfd78af_1"
 
     log:
         stderr = os.path.join(
@@ -302,7 +302,7 @@ rule create_index_star:
             )
 
     singularity:
-        "docker://zavolab/star:2.7.3a-slim"
+        "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
 
     threads: 12
 
@@ -371,7 +371,7 @@ rule extract_transcriptome:
             current_rule + "_{organism}.log")
 
     singularity:
-        "docker://zavolab/gffread:0.11.7-slim"
+        "docker://quay.io/biocontainers/gffread:0.12.1--h2e03b76_1"
 
     shell:
         "(gffread \
@@ -408,7 +408,7 @@ rule concatenate_transcriptome_and_genome:
             "genome_transcriptome.fa"))
 
     singularity:
-        "docker://bash:5.0.16"
+        "docker://ubuntu:focal-20210416"
 
     log:
         stderr = os.path.join(
@@ -462,7 +462,7 @@ rule create_index_salmon:
             )
 
     singularity:
-        "docker://zavolab/salmon:1.1.0-slim"
+        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
 
     log:
         stderr = os.path.join(
@@ -516,7 +516,7 @@ rule create_index_kallisto:
             )
 
     singularity:
-        "docker://zavolab/kallisto:0.46.1-slim"
+        "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
 
     log:
         stderr = os.path.join(
@@ -609,7 +609,7 @@ rule index_genomic_alignment_samtools:
             )
 
     singularity:
-        "docker://zavolab/samtools:1.10-slim"
+        "docker://quay.io/biocontainers/samtools:1.3.1--h1b8c3c0_8"
 
     threads: 1
 
@@ -779,7 +779,7 @@ rule salmon_quantmerge_genes:
     threads: 1
 
     singularity:
-        "docker://zavolab/salmon:1.1.0-slim"
+        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
 
     shell:
         "(salmon quantmerge \
@@ -862,7 +862,7 @@ rule salmon_quantmerge_transcripts:
     threads: 1
 
     singularity:
-        "docker://zavolab/salmon:1.1.0-slim"
+        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
 
     shell:
         "(salmon quantmerge \
@@ -1208,7 +1208,7 @@ rule star_rpm:
             )
 
     singularity:
-        "docker://zavolab/star:2.7.3a-slim"
+        "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
 
     log:
         stderr = os.path.join(
@@ -1298,7 +1298,7 @@ rule rename_star_rpm_for_alfa:
             current_rule + "_{unique}.stdout.log")
 
     singularity:
-        "docker://bash:5.0.16"
+        "docker://ubuntu:focal-20210416"
 
     shell:
         "(cp {input.plus} {output.plus}; \
@@ -1354,7 +1354,7 @@ rule generate_alfa_index:
     threads: 4
 
     singularity:
-        "docker://zavolab/alfa:1.1.1-slim"
+        "docker://quay.io/biocontainers/alfa:1.1.1--pyh5e36f6f_0"
 
     log:
         os.path.join(
@@ -1457,7 +1457,7 @@ rule alfa_qc:
             )
 
     singularity:
-        "docker://zavolab/alfa:1.1.1-slim"
+        "docker://quay.io/biocontainers/alfa:1.1.1--pyh5e36f6f_0"
 
     log:
         os.path.join(
@@ -1674,7 +1674,7 @@ rule sort_bed_4_big:
             )
 
     singularity:
-        "docker://cjh4zavolab/bedtools:2.27"
+        "docker://quay.io/biocontainers/bedtools:2.27.1--h9a82719_5"
 
     log:
         stderr = os.path.join(
@@ -1734,7 +1734,7 @@ rule prepare_bigWig:
             )
 
     singularity:
-        "docker://zavolab/bedgraphtobigwig:4-slim"
+        "docker://quay.io/biocontainers/ucsc-bedgraphtobigwig:377--h0b8a92a_2"
 
     log:
         stderr = os.path.join(
