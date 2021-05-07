@@ -53,7 +53,7 @@ rule pe_remove_adapters_cutadapt:
             )
 
     singularity:
-        "docker://zavolab/cutadapt:1.16-slim"
+        "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
 
     threads: 8
 
@@ -148,7 +148,7 @@ rule pe_remove_polya_cutadapt:
             )
 
     singularity:
-        "docker://zavolab/cutadapt:1.16-slim"
+        "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
 
     threads: 8
 
@@ -279,7 +279,7 @@ rule pe_map_genome_star:
             )
 
     singularity:
-        "docker://zavolab/star:2.7.3a-slim"
+        "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
 
     threads: 12
 
@@ -414,7 +414,7 @@ rule pe_quantification_salmon:
     threads: 6
 
     singularity:
-        "docker://zavolab/salmon:1.1.0-slim"
+        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
 
     shell:
         "(salmon quant \
@@ -498,7 +498,7 @@ rule pe_genome_quantification_kallisto:
 
 
     singularity:
-        "docker://zavolab/kallisto:0.46.1-slim"
+        "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
 
     threads: 8
 
