@@ -125,6 +125,26 @@ module_order:
       path_filters:
       - "*/*/*genome_quantification_kallisto*.stderr.log"
 
+  - zpca:
+      name: "zpca: salmon | gene expression"
+      path_filters:
+      - "*/zpca/pca_salmon_genes/*"
+
+  - zpca:
+      name: "zpca: salmon | transcript expression"
+      path_filters:
+      - "*/zpca/pca_salmon_transcripts/*"
+
+  - zpca:
+      name: "zpca: kallisto | gene expression"
+      path_filters:
+      - "*/zpca/pca_kallisto_genes/*"
+
+  - zpca:
+      name: "zpca: kallisto | transcript expression"
+      path_filters:
+      - "*/zpca/pca_kallisto_transcripts/*"
+
 fn_clean_exts:
   - '.fq1'
   - '.gz'

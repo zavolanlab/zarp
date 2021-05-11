@@ -1072,7 +1072,7 @@ rule pca_salmon:
     threads: 1
 
     singularity:
-        "docker://zavolab/zpca:0.8"
+        "docker://zavolab/zpca:0.8.3-1"
 
     shell:
         "(zpca-tpm  \
@@ -1118,7 +1118,7 @@ rule pca_kallisto:
     threads: 1
 
     singularity:
-        "docker://zavolab/zpca:0.8"
+        "docker://zavolab/zpca:0.8.3-1"
 
     shell:
         "(zpca-tpm  \
@@ -1630,7 +1630,7 @@ rule multiqc_report:
             current_rule + ".stdout.log")
 
     singularity:
-        "docker://zavolab/multiqc-plugins:1.0.0"
+        "docker://zavolab/multiqc-plugins:1.2.1"
 
     shell:
         "(multiqc \
