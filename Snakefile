@@ -561,7 +561,7 @@ rule extract_transcripts_as_bed12:
             )
 
     singularity:
-        "docker://zavolab/zgtf:0.1"
+        "docker://quay.io/biocontainers/zgtf:0.1.1--pyh5e36f6f_0"
 
     threads: 1
 
