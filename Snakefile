@@ -1630,7 +1630,7 @@ rule multiqc_report:
             current_rule + ".stdout.log")
 
     singularity:
-        "docker://zavolab/multiqc-plugins:1.2.1"
+        "docker://quay.io/biocontainers/zavolan-multiqc-plugins:1.3--pyh5e36f6f_0"
 
     shell:
         "(multiqc \
