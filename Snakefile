@@ -698,10 +698,10 @@ rule calculate_TIN_scores:
     threads: 8
 
     singularity:
-        "docker://zavolab/tin_score_calculation:0.2.0-slim"
+        "docker://quay.io/biocontainers/tin-score-calculation:0.4--pyh5e36f6f_0"
 
     shell:
-        "(tin_score_calculation.py \
+        "(calculate-tin.py \
         -i {input.bam} \
         -r {input.transcripts_bed12} \
         --names {params.sample} \
