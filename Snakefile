@@ -1072,7 +1072,7 @@ rule pca_salmon:
     threads: 1
 
     singularity:
-        "docker://zavolab/zpca:0.8.3-1"
+        "docker://quay.io/biocontainers/zpca:0.8.3.post1--pyh5e36f6f_0"
 
     shell:
         "(zpca-tpm  \
