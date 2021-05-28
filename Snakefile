@@ -944,7 +944,7 @@ rule kallisto_merge_genes:
     threads: 1
 
     singularity:
-        "docker://zavolab/merge_kallisto:0.6"
+        "docker://quay.io/biocontainers/r-merge-kallisto:0.6--hdfd78af_0"
 
     shell:
         "(merge_kallisto.R \
@@ -1025,7 +1025,7 @@ rule kallisto_merge_transcripts:
     threads: 1
 
     singularity:
-        "docker://zavolab/merge_kallisto:0.6"
+        "docker://quay.io/biocontainers/r-merge-kallisto:0.6--hdfd78af_0"
 
     shell:
         "(merge_kallisto.R \
@@ -1118,7 +1118,7 @@ rule pca_kallisto:
     threads: 1
 
     singularity:
-        "docker://zavolab/zpca:0.8.3-1"
+        "docker://quay.io/biocontainers/zpca:0.8.3.post1--pyh5e36f6f_0"
 
     shell:
         "(zpca-tpm  \
