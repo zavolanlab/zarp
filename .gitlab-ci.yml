@@ -13,9 +13,10 @@ test:
     # add unit tests here
     # add script tests here
     - bash tests/test_scripts_prepare_inputs_table/test.sh
-    #- bash tests/test_scripts_prepare_inputs_labkey/test.sh
+    # - bash tests/test_scripts_prepare_inputs_labkey/test.sh
     #- bash tests/test_alfa/test.sh
     # add integration tests here
+    - bash tests/test_integration_workflow_with_conda/test.local.sh
     - bash tests/test_create_dag_image/test.sh
     - bash tests/test_create_rule_graph/test.sh
     - bash tests/test_integration_workflow/test.local.sh

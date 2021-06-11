@@ -26,7 +26,7 @@ cd $script_dir
 
 # Run tests
 snakemake \
-    --snakefile="../../Snakefile" \
+    --snakefile="../../workflow/Snakefile" \
     --configfile="../input_files/config.mutliple_lanes.yml" \
     --cores=4 \
     --printshellcmds \
@@ -39,7 +39,7 @@ snakemake \
 
 # Create a Snakemake report after the workflow execution
 snakemake \
-    --snakefile="../../Snakefile" \
+    --snakefile="../../workflow/Snakefile" \
     --configfile="../input_files/config.mutliple_lanes.yml" \
     --report="snakemake_report.html"
 

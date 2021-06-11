@@ -14,7 +14,7 @@ Below is a schematic representation of the individual steps of the workflow
 > ![rule_graph][rule-graph]
 
 For a more detailed description of each step, please refer to the [workflow
-documentation][workflow-documentation].
+documentation][pipeline-documentation].
 
 ## Requirements
 
@@ -48,12 +48,8 @@ Other versions are not guaranteed to work as expected.
 ### Installing dependencies
 
 For improved reproducibility and reusability of the workflow,
-each individual step of the workflow runs in its own [Singularity][singularity]
-container. As a consequence, running this workflow has very few
-individual dependencies. However, it requires Singularity to be installed
-on the system where the workflow is executed. As the functional installation of
-Singularity requires root privileges, and Conda currently only provides
-Singularity for Linux architectures, the installation instructions are
+each individual step of the workflow runs either in its own [Singularity][singularity]
+container or in its own [Conda][conda] virtual environemnt. As a consequence, running this workflow has very few individual dependencies. However, for the **container execution** it requires Singularity to be installed on the system where the workflow is executed. As the functional installation of Singularity requires root privileges, and Conda currently only provides Singularity for Linux architectures, the installation instructions are
 slightly different depending on your system/setup:
 
 #### For most users
@@ -115,10 +111,15 @@ need to be installed.
 
 ### Test workflow on local machine
 
-Execute the following command to run the test workflow on your local machine:
+Execute the following command to run the test workflow on your local machine (with singularity):
 
 ```bash
 bash tests/test_integration_workflow/test.local.sh
+```
+
+Alternatively execute the following command to run the test workflow on your local machine (with conda):
+```bash
+bash tests/test_integration_workflow_with_conda/test.local.sh
 ```
 
 ### Test workflow via Slurm
@@ -128,6 +129,12 @@ Execute the following command to run the test workflow on a
 
 ```bash
 bash tests/test_integration_workflow/test.slurm.sh
+```
+
+or
+
+```bash
+bash tests/test_integration_workflow_with_conda/test.slurm.sh
 ```
 
 > **NOTE:** Depending on the configuration of your Slurm installation or if
@@ -177,7 +184,7 @@ your run.
     cat << "EOF" > run.sh
     #!/bin/bash
     snakemake \
-        --snakefile="../../snakemake/Snakefile" \
+        --snakefile="/path/to/Snakefile" \
         --configfile="config.yaml" \
         --cores=4 \
         --printshellcmds \
@@ -198,7 +205,7 @@ your run.
     #!/bin/bash
     mkdir -p logs/cluster_log
     snakemake \
-        --snakefile="../../snakemake/Snakefile" \
+        --snakefile="/path/to/Snakefile" \
         --configfile="config.yaml" \
         --cluster-config="cluster.json" \
         --cluster="sbatch --cpus-per-task={cluster.threads} --mem={cluster.mem} --qos={cluster.queue} --time={cluster.time} --job-name={cluster.name} -o {cluster.out} -p scicore" \
@@ -209,6 +216,8 @@ your run.
         --singularity-args="--bind <data_dir_1>,<data_dir_2>,<data_dir_n>"
     EOF
     ```
+
+    When running the pipeline with conda you should use the `--use-conda` flag instead of `--use-singularity` and `--singularity-args`.
 
 5. Start your workflow run:
 

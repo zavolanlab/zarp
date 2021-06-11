@@ -3,14 +3,14 @@
 # Tear down test environment
 cleanup () {
     rc=$?
-    rm -rf .cache/
-    rm -rf .config/
-    rm -rf .fontconfig/
-    rm -rf .java/
-    rm -rf .snakemake/
-    rm -rf logs/
-    rm -rf results/
-    rm -rf snakemake_report.html
+    # rm -rf .cache/
+    # rm -rf .config/
+    # rm -rf .fontconfig/
+    # rm -rf .java/
+    # rm -rf .snakemake/
+    # rm -rf logs/
+    # rm -rf results/
+    # rm -rf snakemake_report.html
     cd $user_dir
     echo "Exit status: $rc"
 }
@@ -26,20 +26,21 @@ cd $script_dir
 
 # Run tests
 snakemake \
-    --snakefile="../../workflow/Snakefile" \
+    --snakefile="../../Snakefile" \
     --configfile="../input_files/config.yaml" \
-    --cores=4 \
+    --cluster-config="../input_files/cluster.json" \
+    --cluster="sbatch --cpus-per-task={cluster.threads} --mem={cluster.mem} --qos={cluster.queue} --time={cluster.time} --job-name={cluster.name} -o {cluster.out} -p scicore" \
+    --cores=256 \
     --printshellcmds \
     --rerun-incomplete \
-    --use-singularity \
-    --singularity-args="--bind ${PWD}/../input_files,${PWD}/../../images" \
+    --use-conda \
     --notemp \
     --no-hooks \
     --verbose
 
 # Create a Snakemake report after the workflow execution
 snakemake \
-    --snakefile="../../workflow/Snakefile" \
+    --snakefile="../../Snakefile" \
     --configfile="../input_files/config.yaml" \
     --report="snakemake_report.html"
 
@@ -49,15 +50,15 @@ find results/ -type f -name \*\.zip -exec sh -c 'unzip -o {} -d $(dirname {})' \
 md5sum --check "expected_output.md5"
 
 # Checksum file generated with
-#find results/ \
-#    -type f \
-#    -name \*\.gz \
-#    -exec gunzip '{}' \;
-#find results/ \
-#    -type f \
-#    -name \*\.zip \
-#    -exec sh -c 'unzip -o {} -d $(dirname {})' \;
-#md5sum $(cat expected_output.files) > expected_output.md5
+# find results/ \
+#     -type f \
+#     -name \*\.gz \
+#     -exec gunzip '{}' \;
+# find results/ \
+#     -type f \
+#     -name \*\.zip \
+#     -exec sh -c 'unzip -o {} -d $(dirname {})' \;
+# md5sum $(cat expected_output.files) > expected_output.md5
 
 # Check whether STAR produces expected alignments
 # STAR alignments need to be fully within ground truth alignments for tests to pass; not checking 
@@ -89,4 +90,5 @@ diff \
 diff \
     <(cat results/samples/synthetic_10_reads_paired_synthetic_10_reads_paired/synthetic_10_reads_paired_synthetic_10_reads_paired.salmon.pe/quant.genes.sf | cut -f1,5 | tail -n +2 | sort -k1,1) \
     <(cat ../input_files/synthetic.mate_1.bed | cut -f7 | sort | uniq -c | sort -k2nr | awk '{printf($2"\t"$1"\n")}')
+
 

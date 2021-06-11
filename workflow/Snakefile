@@ -100,8 +100,8 @@ def parse_rule_config(rule_config: dict, current_rule: str, immutable: Tuple[str
 localrules: start, finish, rename_star_rpm_for_alfa, prepare_multiqc_config
 
 # Include subworkflows
-include: os.path.join("workflow", "rules", "paired_end.snakefile.smk")
-include: os.path.join("workflow", "rules", "single_end.snakefile.smk")
+include: os.path.join("rules", "paired_end.snakefile.smk")
+include: os.path.join("rules", "single_end.snakefile.smk")
 
 
 rule finish:
@@ -223,6 +223,9 @@ rule fastqc:
     singularity:
         "docker://quay.io/biocontainers/fastqc:0.11.9--hdfd78af_1"
 
+    conda:
+        os.path.join(workflow.basedir, "envs", "fastqc.yaml")
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -304,6 +307,9 @@ rule create_index_star:
     singularity:
         "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
 
+    conda:
+        os.path.join(workflow.basedir, "envs", "STAR.yaml")
+
     threads: 12
 
     log:
@@ -372,6 +378,9 @@ rule extract_transcriptome:
 
     singularity:
         "docker://quay.io/biocontainers/gffread:0.12.1--h2e03b76_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "gffread.yaml")
 
     shell:
         "(gffread \
@@ -463,6 +472,9 @@ rule create_index_salmon:
 
     singularity:
         "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
+    
+    conda:
+        os.path.join(workflow.basedir, "envs", "salmon.yaml")
 
     log:
         stderr = os.path.join(
@@ -518,6 +530,9 @@ rule create_index_kallisto:
     singularity:
         "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
 
+    conda:
+        os.path.join(workflow.basedir, "envs", "kallisto.yaml")
+
     log:
         stderr = os.path.join(
             config['log_dir'],
@@ -562,6 +577,9 @@ rule extract_transcripts_as_bed12:
 
     singularity:
         "docker://quay.io/biocontainers/zgtf:0.1.1--pyh5e36f6f_0"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "zgtf.yaml")
 
     threads: 1
 
@@ -610,6 +628,9 @@ rule index_genomic_alignment_samtools:
 
     singularity:
         "docker://quay.io/biocontainers/samtools:1.3.1--h1b8c3c0_8"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "samtools.yaml")
 
     threads: 1
 
@@ -700,6 +721,9 @@ rule calculate_TIN_scores:
     singularity:
         "docker://quay.io/biocontainers/tin-score-calculation:0.4--pyh5e36f6f_0"
 
+    conda:
+        os.path.join(workflow.basedir, "envs", "tin-score-calculation.yaml")
+
     shell:
         "(calculate-tin.py \
         -i {input.bam} \
@@ -780,6 +804,9 @@ rule salmon_quantmerge_genes:
 
     singularity:
         "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "salmon.yaml")
 
     shell:
         "(salmon quantmerge \
@@ -864,6 +891,9 @@ rule salmon_quantmerge_transcripts:
     singularity:
         "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
 
+    conda:
+        os.path.join(workflow.basedir, "envs", "salmon.yaml")
+
     shell:
         "(salmon quantmerge \
         --quants {params.salmon_in} \
@@ -946,6 +976,9 @@ rule kallisto_merge_genes:
     singularity:
         "docker://quay.io/biocontainers/r-merge-kallisto:0.6--hdfd78af_0"
 
+    conda:
+        os.path.join(workflow.basedir, "envs", "r-merge-kallisto.yaml")
+
     shell:
         "(merge_kallisto.R \
         --input {params.tables} \
@@ -1027,6 +1060,9 @@ rule kallisto_merge_transcripts:
     singularity:
         "docker://quay.io/biocontainers/r-merge-kallisto:0.6--hdfd78af_0"
 
+    conda:
+        os.path.join(workflow.basedir, "envs", "r-merge-kallisto.yaml")
+
     shell:
         "(merge_kallisto.R \
         --input {params.tables} \
@@ -1074,6 +1110,9 @@ rule pca_salmon:
     singularity:
         "docker://quay.io/biocontainers/zpca:0.8.3.post1--pyh5e36f6f_0"
 
+    conda:
+        os.path.join(workflow.basedir, "envs", "zpca.yaml")
+
     shell:
         "(zpca-tpm  \
         --tpm {input.tpm} \
@@ -1119,6 +1158,9 @@ rule pca_kallisto:
 
     singularity:
         "docker://quay.io/biocontainers/zpca:0.8.3.post1--pyh5e36f6f_0"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "zpca.yaml")
 
     shell:
         "(zpca-tpm  \
@@ -1209,6 +1251,9 @@ rule star_rpm:
 
     singularity:
         "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "STAR.yaml")
 
     log:
         stderr = os.path.join(
@@ -1356,6 +1401,9 @@ rule generate_alfa_index:
     singularity:
         "docker://quay.io/biocontainers/alfa:1.1.1--pyh5e36f6f_0"
 
+    conda:
+        os.path.join(workflow.basedir, "envs", "alfa.yaml")
+
     log:
         os.path.join(
             config["log_dir"],
@@ -1459,6 +1507,9 @@ rule alfa_qc:
     singularity:
         "docker://quay.io/biocontainers/alfa:1.1.1--pyh5e36f6f_0"
 
+    conda:
+        os.path.join(workflow.basedir, "envs", "alfa.yaml")
+
     log:
         os.path.join(
             config["log_dir"],
@@ -1484,7 +1535,6 @@ rule prepare_multiqc_config:
     input:
         script = os.path.join(
             workflow.basedir,
-            "workflow",
             "scripts",
             "zarp_multiqc_config.py")
 
@@ -1632,6 +1682,9 @@ rule multiqc_report:
     singularity:
         "docker://quay.io/biocontainers/zavolan-multiqc-plugins:1.3--pyh5e36f6f_0"
 
+    conda:
+        os.path.join(workflow.basedir, "envs", "zavolan-multiqc-plugins.yaml")
+
     shell:
         "(multiqc \
         --outdir {output.multiqc_report} \
@@ -1675,6 +1728,9 @@ rule sort_bed_4_big:
 
     singularity:
         "docker://quay.io/biocontainers/bedtools:2.27.1--h9a82719_5"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "bedtools.yaml")
 
     log:
         stderr = os.path.join(
@@ -1735,6 +1791,9 @@ rule prepare_bigWig:
 
     singularity:
         "docker://quay.io/biocontainers/ucsc-bedgraphtobigwig:377--h0b8a92a_2"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "ucsc-bedgraphtobigwig.yaml")
 
     log:
         stderr = os.path.join(
