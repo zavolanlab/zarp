@@ -31,8 +31,7 @@ snakemake \
     --cores=4 \
     --printshellcmds \
     --rerun-incomplete \
-    --use-singularity \
-    --singularity-args="--bind ${PWD}/../input_files,${PWD}/../../images" \
+    --use-conda \
     --notemp \
     --no-hooks \
     --verbose

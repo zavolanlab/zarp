@@ -35,7 +35,7 @@ python "../../scripts/prepare_inputs.py" \
 
 # Check if dry run completes
 snakemake \
-    --snakefile="../../Snakefile" \
+    --snakefile="../../workflow/Snakefile" \
     --configfile="config.yaml" \
     --dryrun \
     --verbose

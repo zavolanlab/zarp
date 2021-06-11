@@ -55,6 +55,9 @@ rule pe_remove_adapters_cutadapt:
     singularity:
         "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
 
+    conda:
+        os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
+
     threads: 8
 
     log:
@@ -149,6 +152,9 @@ rule pe_remove_polya_cutadapt:
 
     singularity:
         "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
 
     threads: 8
 
@@ -280,6 +286,9 @@ rule pe_map_genome_star:
 
     singularity:
         "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "STAR.yaml")
 
     threads: 12
 
@@ -416,6 +425,9 @@ rule pe_quantification_salmon:
     singularity:
         "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
 
+    conda:
+        os.path.join(workflow.basedir, "envs", "salmon.yaml")
+
     shell:
         "(salmon quant \
         --libType {params.libType} \
@@ -499,6 +511,9 @@ rule pe_genome_quantification_kallisto:
 
     singularity:
         "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "kallisto.yaml")
 
     threads: 8
 
