@@ -3,14 +3,14 @@
 # Tear down test environment
 cleanup () {
     rc=$?
-    # rm -rf .cache/
-    # rm -rf .config/
-    # rm -rf .fontconfig/
-    # rm -rf .java/
-    # rm -rf .snakemake/
-    # rm -rf logs/
-    # rm -rf results/
-    # rm -rf snakemake_report.html
+    rm -rf .cache/
+    rm -rf .config/
+    rm -rf .fontconfig/
+    rm -rf .java/
+    rm -rf .snakemake/
+    rm -rf logs/
+    rm -rf results/
+    rm -rf snakemake_report.html
     cd $user_dir
     echo "Exit status: $rc"
 }
@@ -26,7 +26,7 @@ cd $script_dir
 
 # Run tests
 snakemake \
-    --snakefile="../../Snakefile" \
+    --snakefile="../../workflow/Snakefile" \
     --configfile="../input_files/config.yaml" \
     --cluster-config="../input_files/cluster.json" \
     --cluster="sbatch --cpus-per-task={cluster.threads} --mem={cluster.mem} --qos={cluster.queue} --time={cluster.time} --job-name={cluster.name} -o {cluster.out} -p scicore" \
@@ -40,7 +40,7 @@ snakemake \
 
 # Create a Snakemake report after the workflow execution
 snakemake \
-    --snakefile="../../Snakefile" \
+    --snakefile="../../workflow/Snakefile" \
     --configfile="../input_files/config.yaml" \
     --report="snakemake_report.html"
 
