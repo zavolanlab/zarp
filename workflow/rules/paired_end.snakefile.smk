@@ -79,6 +79,7 @@ rule pe_remove_adapters_cutadapt:
         -g {params.adapter_5_mate1} \
         -A {params.adapter_3_mate2} \
         -G {params.adapter_5_mate2} \
+        -m 1 \
         {params.additional_params} \
         -o {output.reads1} \
         -p {output.reads2} \
@@ -177,6 +178,7 @@ rule pe_remove_polya_cutadapt:
         -g {params.polya_5_mate1} \
         -A {params.polya_3_mate2} \
         -G {params.polya_5_mate2} \
+        -m 1 \
         {params.additional_params} \
         -o {output.reads1} \
         -p {output.reads2} \

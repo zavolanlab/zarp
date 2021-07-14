@@ -557,7 +557,14 @@ Remove adapter sequences from reads with
     - Adapters to be removed; specify in sample table columns `fq1_3p`, `fq1_5p`,
     `fq2_3p`, `fq2_5p`
   - **rule_config.yaml:**
-    - `-m 10`: Discard processed reads that are shorter than 10 (default 0, that might cause problems in downstream programs)
+    - `-m 10`: Discard processed reads that are shorter than 10 nt. If
+    specified in `rule_config.yaml`, it will override ZARP's default value of
+    `m=1` for this parameter. Note that this is different from `cutadapt`'s
+    default behavior (`m=0`), which leads to empty reads being retained,
+    causing problems in downstream applications in ZARP. We thus strongly
+    recommend to **not** set the value of `m` to `0`! Refer to `cutadapt`'s
+    [documentation][docs-cutadapt-m] for more information on the `m`
+    parameter.
     - `-n 2`: search for all the given adapter sequences repeatedly, either until
     no adapter match was found or until 2 rounds have been performed. (default 1)
 
@@ -579,8 +586,15 @@ Remove poly(A) tails from reads with
   - **samples.tsv**
     - Poly(A) stretches to be removed; specify in sample table columns `fq1_polya` and `fq2_polya`
   - **rule_config.yaml**
-      - `-m 10`: Discard processed reads that are shorter than 10 (default 0, that might cause problems in downstream programs)
-      - `-O 1`: minimal overlap of 1 (default: 3)
+    - `-m 10`: Discard processed reads that are shorter than 10 nt. If
+    specified in `rule_config.yaml`, it will override ZARP's default value of
+    `m=1` for this parameter. Note that this is different from `cutadapt`'s
+    default behavior (`m=0`), which leads to empty reads being retained,
+    causing problems in downstream applications in ZARP. We thus strongly
+    recommend to **not** set the value of `m` to `0`! Refer to `cutadapt`'s
+    [documentation][docs-cutadapt-m] for more information on the `m`
+    parameter.
+    - `-O 1`: minimal overlap of 1 (default: 3)
 - **Output**
   - Reads file (`.fastq.gz`); used in
     [**genome_quantification_kallisto**](#genome_quantification_kallisto),
@@ -690,6 +704,7 @@ Generate pseudoalignments of reads to transcripts with
 [docs-bedgraphtobigwig]: <http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/>
 [docs-bedtools]: <https://bedtools.readthedocs.io/en/latest/>
 [docs-cutadapt]: <https://cutadapt.readthedocs.io/en/stable/>
+[docs-cutadapt-m]: <https://cutadapt.readthedocs.io/en/stable/guide.html#filtering-reads>
 [docs-gffread]: <http://ccb.jhu.edu/software/stringtie/gff.shtml#gffread>
 [docs-fastqc]: <http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/>
 [docs-imagemagick]: <https://imagemagick.org/>

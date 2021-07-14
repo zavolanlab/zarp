@@ -66,6 +66,7 @@ rule remove_adapters_cutadapt:
         -j {threads} \
         -a {params.adapters_3} \
         -g {params.adapters_5} \
+        -m 1 \
         {params.additional_params} \
         -o {output.reads} \
         {input.reads}) \
@@ -140,6 +141,7 @@ rule remove_polya_cutadapt:
         -j {threads} \
         -a {params.polya_3} \
         -g {params.polya_5} \
+        -m 1 \
         {params.additional_params} \
         -o {output.reads} \
         {input.reads};) \
