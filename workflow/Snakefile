@@ -5,6 +5,7 @@ import shutil
 import yaml
 from shlex import quote
 from typing import Tuple
+from snakemake.utils import validate
 
 ## Preparations
 # Get sample table
@@ -17,16 +18,22 @@ samples_table = pd.read_csv(
     sep="\t",
 )
 
+# Validat config
+validate(config, os.path.join("..", "resources", "config_schema.json"))
+logger.info(f'Config file after validation: {config}')
+
 # Parse YAML rule config file
-if 'rule_config' in config and config['rule_config']:
-    try:
-        with open(config['rule_config']) as _file:
-            rule_config = yaml.safe_load(_file)
-        logger.info(f"Loaded rule_config from {config['rule_config']}.")
-    except FileNotFoundError:
-        logger.error(f"No rule config file found at {config['rule_config']}. Either provide file or remove rule_config parameter from config.yaml! ")
-        raise
-else:
+try:
+    with open(config['rule_config']) as _file:
+        rule_config = yaml.safe_load(_file)
+    logger.info(f"Loaded rule_config from {config['rule_config']}.")
+except TypeError:
+    logger.error(f'No string supplied at field "rule_config", but: {type(config["rule_config"])} with content: {config["rule_config"]}')
+    raise
+except FileNotFoundError:
+    logger.error(f"No rule config file found at {config['rule_config']}. Either provide file or remove rule_config parameter from config.yaml! ")
+    raise
+except KeyError:
     rule_config = {}
     logger.warning(f"No rule config specified: using default values for all tools.")
 
@@ -1547,6 +1554,8 @@ rule prepare_multiqc_config:
         logo_path = config['report_logo'],
         multiqc_intro_text = config['report_description'],
         url = config['report_url'],
+        author_name = config['author_name'],
+        author_email = config['author_email'],
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -1572,6 +1581,8 @@ rule prepare_multiqc_config:
         --intro-text '{params.multiqc_intro_text}' \
         --custom-logo {params.logo_path} \
         --url '{params.url}' \
+        --author-name {params.author_name} \
+        --author-email {params.author_email} \
         {params.additional_params}) \
         1> {log.stdout} 2> {log.stderr}"
 
