@@ -1,0 +1,66 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Configuration schema",
+    "required": ["samples", "output_dir", "log_dir", "kallisto_indexes", "salmon_indexes", "star_indexes", "alfa_indexes"],
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "samples": {
+        "type": "string",
+        "description": "Path to samples table."
+      },
+      "output_dir": {
+        "type": "string",
+        "description": "Path to output directory."
+      },
+      "log_dir": {
+        "type": "string",
+        "description": "Path to log directory."
+      },
+      "kallisto_indexes": {
+        "type": "string",
+        "description": "Path to kallisto indexes directory."
+      },
+      "salmon_indexes": {
+        "type": "string",
+        "description": "Path to salmon indexes directory."
+      },
+      "star_indexes": {
+        "type": "string",
+        "description": "Path to star indexes directory."
+      },
+      "alfa_indexes": {
+        "type": "string",
+        "description": "Path to alfa indexes directory."
+      },
+      "rule_config": {
+        "type": "string",
+        "description": "Path to rule configuration file."
+      },
+      "report_description": {
+        "type": "string",
+        "description": "Description of the run to appear in the multiqc report.",
+        "default": "No description provided by user."
+      },
+      "report_logo": {
+        "type": "string",
+        "description": "Relative path to image to display as logo in multiqc report.",
+        "default": "../../images/logo.128px.png"
+      },
+      "report_url": {
+        "type": "string",
+        "description": "URL to appear in multiqc report.",
+        "default": "https://zavolan.biozentrum.unibas.ch/"
+      },
+      "author_name": {
+        "type": "string",
+        "description": "Full author name to display in multiqc report.",
+        "default": "NA" 
+      },
+      "author_email": {
+        "type": "string",
+        "description": "Author e-mail address to display in multiqc report.",
+        "default": "NA"
+      }
+    }
+}
