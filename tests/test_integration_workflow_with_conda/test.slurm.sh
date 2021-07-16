@@ -31,6 +31,7 @@ snakemake \
     --cluster-config="../input_files/cluster.json" \
     --cluster="sbatch --cpus-per-task={cluster.threads} --mem={cluster.mem} --qos={cluster.queue} --time={cluster.time} --job-name={cluster.name} -o {cluster.out} -p scicore" \
     --cores=256 \
+    --jobs=256 \
     --printshellcmds \
     --rerun-incomplete \
     --use-conda \

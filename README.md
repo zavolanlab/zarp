@@ -139,7 +139,7 @@ bash tests/test_integration_workflow_with_conda/test.slurm.sh
 
 > **NOTE:** Depending on the configuration of your Slurm installation or if
 > using a different workload manager, you may need to adapt file `cluster.json`
-> and the arguments to options `--config` and `--cores` in the file
+> and the arguments to options `--config`, `--cores` and `--jobs` in the file
 > `test.slurm.sh`, both located in directory `tests/test_integration_workflow`.
 > Consult the manual of your workload manager as well as the section of the
 > Snakemake manual dealing with [cluster execution].
@@ -210,6 +210,7 @@ your run.
         --cluster-config="cluster.json" \
         --cluster="sbatch --cpus-per-task={cluster.threads} --mem={cluster.mem} --qos={cluster.queue} --time={cluster.time} --job-name={cluster.name} -o {cluster.out} -p scicore" \
         --cores=256 \
+        --jobs=256 \
         --printshellcmds \
         --rerun-incomplete \
         --use-singularity \
