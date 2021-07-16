@@ -1579,10 +1579,10 @@ rule prepare_multiqc_config:
         "(python {input.script} \
         --config {output.multiqc_config} \
         --intro-text '{params.multiqc_intro_text}' \
-        --custom-logo {params.logo_path} \
+        --custom-logo '{params.logo_path}' \
         --url '{params.url}' \
-        --author-name {params.author_name} \
-        --author-email {params.author_email} \
+        --author-name '{params.author_name}' \
+        --author-email '{params.author_email}' \
         {params.additional_params}) \
         1> {log.stdout} 2> {log.stderr}"
 
