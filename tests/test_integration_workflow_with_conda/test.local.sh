@@ -26,15 +26,8 @@ cd $script_dir
 
 # Run tests
 snakemake \
-    --snakefile="../../workflow/Snakefile" \
-    --configfile="../input_files/config.yaml" \
-    --cores=4 \
-    --printshellcmds \
-    --rerun-incomplete \
-    --use-conda \
-    --notemp \
-    --no-hooks \
-    --verbose
+    --profile="../../profiles/local-conda" \
+    --configfile="../input_files/config.yaml" 
 
 # Create a Snakemake report after the workflow execution
 snakemake \

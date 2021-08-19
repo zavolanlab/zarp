@@ -1,0 +1,13 @@
+jobscript: "../slurm-jobscript.sh"
+cluster: "../slurm-submit.py"
+cluster-status: "../slurm-status.py"
+snakefile: "../../workflow/Snakefile"
+cores: 256
+jobs: 256
+printshellcmds: true
+rerun-incomplete: true
+use-singularity: true
+singularity-args: "--bind ./../input_files,./../../images"
+notemp: true
+no-hooks: true
+verbose: true

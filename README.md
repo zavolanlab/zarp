@@ -137,12 +137,12 @@ or
 bash tests/test_integration_workflow_with_conda/test.slurm.sh
 ```
 
-> **NOTE:** Depending on the configuration of your Slurm installation or if
-> using a different workload manager, you may need to adapt file `cluster.json`
-> and the arguments to options `--config`, `--cores` and `--jobs` in the file
-> `test.slurm.sh`, both located in directory `tests/test_integration_workflow`.
+> **NOTE:** Depending on the configuration of your Slurm installation you may
+> need to adapt file `slurm-config.json` (located directly under `profiles`
+> directory) and the arguments to options `--cores` and `--jobs`
+> in the file `config.yaml` of a respective profile.
 > Consult the manual of your workload manager as well as the section of the
-> Snakemake manual dealing with [cluster execution].
+> Snakemake manual dealing with [profiles].
 
 ## Running the workflow on your own samples
 
@@ -154,13 +154,11 @@ create a directory for your workflow run and traverse inside it with:
     cd config/my_run
     ```
 
-2. Create empty sample table, workflow configuration and, if necessary, cluster
-configuration files:
+2. Create an empty sample table and a workflow configuration file:
 
     ```bash
     touch samples.tsv
     touch config.yaml
-    touch cluster.json
     ```
 
 3. Use your editor of choice to populate these files with appropriate
@@ -169,12 +167,12 @@ files should look like, specifically:
 
     - [samples.tsv](tests/input_files/samples.tsv)
     - [config.yaml](tests/input_files/config.yaml)
-    - [cluster.json](tests/input_files/cluster.json)
 
 4. Create a runner script. Pick one of the following choices for either local
-or cluster execution. Before execution of the respective command, you must
-replace the data directory placeholders in the argument of the
-`--singularity-args` option with a comma-separated list of _all_ directories
+or cluster execution. Before execution of the respective command, you need to
+remember to update the argument of the `--singularity-args` option of a
+respective profile (file: `profiles/{profile}/config.yaml`) so that
+it contains a comma-separated list of _all_ directories
 containing input data files (samples and any annoation files etc) required for
 your run.
 
@@ -183,21 +181,19 @@ your run.
     ```bash
     cat << "EOF" > run.sh
     #!/bin/bash
+
     snakemake \
-        --snakefile="/path/to/Snakefile" \
-        --configfile="config.yaml" \
-        --cores=4 \
-        --printshellcmds \
-        --rerun-incomplete \
-        --use-singularity \
-        --singularity-args="--bind <data_dir_1>,<data_dir_2>,<data_dir_n>"
+        --profile="../profiles/local-singularity" \
+        --configfile="config.yaml"
+
     EOF
     ```
 
     **OR**
 
     Runner script for _Slurm cluster exection_ (note that you may need
-    to modify the arguments to `--cluster` and `--cores` depending on your HPC
+    to modify the arguments to `--jobs` and `--cores` in the file:
+    `profiles/slurm-singularity/config.yaml` depending on your HPC
     and workload manager configuration):
 
     ```bash
@@ -205,20 +201,13 @@ your run.
     #!/bin/bash
     mkdir -p logs/cluster_log
     snakemake \
-        --snakefile="/path/to/Snakefile" \
-        --configfile="config.yaml" \
-        --cluster-config="cluster.json" \
-        --cluster="sbatch --cpus-per-task={cluster.threads} --mem={cluster.mem} --qos={cluster.queue} --time={cluster.time} --job-name={cluster.name} -o {cluster.out} -p scicore" \
-        --cores=256 \
-        --jobs=256 \
-        --printshellcmds \
-        --rerun-incomplete \
-        --use-singularity \
-        --singularity-args="--bind <data_dir_1>,<data_dir_2>,<data_dir_n>"
+        --profile="../profiles/slurm-singularity" \
+        --configfile="config.yaml"
     EOF
     ```
 
-    When running the pipeline with conda you should use the `--use-conda` flag instead of `--use-singularity` and `--singularity-args`.
+    When running the pipeline with *conda* you should use `local-conda` and
+    `slurm-conda` profiles instead.
 
 5. Start your workflow run:
 
@@ -335,7 +324,7 @@ Molecule | molecule
 Contaminant sequences | contaminant_seqs
 
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
-[cluster execution]: <https://snakemake.readthedocs.io/en/stable/executing/cluster-cloud.html#cluster-execution>
+[profiles]: <https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles>
 [labkey]: <https://www.labkey.com/>
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
 [rule-graph]: images/rule_graph.svg
