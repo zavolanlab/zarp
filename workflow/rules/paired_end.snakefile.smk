@@ -31,6 +31,7 @@ rule pe_remove_adapters_cutadapt:
             "{sample}.pe.remove_adapters_mate2.fastq.gz"))
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         adapter_3_mate1 = lambda wildcards:
             get_sample('fq1_3p', search_id='index', search_value=wildcards.sample),
         adapter_5_mate1 = lambda wildcards:
@@ -118,6 +119,7 @@ rule pe_remove_polya_cutadapt:
             "{sample}.pe.remove_polya_mate2.fastq.gz"))
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         polya_3_mate1 = lambda wildcards:
             get_sample(
                 'fq1_polya_3p',
@@ -234,6 +236,7 @@ rule pe_map_genome_star:
     shadow: "minimal"
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         sample_id = "{sample}",
         index = lambda wildcards:
             os.path.abspath(os.path.join(
@@ -385,6 +388,7 @@ rule pe_quantification_salmon:
     shadow: "minimal"
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         output_dir = os.path.join(
             config["output_dir"],
             "samples",
@@ -485,6 +489,7 @@ rule pe_genome_quantification_kallisto:
     shadow: "minimal"
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         output_dir = os.path.join(
             config["output_dir"],
             "samples",

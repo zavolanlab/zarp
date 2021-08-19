@@ -37,15 +37,6 @@ except KeyError:
     rule_config = {}
     logger.warning(f"No rule config specified: using default values for all tools.")
 
-# Create dir for cluster logs, if applicable
-if cluster_config:
-    os.makedirs(
-        os.path.join(
-            os.getcwd(),
-            os.path.dirname(cluster_config['__default__']['out']),
-        ),
-        exist_ok=True)
-
 
 ## Function definitions
 
@@ -173,6 +164,9 @@ rule start:
             "{sample}",
             "start",
             "{sample}.{mate}.fastq.gz")
+    
+    params:
+        cluster_log_path = config["cluster_log_dir"]
 
     log:
         stderr = os.path.join(
@@ -217,6 +211,7 @@ rule fastqc:
                 "{mate}"))
     
     params:
+        cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -287,6 +282,7 @@ rule create_index_star:
             "chrName.txt")
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         output_dir = os.path.join(
             config['star_indexes'],
             "{organism}",
@@ -366,6 +362,7 @@ rule extract_transcriptome:
             "transcriptome.fa"))
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -422,6 +419,9 @@ rule concatenate_transcriptome_and_genome:
             "transcriptome",
             "{organism}",
             "genome_transcriptome.fa"))
+    
+    params:
+        cluster_log_path = config["cluster_log_dir"]
 
     singularity:
         "docker://ubuntu:focal-20210416"
@@ -465,6 +465,7 @@ rule create_index_salmon:
                 "salmon.idx"))
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         kmerLen = "{kmer}",
         additional_params = parse_rule_config(
             rule_config,
@@ -523,6 +524,7 @@ rule create_index_kallisto:
             "kallisto.idx")
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         output_dir = os.path.join(
             config['kallisto_indexes'],
             "{organism}"),
@@ -573,6 +575,7 @@ rule extract_transcripts_as_bed12:
             "full_transcripts_protein_coding.bed"))
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -627,6 +630,7 @@ rule index_genomic_alignment_samtools:
             "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam.bai")
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -705,6 +709,7 @@ rule calculate_TIN_scores:
             "TIN_score.tsv"))
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         sample = "{sample}",
         additional_params = parse_rule_config(
             rule_config,
@@ -769,6 +774,7 @@ rule salmon_quantmerge_genes:
             "genes_{salmon_merge_on}.tsv")
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         salmon_in = expand(
             os.path.join(
                 config["output_dir"],
@@ -855,6 +861,7 @@ rule salmon_quantmerge_transcripts:
             "transcripts_{salmon_merge_on}.tsv")
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         salmon_in = expand(
             os.path.join(
                 config["output_dir"],
@@ -944,6 +951,7 @@ rule kallisto_merge_genes:
             "genes_counts.tsv")
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         dir_out = os.path.join(
             config["output_dir"],
             "summary_kallisto"),
@@ -1029,6 +1037,7 @@ rule kallisto_merge_transcripts:
             "transcripts_counts.tsv")
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         dir_out = os.path.join(
             config["output_dir"],
             "summary_kallisto"),
@@ -1095,6 +1104,7 @@ rule pca_salmon:
             "pca_salmon_{molecule}"))
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -1144,6 +1154,7 @@ rule pca_kallisto:
             "pca_kallisto_{molecule}"))
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -1239,6 +1250,7 @@ rule star_rpm:
     shadow: "full"
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         out_dir = lambda wildcards, output:
             os.path.dirname(output.str1),
         prefix = lambda wildcards, output:
@@ -1336,6 +1348,9 @@ rule rename_star_rpm_for_alfa:
             "ALFA",
             "{unique}",
             "{sample}.{unique}.minus.bg"))
+    
+    params:
+        cluster_log_path = config["cluster_log_dir"]
 
     log:
         stderr = os.path.join(
@@ -1389,6 +1404,7 @@ rule generate_alfa_index:
             "sorted_genes.unstranded.ALFA_index")
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         genome_index = "sorted_genes",
         out_dir = lambda wildcards, output:
             os.path.dirname(output.index_stranded),
@@ -1484,6 +1500,7 @@ rule alfa_qc:
             "{sample}.ALFA_feature_counts.tsv")
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         out_dir = lambda wildcards, output:
             os.path.dirname(output.biotypes),
         genome_index = lambda wildcards, input:
@@ -1551,6 +1568,7 @@ rule prepare_multiqc_config:
             "multiqc_config.yaml")
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         logo_path = config['report_logo'],
         multiqc_intro_text = config['report_description'],
         url = config['report_url'],
@@ -1670,6 +1688,7 @@ rule multiqc_report:
                 "multiqc_summary"))
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         results_dir = os.path.join(
             config["output_dir"]),
         log_dir = config["log_dir"],
@@ -1729,6 +1748,7 @@ rule sort_bed_4_big:
             "{sample}_{unique}_{strand}.sorted.bg"))
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -1794,6 +1814,7 @@ rule prepare_bigWig:
             "{sample}_{unique}_{strand}.bw")
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,

@@ -1,197 +1,228 @@
 {
   "__default__" :
   {
-    "queue": "6hours",
+    "qos": "6hours",
     "time": "01:00:00",
-    "threads": "1",
+    "cpus-per-task": "1",
     "mem": "4G",
-    "name": "{rule}.{wildcards}",
-    "out": "logs/cluster/{rule}.{wildcards}-%j-%N.out"
+    "job-name": "{rule}.{wildcards}",
+    "output": "{params.cluster_log_path}/{rule}.{wildcards}-%j-%N.out"
   },
   "create_index_star":
   {
+    "qos": "6hours",
     "time": "06:00:00",
-    "threads":"12",
+    "cpus-per-task":"12",
     "mem":"45G"
   },
   "extract_transcripts_as_bed12":
   {
+    "qos": "30min",
     "time": "00:30:00",
-    "threads":"1",
+    "cpus-per-task":"1",
     "mem":"1G"
   },
   "extract_transcriptome":
   {
+    "qos": "30min",
     "time": "00:30:00",
-    "threads":"1",
+    "cpus-per-task":"1",
     "mem":"1G"
   },
   "extract_decoys_salmon":
   {
+    "qos": "30min",
     "time": "00:30:00",
-    "threads":"1",
+    "cpus-per-task":"1",
     "mem":"10G"
   },
   "concatenate_transcriptome_and_genome":
   {
+    "qos": "30min",
     "time": "00:30:00",
-    "threads":"1",
+    "cpus-per-task":"1",
     "mem":"10G"
   },
   "create_index_salmon":
   {
+    "qos": "6hours",
     "time": "03:00:00",
-    "threads":"8",
+    "cpus-per-task":"8",
     "mem":"40G"
   },
   "sort_bed_4_big":
   {
+    "qos": "6hours",
     "time": "03:00:00",
-    "threads":"8",
+    "cpus-per-task":"8",
     "mem":"20G"
   },
   "create_index_kallisto":
   {
+    "qos": "30min",
     "time": "00:30:00",
-    "threads":"1",
+    "cpus-per-task":"1",
     "mem":"10G"
   },
   "index_genomic_alignment_samtools":
   {
+    "qos": "30min",
     "time": "00:30:00",
-    "threads":"1",
+    "cpus-per-task":"1",
     "mem":"500M"
   },
   "star_rpm":
   {
+    "qos": "30min",
     "time": "00:30:00",
-    "threads":"4",
+    "cpus-per-task":"4",
     "mem":"15G"
   },
   "rename_star_rpm_for_alfa":
   {
+    "qos": "6hours",
     "time": "03:00:00",
-    "threads":"1",
+    "cpus-per-task":"1",
     "mem":"32G"
   },
   "calculate_TIN_scores":
   {
+    "qos": "6hours",
     "time": "06:00:00",
-    "threads":"8",
+    "cpus-per-task":"8",
     "mem":"15G"
   },
   "merge_TIN_scores":
   {
+    "qos": "30min",
     "time": "00:05:00",
-    "threads":"1",
+    "cpus-per-task":"1",
     "mem":"500M"
   },
   "plot_TIN_scores":
   {
+    "qos": "30min",
     "time": "00:05:00",
-    "threads":"1",
+    "cpus-per-task":"1",
     "mem":"500M"
   },
   "salmon_quantmerge_genes":
   {
+    "qos": "30min",
     "time": "00:05:00",
-    "threads":"1",
+    "cpus-per-task":"1",
     "mem":"500M"
   },
   "salmon_quantmerge_transcripts":
   {
+    "qos": "30min",
     "time": "00:05:00",
-    "threads":"1",
+    "cpus-per-task":"1",
     "mem":"500M"
   },
   "generate_alfa_index":
   {
+    "qos": "6hours",
     "time": "02:00:00",
-    "threads":"4",
+    "cpus-per-task":"4",
     "mem":"1G"
   },
   "alfa_qc":
   {
+    "qos": "30min",
     "time": "00:30:00",
-    "threads":"1",
+    "cpus-per-task":"1",
     "mem":"500M"
   },
   "alfa_qc_all_samples":
   {
+    "qos": "6hours",
     "time": "01:00:00",
-    "threads":"1",
+    "cpus-per-task":"1",
     "mem":"500M"
   },
   "pe_fastqc":
   {
+    "qos": "6hours",
     "time": "01:00:00",
-    "threads":"2",
+    "cpus-per-task":"2",
     "mem":"1G"
   },
   "fastqc":
   {
+    "qos": "6hours",
     "time": "01:00:00",
-    "threads":"2",
+    "cpus-per-task":"2",
     "mem":"1G"
   },
   "pe_remove_adapters_cutadapt":
   {
+    "qos": "6hours",
     "time": "06:00:00",
-    "threads":"8",
+    "cpus-per-task":"8",
     "mem":"1G"
   },
   "remove_adapters_cutadapt":
   {
+    "qos": "6hours",
     "time": "06:00:00",
-    "threads":"8",
+    "cpus-per-task":"8",
     "mem":"1G"
   },
   "pe_remove_polya_cutadapt":
   {
+    "qos": "6hours",
     "time": "06:00:00",
-    "threads":"8",
+    "cpus-per-task":"8",
     "mem":"1G"
   },
   "remove_polya_cutadapt":
   {
+    "qos": "6hours",
     "time": "06:00:00",
-    "threads":"8",
+    "cpus-per-task":"8",
     "mem":"1G"
   },
   "pe_map_genome_star":
   {
+    "qos": "6hours",
     "time": "06:00:00",
-    "threads":"12",
+    "cpus-per-task":"12",
     "mem":"50G"
   }, 
   "map_genome_star":
   {
+    "qos": "6hours",
     "time": "06:00:00",
-    "threads":"12",
+    "cpus-per-task":"12",
     "mem":"50G"
   }, 
   "pe_quantification_salmon":
   {
+    "qos": "6hours",
     "time": "03:00:00",
-    "threads":"6",
+    "cpus-per-task":"6",
     "mem":"20G"
   }, 
   "quantification_salmon":
   {
+    "qos": "6hours",
     "time": "03:00:00",
-    "threads":"6",
+    "cpus-per-task":"6",
     "mem":"20G"
   }, 
   "pe_genome_quantification_kallisto":
   {
+    "qos": "6hours",
     "time": "03:00:00",
-    "threads":"8",
+    "cpus-per-task":"8",
     "mem":"15G"
   },
   "genome_quantification_kallisto":
   {
+    "qos": "6hours",
     "time": "03:00:00",
-    "threads":"8",
+    "cpus-per-task":"8",
     "mem":"15G"
   }
 }

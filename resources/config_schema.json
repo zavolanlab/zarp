@@ -17,6 +17,10 @@
         "type": "string",
         "description": "Path to log directory."
       },
+      "cluster_log_dir": {
+        "type": "string",
+        "description": "Path to cluster log directory."
+      },
       "kallisto_indexes": {
         "type": "string",
         "description": "Path to kallisto indexes directory."

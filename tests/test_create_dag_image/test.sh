@@ -20,13 +20,7 @@ cd $script_dir
 
 # Run tests
 snakemake \
-    --snakefile="../../workflow/Snakefile" \
+    --profile="../../profiles/graphs" \
     --configfile="../input_files/config.yaml" \
     --dag \
-    --printshellcmds \
-    --dryrun \
-    --verbose \
-    --notemp \
-    --no-hooks \
     | dot -Tsvg > "../../images/dag_test_workflow.svg"
-

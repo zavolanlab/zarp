@@ -1,0 +1,8 @@
+snakefile: "../../workflow/Snakefile"
+cores: 4
+printshellcmds: true
+rerun-incomplete: true
+use-conda: true
+notemp: true
+no-hooks: true
+verbose: true

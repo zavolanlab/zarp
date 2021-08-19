@@ -26,18 +26,8 @@ cd $script_dir
 
 # Run tests
 snakemake \
-    --snakefile="../../workflow/Snakefile" \
-    --configfile="../input_files/config.yaml" \
-    --cluster-config="../input_files/cluster.json" \
-    --cluster="sbatch --cpus-per-task={cluster.threads} --mem={cluster.mem} --qos={cluster.queue} --time={cluster.time} --job-name={cluster.name} -o {cluster.out} -p scicore" \
-    --cores=256 \
-    --jobs=256 \
-    --printshellcmds \
-    --rerun-incomplete \
-    --use-conda \
-    --notemp \
-    --no-hooks \
-    --verbose
+    --profile="../../profiles/slurm-conda" \
+    --configfile="../input_files/config.yaml"
 
 # Create a Snakemake report after the workflow execution
 snakemake \

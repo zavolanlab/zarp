@@ -1,0 +1,9 @@
+snakefile: "../../workflow/Snakefile"
+cores: 4
+printshellcmds: true
+rerun-incomplete: true
+use-singularity: true
+singularity-args: "--bind ./../input_files,./../../images"
+notemp: true
+no-hooks: true
+verbose: true

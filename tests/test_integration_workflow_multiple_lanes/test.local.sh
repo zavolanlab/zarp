@@ -26,16 +26,8 @@ cd $script_dir
 
 # Run tests
 snakemake \
-    --snakefile="../../workflow/Snakefile" \
-    --configfile="../input_files/config.mutliple_lanes.yml" \
-    --cores=4 \
-    --printshellcmds \
-    --rerun-incomplete \
-    --use-singularity \
-    --singularity-args="--bind ${PWD}/../input_files,${PWD}/../../images" \
-    --notemp \
-    --no-hooks \
-    --verbose
+    --profile="../../profiles/local-singularity" \
+    --configfile="../input_files/config.mutliple_lanes.yml"
 
 # Create a Snakemake report after the workflow execution
 snakemake \
