@@ -496,10 +496,10 @@ rule pe_genome_quantification_kallisto:
             "{sample}",
             "quant_kallisto"),
         directionality = lambda wildcards:
-            get_sample(
-                'kallisto_directionality',
-                search_id='index',
-                search_value=wildcards.sample),
+            get_directionality(get_sample(
+                    'libtype',
+                    search_id='index',
+                    search_value=wildcards.sample),"kallisto"),
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -536,7 +536,7 @@ rule pe_genome_quantification_kallisto:
         -i {input.index} \
         -o {params.output_dir} \
         -t {threads} \
-        {params.directionality}-stranded \
+        {params.directionality} \
         {params.additional_params} \
         --pseudobam \
         {input.reads1} {input.reads2} > {output.pseudoalignment}) \

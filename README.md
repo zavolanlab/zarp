@@ -168,6 +168,9 @@ files should look like, specifically:
     - [samples.tsv](tests/input_files/samples.tsv)
     - [config.yaml](tests/input_files/config.yaml)
 
+    - For more details and explanations, refer to the [pipeline-documentation]
+
+
 4. Create a runner script. Pick one of the following choices for either local
 or cluster execution. Before execution of the respective command, you need to
 remember to update the argument of the `--singularity-args` option of a

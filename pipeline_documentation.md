@@ -119,8 +119,7 @@ mean | Required for [kallisto](#third-party-software-used) and [Salmon](#third-p
 multimappers | Required for [STAR](#third-party-software-used). Maximum number of multiple alignments allowed for a read; if exceeded, the read is considered unmapped. | `int`
 soft_clip | Required for [STAR](#third-party-software-used). One of `Local` (standard local alignment with soft-clipping allowed) or `EndToEnd` (force end-to-end read alignment, do not soft-clip). | `str`
 pass_mode | Required for [STAR](#third-party-software-used). One of `None` (1-pass mapping) or `Basic` (basic 2-pass mapping, with all 1st-pass junctions inserted into the genome indices on the fly). | `str`
-libtype | Required for [Salmon](#third-party-software-used). See [Salmon manual][docs-salmon] for allowed values. If in doubt, enter `A` to automatically infer the library type. | `str`
-kallisto_directionality | Required for [kallisto](#third-party-software-used) and [ALFA](#third-party-software-used). One of `--fr-stranded` (strand-specific reads, first read forward) and `--rf-stranded` (strand-specific reads, first read reverse) | `str`
+libtype | Required for [Salmon](#third-party-software-used), and, after internal conversion, for [kallisto](#third-party-software-used) and [ALFA](#third-party-software-used) . See [Salmon manual][docs-salmon] for allowed values.    **WARNING**: do *NOT* use `A` to automatically infer the salmon library type, this will cause kallisto and ALFA to fail.  | `str`
 fq1_polya3p | Required for [Cutadapt](#third-party-software-used). Stretch of `A`s or `T`s, depending on read orientation. Trimmed from the 3' end of the read. Use value such as `XXXXXXXXXXXXXXX` if no poly(A) stretch present or if no trimming is desired. | `str`
 fq1_polya5p | Required for [Cutadapt](#third-party-software-used). Stretch of `A`s or `T`s, depending on read orientation. Trimmed from the 5' end of the read. Use value such as `XXXXXXXXXXXXXXX` if no poly(A) stretch present or if no trimming is desired. | `str`
 fq2_polya3p | Required for [Cutadapt](#third-party-software-used). Stretch of `A`s or `T`s, depending on read orientation. Trimmed from the 3' end of the read. Use value such as `XXXXXXXXXXXXXXX` if no poly(A) stretch present or if no trimming is desired. Value ignored for single-end libraries. | `str`
@@ -299,7 +298,7 @@ Rename and copy stranded bedGraph coverage tracks such that they comply with
 > Local rule
 >
 > Renaming to `plus.bg` and `minus.bg` depends on library orientation, which is
-> provided by user in sample table column `kallisto_directionality`.
+> provided by user in sample table column `libtype`.
 
 - **Input**
   - Coverage file (`.bg`); from [**star_rpm**](#star_rpm)
@@ -465,15 +464,15 @@ Create index for [**ALFA**](#third-party-software-used).
 
 Annotate alignments with [**ALFA**](#third-party-software-used).
 
-> For details on output plots, see [ALFA documentation][docs-alfa].
+> For details on output plots, see [ALFA documentation][docs-alfa].   
+> Note: the read orientation of a sample will be inferred from salmon `libtype` specified in `samples.tsv`
 
 - **Input**
   - Coverage files, renamed (`.bg`); from
     [**rename_star_rpm_for_alfa**](#rename_star_rpm_for_alfa)
   - ALFA index, stranded; from [**generate_alfa_index**](#generate_alfa_index)
 - **Parameters**
-  - **samples.tsv**
-    - `-s`: library orientation; specified by user in sample table column `kallisto_directionality`
+
 - **Output**
   - Figures for biotypes and feature categories (`.pdf`)
   - Feature counts table (custom `.tsv`); used in
@@ -665,6 +664,7 @@ Estimate transcript- and gene-level expression with
 
 Generate pseudoalignments of reads to transcripts with
 [**kallisto**](#third-party-software-used).
+> Note: the kallisto strandedness parameter will be inferred from salmon `libtype` specified in `samples.tsv`
 
 - **Input**
   - Reads file (`.fastq.gz`); from
@@ -672,7 +672,6 @@ Generate pseudoalignments of reads to transcripts with
   - Index; from [**create_index_kallisto**](#create_index_kallisto)
 - **Parameters**
   - **samples.tsv**
-    - `directionality`; specify in sample table column `kallisto_directionality`
     - `-l`: mean of distribution of fragment lengths; specify in sample table column `mean` **(single-end only)**
     - `-s`: standard deviation of distribution of fragment lengths; specify in sample table column `sd` **(single-end only)**
 - **Output**

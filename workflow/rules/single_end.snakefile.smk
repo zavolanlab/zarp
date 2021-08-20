@@ -449,10 +449,10 @@ rule genome_quantification_kallisto:
                 search_id='index',
                 search_value=wildcards.sample),
         directionality = lambda wildcards:
-            get_sample(
-                'kallisto_directionality',
-                search_id='index',
-                search_value=wildcards.sample),
+            get_directionality(get_sample(
+                    'libtype',
+                    search_id='index',
+                    search_value=wildcards.sample),"kallisto"),
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -491,7 +491,7 @@ rule genome_quantification_kallisto:
         -l {params.fraglen} \
         -s {params.fragsd} \
         -t {threads} \
-        {params.directionality}-stranded \
+        {params.directionality} \
         {params.additional_params} \
         --pseudobam \
         {input.reads} > {output.pseudoalignment};) \
