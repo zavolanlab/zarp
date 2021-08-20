@@ -18,6 +18,19 @@ samples_table = pd.read_csv(
     sep="\t",
 )
 
+# dict for translation of "directionality parameters"
+directionality_dict = {
+    "SF": 
+        {"kallisto":"--fr-stranded", 
+        "alfa": "fr-secondstrand", 
+        "alfa_plus": "str1", 
+        "alfa_minus": "str2"},
+    "SR":
+        {"kallisto":"--rf-stranded", 
+        "alfa": "fr-firststrand", 
+        "alfa_plus": "str2", 
+        "alfa_minus": "str1"},
+}
 # Validat config
 validate(config, os.path.join("..", "resources", "config_schema.json"))
 logger.info(f'Config file after validation: {config}')
@@ -50,6 +63,24 @@ def get_sample(column_id, search_id=None, search_value=None):
     else:
         return str(samples_table[column_id][0])
 
+def get_directionality(libtype, tool):
+    """ Get directionality value for different tools"""
+    directionality =""
+
+    for key in directionality_dict.keys():
+    # Use the first of 'SF' or 'SR' that is found in libtype to look up directionality params for the current tool
+        if key in libtype:
+            directionality = directionality_dict[key][tool]
+            break
+
+    # If libtype contains neither 'SF', nor 'SR' we don't know what to do
+    if not directionality:
+        raise ValueError(
+            f"Unknown libtype {libtype}.\n"
+            "Provide one of 'SF', 'SR', 'ISF', 'ISR', 'OSF', 'OSR', 'MSF', 'MSR' in samples.tsv!"
+        )
+
+    return directionality
 
 def parse_rule_config(rule_config: dict, current_rule: str, immutable: Tuple[str, ...] = ()):
     """Get rule specific parameters from rule_config file"""
@@ -1314,10 +1345,10 @@ rule rename_star_rpm_for_alfa:
                     "{sample}_Signal.{unique}.{plus}.out.bg"),
                 sample=wildcards.sample,
                 unique=wildcards.unique,
-                plus=get_sample(
-                    'alfa_plus',
+                plus=get_directionality(get_sample(
+                    'libtype',
                     search_id='index',
-                    search_value=wildcards.sample)),
+                    search_value=wildcards.sample),"alfa_plus")),
         minus = lambda wildcards:
             expand(
                 os.path.join(
@@ -1328,10 +1359,10 @@ rule rename_star_rpm_for_alfa:
                     "{sample}_Signal.{unique}.{minus}.out.bg"),
                 sample=wildcards.sample,
                 unique=wildcards.unique,
-                minus=get_sample(
-                    'alfa_minus',
+                minus=get_directionality(get_sample(
+                    'libtype',
                     search_id='index',
-                    search_value=wildcards.sample))
+                    search_value=wildcards.sample), "alfa_minus"))
 
     output:
         plus = temp(os.path.join(
@@ -1514,10 +1545,10 @@ rule alfa_qc:
             os.path.basename(input.minus),
         name = "{sample}",
         alfa_orientation = lambda wildcards:
-            get_sample(
-                'alfa_directionality',
-                search_id='index',
-                search_value=wildcards.sample),
+            get_directionality(get_sample(
+                    'libtype',
+                    search_id='index',
+                    search_value=wildcards.sample),"alfa"),
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,

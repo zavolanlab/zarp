@@ -137,9 +137,11 @@ def parse_cli_args() -> argparse.Namespace:
     behavior.add_argument(
         "--libtype",
         type=str,
-        default="A",
-        help="Salmon: library type (default: %(default)s)",
+        default="",
+        help="Salmon library type (default: %(default)s). Leave empty to infer one of 'SF', 'SR', 'ISF', 'ISR'."
+            "Warning: If value is provided by user, it will be applied to ALL samples. If the table contains samples from different sequencing modes this might cause errors in zarp.",
         metavar="STR",
+        choices=["", "SF", "SR", "ISF", "ISR", "OSF", "OSR", "MSF", "MSR"]
     )
 
     report = parser.add_argument_group("report")
@@ -311,72 +313,37 @@ def kmer_from_read_length(
     return k
 
 
-def get_strand_param_kallisto(directionality: str) -> str:
+def get_libtype(directionality: str, seqmode: str) -> str:
     """
-    Returns appropriate strand info parameter for kallisto
-    (https://pachterlab.github.io/kallisto/), given a string indicating the
-    "directionality" of a sequencing library.
+    Returns libtype (https://salmon.readthedocs.io/en/latest/library_type.html) given strings indicating the
+    "directionality", and sequencing mode of a sequencing library, respectively.
 
     :param directionality: direction in which library was sequenced (one of
         "SENSE" and "ANTISENSE")
 
-    :returns: appropriate kallisto option for specified directionality; an
-        empty string is returned if the directionality value is empty or not
-        recognized
+	:param seqmode: sequencing mode(one of
+        "pe" and "se")
+
+    :returns: salmon code (one of 'SF', 'SR', 'ISF', 'ISR') for specified directionality; 
     """
+
+    if seqmode == "pe":
+	    option = "I"
+    else:
+	    option = ""
+
     if directionality == "SENSE":
-        option = "--fr"
+        option += "SF"
     elif directionality == "ANTISENSE":
-        option = "--rf"
+        option += "SR"
     else:
-        option = ""
+        logger.error(
+                f"[ERROR] Can't infer library type."
+                f"Make sure directionality and sequencing mode are specified correctly."
+        )
+        sys.exit("Execution aborted.")
+    
     return option
-
-
-def get_strand_param_alfa(directionality: str) -> str:
-    """
-    Returns appropriate strand info parameter for ALFA
-    (https://github.com/biocompibens/ALFA), given a string indicating the
-    "directionality" of a sequencing library.
-
-    :param directionality: direction in which library was sequenced (one of
-        "SENSE" and "ANTISENSE")
-
-    :returns: appropriate ALFA option for specified directionality; an empty
-        string is returned if the directionality value is empty or not
-        recognized
-    """
-    if directionality == 'SENSE':
-        option = 'fr-firststrand'
-    elif directionality == 'ANTISENSE':
-        option = 'fr-secondstrand'
-    else:
-        option = ''
-    return option
-
-
-def get_strand_names_alfa(directionality: str) -> Tuple[str, str]:
-    """
-    Returns appropriate strand name suffixes for ALFA
-    (https://github.com/biocompibens/ALFA), given a string indicating the
-    "directionality" of a sequencing library.
-
-    :param directionality: direction in which library was sequenced (one of
-        "SENSE" and "ANTISENSE")
-
-    :returns: tuple of ALFA strand name suffixes for two coverage tracks of a
-        paired-end sequencing library
-    """
-    if directionality == "SENSE":
-        plus = "str1"
-        minus = "str2"
-    elif directionality == "ANTISENSE":
-        minus = "str1"
-        plus = "str2"
-    else:
-        plus = ""
-        minus = ""
-    return (plus, minus)
 
 
 def get_polya_adapter_seqs(directionality: str) -> Tuple[str, str]:
@@ -583,9 +550,6 @@ def main(args):
         mean = lk_mean
         fq1_polya_3p, fq1_polya_5p = get_polya_adapter_seqs(lk_mate1_direction)
         fq2_polya_3p, fq2_polya_5p = get_polya_adapter_seqs(lk_mate2_direction)
-        kallisto_directionality = get_strand_param_kallisto(lk_mate1_direction)
-        alfa_directionality = get_strand_param_alfa(lk_mate1_direction)
-        alfa_plus, alfa_minus = get_strand_names_alfa(lk_mate1_direction)
 
         # construct row in Snakemake input table
         snakemake_table.loc[index, 'sample'] = sample
@@ -603,17 +567,20 @@ def main(args):
         snakemake_table.loc[index, 'genome'] = genome
         snakemake_table.loc[index, 'sd'] = sd
         snakemake_table.loc[index, 'mean'] = mean
-        snakemake_table.loc[index, 'kallisto_directionality'] = \
-            kallisto_directionality
-        snakemake_table.loc[index, 'alfa_directionality'] = alfa_directionality
-        snakemake_table.loc[index, 'alfa_plus'] = alfa_plus
-        snakemake_table.loc[index, 'alfa_minus'] = alfa_minus
 
         # add CLI argument-dependent parameters
         snakemake_table.loc[index, 'multimappers'] = args.multimappers
         snakemake_table.loc[index, 'soft_clip'] = args.soft_clip
         snakemake_table.loc[index, 'pass_mode'] = args.pass_mode
-        snakemake_table.loc[index, 'libtype'] = args.libtype
+        
+        if not args.libtype:
+            snakemake_table.loc[index, 'libtype'] = get_libtype(lk_mate1_direction, seqmode)
+        elif args.libtype in ['SF', 'SR', 'ISF', 'ISR', 'OSF', 'OSR', 'MSF', 'MSR']:
+            snakemake_table.loc[index, 'libtype'] = args.libtype
+            logger.warning(
+                f"Library type {args.libtype} set for sample {sample}."
+            )
+
         if args.trim_polya is True:
             snakemake_table.loc[index, 'fq1_polya_3p'] = fq1_polya_3p
             snakemake_table.loc[index, 'fq1_polya_5p'] = fq1_polya_5p
