@@ -218,63 +218,6 @@ your run.
     bash run.sh
     ```
 
-#### Additional information
-
-The metadata field names in the LabKey instance and those in the parameters
-in the Snakemake workflow have different names. A mapping between LabKey
-field identifiers and Snakemake parameters is listed below:
-
-Labkey | Snakemake
---- | ---
-Entry date | entry_date
-Path to FASTQ file(s) | fastq_path
-Condition name | condition
-Replicate name | replicate_name
-End type (PAIRED or SINGLE) | seqmode
-Name of Mate1 FASTQ file | fq1
-Name of Mate2 FASTQ file | fq2
-Direction of Mate1 (SENSE, ANTISENSE or RANDOM) | mate1_direction
-Direction of Mate2 (SENSE, ANTISENSE or RANDOM) | mate2_direction
-5' adapter of Mate1 | fq1_5p
-3' adapter of Mate1 | fq1_3p
-5' adapter of Mate2 | fq2_5p
-3' adapter of Mate2 | fq2_3p
-Fragment length mean | mean
-Fragment length SD | sd
-Quality control flag (PASSED or FAILED) | quality_control_flag
-Checksum of raw Mate1 FASTQ file | mate1_checksum
-Checksum of raw Mate2 FASTQ file | mate2_checksum
-Name of metadata file | metadata
-Name of quality control file for Mate1 | mate1_quality
-Name of quality control file for Mate2 | mate2_quality
-Organism | organism
-Taxon ID | taxon_id
-Name of Strain / Isolate / Breed / Ecotype | strain_name
-Strain / Isolate / Breed / Ecotype ID | strain_id
-Biomaterial provider | biomaterial_provider
-Source / tissue name | source_name
-Tissue code | tissue_code
-Additional tissue description | tissue_description
-Genotype short name | genotype_name
-Genotype description | genotype_description
-Disease short name | disease_name
-Disease description | disease_description
-Abbreviation for treatment | treatment
-Treatment description | treatment_description
-Gender | gender
-Age | age
-Developmental stage | development_stage
-Passage number | passage_number
-Sample preparation date (YYYY-MM-DD) | sample_prep_date
-Prepared by | prepared_by
-Documentation | documentation
-Name of protocol file | protocol_file
-Sequencing date (YYYY-MM-DD) | seq_date
-Sequencing instrument | seq_instrument
-Library preparation kit | library_kit
-Cycles | cycles
-Molecule | molecule
-Contaminant sequences | contaminant_seqs
 
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
 [profiles]: <https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles>
