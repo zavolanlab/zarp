@@ -116,9 +116,6 @@ gtf_filtered | Required for [Salmon](#third-party-software-used). Path to filter
 genome | Required for [STAR](#third-party-software-used). Path to genome `.fa` file. File needs to be in subdirectory corresponding to `organism` field. Example: `/path/to/GRCh38/genome.fa` | `str`
 sd | Required for [kallisto](#third-party-software-used) and [Salmon](#third-party-software-used), but only for single-end libraries. Estimated standard deviation of fragment length distribution. Can be assessed from, e.g., BioAnalyzer profiles. Value ignored for paired-end libraries. | `int`
 mean | Required for [kallisto](#third-party-software-used) and [Salmon](#third-party-software-used), but only for single-end libraries. Estimated mean of fragment length distribution. Can be assessed, e.g., from BioAnalyzer profiles. Value ignored for paired-end libraries. | `int`
-multimappers | Required for [STAR](#third-party-software-used). Maximum number of multiple alignments allowed for a read; if exceeded, the read is considered unmapped. | `int`
-soft_clip | Required for [STAR](#third-party-software-used). One of `Local` (standard local alignment with soft-clipping allowed) or `EndToEnd` (force end-to-end read alignment, do not soft-clip). | `str`
-pass_mode | Required for [STAR](#third-party-software-used). One of `None` (1-pass mapping) or `Basic` (basic 2-pass mapping, with all 1st-pass junctions inserted into the genome indices on the fly). | `str`
 libtype | Required for [Salmon](#third-party-software-used), and, after internal conversion, for [kallisto](#third-party-software-used) and [ALFA](#third-party-software-used) . See [Salmon manual][docs-salmon] for allowed values.    **WARNING**: do *NOT* use `A` to automatically infer the salmon library type, this will cause kallisto and ALFA to fail.  | `str`
 fq1_polya3p | Required for [Cutadapt](#third-party-software-used). Stretch of `A`s or `T`s, depending on read orientation. Trimmed from the 3' end of the read. Use value such as `XXXXXXXXXXXXXXX` if no poly(A) stretch present or if no trimming is desired. | `str`
 fq1_polya5p | Required for [Cutadapt](#third-party-software-used). Stretch of `A`s or `T`s, depending on read orientation. Trimmed from the 5' end of the read. Use value such as `XXXXXXXXXXXXXXX` if no poly(A) stretch present or if no trimming is desired. | `str`
@@ -612,13 +609,12 @@ Align short reads to reference genome and/or transcriptome with
     [**remove_polya_cutadapt**](#remove_polya_cutadapt)
   - Index; from [**create_index_star**](#create_index_star)
 - **Parameters**
-  - **samples.tsv**
-    - `--outFilterMultimapNmax`: maximum number of multiple alignments allowed; if exceeded, read is considered unmapped; specify in sample table column `multimappers`
-    - `--alignEndsType`: one of `Local` (standard local alignment with soft-clipping allowed) or `EndToEnd` (force end-to-end read alignment, do not soft-clip); specify in sample table column `soft_clip`
-    - `--twopassMode`: one of `None` (1-pass mapping) or `Basic` (basic 2-pass mapping, with all 1st-pass junctions inserted into the genome indices on the fly); specify in sample table column `pass_mode`
   - **rule_config.yaml**
     - `--outFilterMultimapScoreRange=0`: the score range below the maximum score for multimapping alignments (default 1)
     - `--outFilterType=BySJout`: reduces the number of ”spurious” junctions
+    - `--alignEndsType`: one of `Local` (standard local alignment with soft-clipping allowed) or `EndToEnd` (force end-to-end read alignment, do not soft-clip); specify in sample table column `soft_clip`
+    - `--twopassMode`: one of `None` (1-pass mapping) or `Basic` (basic 2-pass mapping, with all 1st-pass junctions inserted into the genome indices on the fly); specify in sample table column `pass_mode`
+    - `--outFilterMultimapNmax`: maximum number of multiple alignments allowed; if exceeded, read is considered unmapped; specify in sample table column `multimappers`
 - **Output**
   - Aligned reads file (`.bam`); used in
     [**calculate_TIN_scores**](#calculate_TIN_scores),
