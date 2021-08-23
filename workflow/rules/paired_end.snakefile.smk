@@ -256,36 +256,18 @@ rule pe_map_genome_star:
             "{sample}",
             "map_genome",
             "{sample}.pe."),
-        multimappers = lambda wildcards:
-            get_sample(
-                'multimappers',
-                search_id='index',
-                search_value=wildcards.sample),
-        soft_clip = lambda wildcards:
-            get_sample(
-                'soft_clip',
-                search_id='index',
-                search_value=wildcards.sample),
-        pass_mode = lambda wildcards:
-            get_sample(
-                'pass_mode',
-                search_id='index',
-                search_value=wildcards.sample),
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
             immutable=(
-                '--twopassMode',
                 '--genomeDir',
                 '--readFilesIn',
                 '--readFilesCommand',
-                '--outFilterMultimapNmax',
                 '--outFileNamePrefix',
                 '--outSAMattributes',
                 '--outStd',
                 '--outSAMtype',
                 '--outSAMattrRGline',
-                '--alignEndsType',
                 )
             )
 
@@ -306,18 +288,15 @@ rule pe_map_genome_star:
 
     shell:
         "(STAR \
-        --twopassMode {params.pass_mode} \
         --runThreadN {threads} \
         --genomeDir {params.index} \
         --readFilesIn {input.reads1} {input.reads2} \
         --readFilesCommand zcat \
-        --outFilterMultimapNmax {params.multimappers} \
         --outFileNamePrefix {params.outFileNamePrefix} \
         --outSAMattributes All \
         --outStd BAM_SortedByCoordinate \
         --outSAMtype BAM SortedByCoordinate \
         --outSAMattrRGline ID:rnaseq_pipeline SM:{params.sample_id} \
-        --alignEndsType {params.soft_clip} \
         {params.additional_params} \
         > {output.bam};) \
         2> {log.stderr}"

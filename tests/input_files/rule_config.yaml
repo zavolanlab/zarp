@@ -160,6 +160,12 @@ map_genome_star:
     # "SJ.out.tab" (default 'Normal', ZARP recommends 'BySJout', as this
     # reduces the number of spurious junctions )
     --outFilterType: 'BySJout'
+    # type of read ends alignment: force end-to-end read alignment, do not soft-clip
+    --alignEndsType: 'EndToEnd'
+    #  extract junctions, insert them into the genome index and re-map reads in a 2nd mapping pass
+    --twopassMode: Basic
+    # alignments (all of them) will be output only if the read maps to no more loci than 10
+    --outFilterMultimapNmax: '10'
 
 pe_map_genome_star:
     # The score range below the maximum score for multimapping alignments
@@ -169,6 +175,12 @@ pe_map_genome_star:
     # "SJ.out.tab" (default 'Normal', ZARP recommends 'BySJout', as this
     # reduces the number of spurious junctions )
     --outFilterType: 'BySJout'
+    # type of read ends alignment: force end-to-end read alignment, do not soft-clip
+    --alignEndsType: 'EndToEnd'
+    #  extract junctions, insert them into the genome index and re-map reads in a 2nd mapping pass
+    --twopassMode: Basic
+    # alignments (all of them) will be output only if the read maps to no more loci than 10
+    --outFilterMultimapNmax: '10'
 
 quantification_salmon:
     # Correct for sequence specific biases; cf.
