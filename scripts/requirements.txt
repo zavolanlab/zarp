@@ -1,3 +1,0 @@
-biopython==1.76
-labkey==1.2.0
-pandas==0.25.3
