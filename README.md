@@ -218,56 +218,6 @@ your run.
     bash run.sh
     ```
 
-### Configuring workflow runs via LabKey tables
-
-Our lab stores metadata for sequencing samples in a locally deployed
-[LabKey][labkey] instance. This repository provides two scripts that give
-programmatic access to the LabKey data table and convert it to the
-corresponding workflow inputs (`samples.tsv` and `config.yaml`), respectively.
-As such, these scripts largely automate step 3. of the above instructions.
-However, as these scripts were written specifically for the needs of our lab, 
-they are likely not directly usable or, at least, will require considerable 
-modification for other setups (e.g., different LabKey table structure).
-Nevertheless, they can serve as an example for interfacing between LabKey and
-your workflow.
-
-> **NOTE:** All of the below steps assume that your current working directory
-> is the repository's root directory.
-
-1. The scripts have additional dependencies that can be installed with:
-
-    ```bash
-    pip install -r scripts/requirements.txt
-    ```
-
-2. In order to gain programmatic access to LabKey via its API, a credential
-file is required. Create it with the following command after replacing the
-placeholder values with your real credentials (talk to your LabKey manager if
-you do not have these):
-
-    ```bash
-    cat << EOF | ( umask 0377; cat >> ${HOME}/.netrc; )
-    machine <remote-instance-of-labkey-server>
-    login <user-email>
-    password <user-password>
-    EOF
-    ```
-
-3. Generate the workflow configuration with the following command, after
-replacing the placeholders with the appropriate values (check out the
-help screen with option '--help' for further options and information):
-
-    ```bash
-    python scripts/prepare_inputs.py \
-        --labkey-domain="my.labkey.service.io"
-        --labkey-domain="/my/project/path"
-        --input-to-output-mapping="scripts/prepare_inputs.dict.tsv" \
-        --resources-dir="/path/to/my/genome/resources" \
-        --output-table="config/my_run/samples.tsv" \
-        --config_file="config/my_run/config.yaml" \
-        <table_name>
-    ```
-
 #### Additional information
 
 The metadata field names in the LabKey instance and those in the parameters
@@ -328,7 +278,6 @@ Contaminant sequences | contaminant_seqs
 
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
 [profiles]: <https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles>
-[labkey]: <https://www.labkey.com/>
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
 [rule-graph]: images/rule_graph.svg
 [snakemake]: <https://snakemake.readthedocs.io/en/stable/>

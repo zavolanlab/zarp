@@ -10,5 +10,4 @@ dependencies:
   - pip:
     - pandas==1.0.1
     - biopython==1.76
-    - labkey==1.2.0
 
