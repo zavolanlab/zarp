@@ -31,6 +31,12 @@ directionality_dict = {
         "alfa_plus": "str2", 
         "alfa_minus": "str1"},
 }
+# dict for alfa output"
+alfa_dict = {
+    "MultimappersIncluded":"UniqueMultiple" ,
+    "UniqueMappers":"Unique"
+}
+
 # Validat config
 validate(config, os.path.join("..", "resources", "config_schema.json"))
 logger.info(f'Config file after validation: {config}')
@@ -147,11 +153,11 @@ rule finish:
                 "samples",
                 "{sample}",
                 "bigWig",
-                "{unique_type}",
-                "{sample}_{unique_type}_{strand}.bw"),
+                "{renamed_unique}",
+                "{sample}_{renamed_unique}_{strand}.bw"),
             sample=pd.unique(samples_table.index.values),
             strand=["plus", "minus"],
-            unique_type=["Unique", "UniqueMultiple"]),
+            renamed_unique=alfa_dict.keys()),
         salmon_merge_genes = expand(
             os.path.join(
                 config["output_dir"],
@@ -1344,7 +1350,7 @@ rule rename_star_rpm_for_alfa:
                     "STAR_coverage",
                     "{sample}_Signal.{unique}.{plus}.out.bg"),
                 sample=wildcards.sample,
-                unique=wildcards.unique,
+                unique=alfa_dict[wildcards.renamed_unique],
                 plus=get_directionality(get_sample(
                     'libtype',
                     search_id='index',
@@ -1358,7 +1364,7 @@ rule rename_star_rpm_for_alfa:
                     "STAR_coverage",
                     "{sample}_Signal.{unique}.{minus}.out.bg"),
                 sample=wildcards.sample,
-                unique=wildcards.unique,
+                unique=alfa_dict[wildcards.renamed_unique],
                 minus=get_directionality(get_sample(
                     'libtype',
                     search_id='index',
@@ -1370,15 +1376,15 @@ rule rename_star_rpm_for_alfa:
             "samples",
             "{sample}",
             "ALFA",
-            "{unique}",
-            "{sample}.{unique}.plus.bg")),
+            "{renamed_unique}",
+            "{sample}.{renamed_unique}.plus.bg")),
         minus = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "ALFA",
-            "{unique}",
-            "{sample}.{unique}.minus.bg"))
+            "{renamed_unique}",
+            "{sample}.{renamed_unique}.minus.bg"))
     
     params:
         cluster_log_path = config["cluster_log_dir"]
@@ -1388,12 +1394,12 @@ rule rename_star_rpm_for_alfa:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{unique}.stderr.log"),
+            current_rule + "_{renamed_unique}.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{unique}.stdout.log")
+            current_rule + "_{renamed_unique}.stdout.log")
 
     singularity:
         "docker://ubuntu:focal-20210416"
@@ -1479,20 +1485,26 @@ rule alfa_qc:
         Run ALFA from stranded bedgraph files
     '''
     input:
-        plus = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "ALFA",
-            "{unique}",
-            "{sample}.{unique}.plus.bg"),
-        minus = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "ALFA",
-            "{unique}",
-            "{sample}.{unique}.minus.bg"),
+        plus = lambda wildcards:
+            os.path.join(
+                config["output_dir"],
+                "samples",
+                wildcards.sample,
+                "ALFA",
+                wildcards.renamed_unique,
+                wildcards.sample + "." + wildcards.renamed_unique + ".plus.bg"
+            ),
+
+        minus = lambda wildcards:
+            os.path.join(
+                config["output_dir"],
+                "samples",
+                wildcards.sample,
+                "ALFA",
+                wildcards.renamed_unique,
+                wildcards.sample + "." + wildcards.renamed_unique + ".minus.bg"
+                ),
+
         gtf = lambda wildcards:
             os.path.join(
                 config["alfa_indexes"],
@@ -1513,21 +1525,21 @@ rule alfa_qc:
             "samples",
             "{sample}",
             "ALFA",
-            "{unique}",
+            "{renamed_unique}",
             "ALFA_plots.Biotypes.pdf")),
         categories = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "ALFA",
-            "{unique}",
+            "{renamed_unique}",
             "ALFA_plots.Categories.pdf")),
         table = os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "ALFA",
-            "{unique}",
+            "{renamed_unique}",
             "{sample}.ALFA_feature_counts.tsv")
 
     params:
@@ -1570,7 +1582,7 @@ rule alfa_qc:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + ".{unique}.log")
+            current_rule + ".{renamed_unique}.log")
 
     shell:
         "(cd {params.out_dir}; \
@@ -1690,10 +1702,10 @@ rule multiqc_report:
                     "samples",
                     "{sample}",
                     "ALFA",
-                    "{unique}",
+                    "{renamed_unique}",
                     "{sample}.ALFA_feature_counts.tsv"),
                 sample=pd.unique(samples_table.index.values),
-                unique=["Unique", "UniqueMultiple"]),
+                renamed_unique=alfa_dict.keys()),
 
         zpca_salmon = expand(os.path.join(
             config["output_dir"],
@@ -1766,8 +1778,8 @@ rule sort_bed_4_big:
             "samples",
             "{sample}",
             "ALFA",
-            "{unique}",
-            "{sample}.{unique}.{strand}.bg")
+            "{renamed_unique}",
+            "{sample}.{renamed_unique}.{strand}.bg")
 
     output:
         sorted_bg = temp(os.path.join(
@@ -1775,8 +1787,8 @@ rule sort_bed_4_big:
             "samples",
             "{sample}",
             "bigWig",
-            "{unique}",
-            "{sample}_{unique}_{strand}.sorted.bg"))
+            "{renamed_unique}",
+            "{sample}_{renamed_unique}_{strand}.sorted.bg"))
 
     params:
         cluster_log_path = config["cluster_log_dir"],
@@ -1799,7 +1811,7 @@ rule sort_bed_4_big:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{unique}_{strand}.stderr.log")
+            current_rule + "_{renamed_unique}_{strand}.stderr.log")
 
     shell:
         "(sortBed \
@@ -1819,8 +1831,8 @@ rule prepare_bigWig:
             "samples",
             "{sample}",
             "bigWig",
-            "{unique}",
-            "{sample}_{unique}_{strand}.sorted.bg"),
+            "{renamed_unique}",
+            "{sample}_{renamed_unique}_{strand}.sorted.bg"),
         chr_sizes = lambda wildcards:
             os.path.join(
                 config['star_indexes'],
@@ -1841,8 +1853,8 @@ rule prepare_bigWig:
             "samples",
             "{sample}",
             "bigWig",
-            "{unique}",
-            "{sample}_{unique}_{strand}.bw")
+            "{renamed_unique}",
+            "{sample}_{renamed_unique}_{strand}.bw")
 
     params:
         cluster_log_path = config["cluster_log_dir"],
@@ -1863,13 +1875,13 @@ rule prepare_bigWig:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{unique}_{strand}.stderr.log"),
+            current_rule + "_{renamed_unique}_{strand}.stderr.log"),
 
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{unique}_{strand}.stdout.log")
+            current_rule + "_{renamed_unique}_{strand}.stdout.log")
 
     shell:
         "(bedGraphToBigWig \
