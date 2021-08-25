@@ -49,6 +49,8 @@ create_index_kallisto:
 
 extract_transcripts_as_bed12:
 
+sort_genomic_alignment_samtools:
+
 index_genomic_alignment_samtools:
 
 calculate_TIN_scores:

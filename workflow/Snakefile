@@ -646,6 +646,75 @@ rule extract_transcripts_as_bed12:
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'sort_genomic_alignment_samtools'
+rule sort_genomic_alignment_samtools:
+    '''
+        Sort genome bamfile using samtools
+    '''
+    input:
+        bam = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "map_genome",
+            "{sample}.{seqmode}.Aligned.out.bam"),
+
+    output:
+        bam = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "map_genome",
+            "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam"),
+        prefix_temp_dir = temp(
+            directory(
+                os.path.join(
+                    config["output_dir"],
+                    "samples",
+                    "{sample}.{seqmode}",
+                    "sort_genomic_alignment_samtools")
+            )
+        )
+
+    params:
+        cluster_log_path = config["cluster_log_dir"],
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=()
+            )
+
+    singularity:
+        "docker://quay.io/biocontainers/samtools:1.3.1--h1b8c3c0_8"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "samtools.yaml")
+
+    threads: 8
+
+    log:
+        stderr = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            current_rule + ".{seqmode}.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            current_rule + ".{seqmode}.stdout.log")
+
+    shell:
+        "(mkdir -p {output.prefix_temp_dir}; \
+        samtools sort \
+        -o {output.bam} \
+        -T {output.prefix_temp_dir} \
+        -@ {threads} \
+        {params.additional_params} \
+        {input.bam}) \
+        1> {log.stdout} 2> {log.stderr}"
+
+
 current_rule = 'index_genomic_alignment_samtools'
 rule index_genomic_alignment_samtools:
     '''
@@ -657,7 +726,8 @@ rule index_genomic_alignment_samtools:
             "samples",
             "{sample}",
             "map_genome",
-            "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam"),
+            "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam")
+
     output:
         bai = os.path.join(
             config["output_dir"],
