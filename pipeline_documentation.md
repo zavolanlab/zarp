@@ -20,6 +20,7 @@ on installation and usage please see [here](README.md).
     - [**create_index_kallisto**](#create_index_kallisto)
     - [**extract_transcripts_as_bed12**](#extract_transcripts_as_bed12)
     - [**fastqc**](#fastqc)
+    - [**sort_genomic_alignment_samtools**](#sort_genomic_alignment_samtools)
     - [**index_genomic_alignment_samtools**](#index_genomic_alignment_samtools)
     - [**star_rpm**](#star_rpm)
     - [**rename_star_rpm_for_alfa**](#rename_star_rpm_for_alfa)
@@ -251,6 +252,17 @@ Prepare quality control report for reads library with
   - FastQC output directory with report (`.txt`) and figures (`.png`); used in
     [**multiqc_report**](#multiqc_report)
 
+#### `sort_genomic_alignment_samtools`
+
+Sort BAM file with [**SAMtools**](#third-party-software-used).
+
+> Sort a genome aligned BAM file.
+
+- **Input**
+  - Alignemnts file (`.bam`); from [**map_genome_star**](#map_genome_star)
+- **Output**
+  - Alignemnts file (`.bam`); used in [**index_genomic_alignment_samtools**](#index_genomic_alignment_samtools) & [**star_rpm**](#star_rpm) & [**calculate_TIN_scores**](#calculate_tin_scores)
+
 #### `index_genomic_alignment_samtools`
 
 Index BAM file with [**SAMtools**](#third-party-software-used).
@@ -261,7 +273,7 @@ Index BAM file with [**SAMtools**](#third-party-software-used).
 > in a genomic region of interest.
 
 - **Input**
-  - Alignemnts file (`.bam`); from [**map_genome_star**](#map_genome_star)
+  - Alignemnts file (`.bam`); from [**sort_genomic_alignment_samtools**](#sort_genomic_alignment_samtools)
 - **Output**
   - BAM index file (`.bam.bai`); used in [**star_rpm**](#star_rpm) &
     [**calculate_TIN_scores**](#calculate_tin_scores)
@@ -280,7 +292,7 @@ Create stranded bedGraph coverage (`.bg`) with
 > assigned to a strand irrespective of its corresponding mate.
 
 - **Input**
-  - Alignments file (`.bam`); from [**map_genome_star**](#map_genome_star)
+  - Alignments file (`.bam`); from [**sort_genomic_alignment_samtools**](#sort_genomic_alignment_samtools)
   - BAM index file (`.bam.bai`); from
     [**index_genomic_alignment_samtools**](#index_genomic_alignment_samtools)
 - **Output**
@@ -345,7 +357,7 @@ Calculates the Transcript Integrity Number (TIN) for each transcript with
 >   is below threshold
 
 - **Input**
-  - Alignments file (`.bam`); from [**map_genome_star**](#map_genome_star)
+  - Alignments file (`.bam`); from [**sort_genomic_alignment_samtools**](#sort_genomic_alignment_samtools)
   - BAM index file (`.bam.bai`); from
     [**index_genomic_alignment_samtools**](#index_genomic_alignment_samtools)
   - Transcript annotations file (12-column `.bed`); from
@@ -617,14 +629,12 @@ Align short reads to reference genome and/or transcriptome with
     - `--outFilterMultimapNmax`: maximum number of multiple alignments allowed; if exceeded, read is considered unmapped; specify in sample table column `multimappers`
 - **Output**
   - Aligned reads file (`.bam`); used in
-    [**calculate_TIN_scores**](#calculate_TIN_scores),
-    [**index_genomic_alignment_samtools**](#index_genomic_alignment_samtools)
-    and [**star_rpm**](#star_rpm)
+    [**sort_genomic_alignment_samtools**](#sort_genomic_alignment_samtools),
   - STAR log file
 - **Non-configurable & non-default**
   - `--outSAMattributes=All`: NH HI AS nM NM MD jM jI MC ch
-  - `--outStd=BAM_SortedByCoordinate`: which output will be directed to `STDOUT` (default 'Log')
-  - `--outSAMtype=BAM SortedByCoordinate`: type of SAM/BAM output (default SAM)
+  - `--outStd=BAM_Unsorted`: which output will be directed to `STDOUT` (default 'Log')
+  - `--outSAMtype=BAM Unsorted`: type of SAM/BAM output (default SAM)
   - `--outSAMattrRGline`: ID:rnaseq_pipeline SM: *sampleID*
 
 #### `quantification_salmon`

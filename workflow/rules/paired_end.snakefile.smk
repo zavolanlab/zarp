@@ -225,7 +225,7 @@ rule pe_map_genome_star:
             "samples",
             "{sample}",
             "map_genome",
-            "{sample}.pe.Aligned.sortedByCoord.out.bam"),
+            "{sample}.pe.Aligned.out.bam"),
         logfile = os.path.join(
             config["output_dir"],
             "samples",
@@ -294,8 +294,8 @@ rule pe_map_genome_star:
         --readFilesCommand zcat \
         --outFileNamePrefix {params.outFileNamePrefix} \
         --outSAMattributes All \
-        --outStd BAM_SortedByCoordinate \
-        --outSAMtype BAM SortedByCoordinate \
+        --outStd BAM_Unsorted \
+        --outSAMtype BAM Unsorted \
         --outSAMattrRGline ID:rnaseq_pipeline SM:{params.sample_id} \
         {params.additional_params} \
         > {output.bam};) \
