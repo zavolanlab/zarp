@@ -1508,7 +1508,17 @@ rule generate_alfa_index:
             "{organism}",
             "{index_size}",
             "ALFA",
-            "sorted_genes.unstranded.ALFA_index")
+            "sorted_genes.unstranded.ALFA_index"),
+        temp_dir = temp(
+            directory(
+                os.path.join(
+                    config["alfa_indexes"],
+                    "{organism}",
+                    "{index_size}",
+                    "ALFA_temp",
+                )
+            )
+        )
 
     params:
         cluster_log_path = config["cluster_log_dir"],
@@ -1540,9 +1550,11 @@ rule generate_alfa_index:
             current_rule + "_{organism}_{index_size}.log")
 
     shell:
-        "(alfa -a {input.gtf} \
+        "(mkdir -p {output.temp_dir}; \
+        alfa -a {input.gtf} \
         -g {params.genome_index} \
         --chr_len {input.chr_len} \
+        --temp_dir {output.temp_dir} \
         -p {threads} \
         -o {params.out_dir} \
         {params.additional_params}) \
@@ -1610,7 +1622,18 @@ rule alfa_qc:
             "{sample}",
             "ALFA",
             "{renamed_unique}",
-            "{sample}.ALFA_feature_counts.tsv")
+            "{sample}.ALFA_feature_counts.tsv"),
+        temp_dir = temp(
+            directory(
+                os.path.join(
+                    config["output_dir"],
+                    "samples",
+                    "{sample}",
+                    "ALFA",
+                    "{renamed_unique}",
+                    "ALFA_temp")
+            )
+        )
 
     params:
         cluster_log_path = config["cluster_log_dir"],
@@ -1631,6 +1654,9 @@ rule alfa_qc:
                     'libtype',
                     search_id='index',
                     search_value=wildcards.sample),"alfa"),
+        temp_dir = lambda wildcards, output:
+            os.path.abspath(
+                os.path.dirname(output.temp_dir)),
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -1655,11 +1681,13 @@ rule alfa_qc:
             current_rule + ".{renamed_unique}.log")
 
     shell:
-        "(cd {params.out_dir}; \
+        "(mkdir -p {output.temp_dir};\
+        cd {params.out_dir}; \
         alfa \
         -g {params.genome_index} \
         --bedgraph {params.plus} {params.minus} {params.name} \
         -s {params.alfa_orientation} \
+        --temp_dir {params.temp_dir} \
         {params.additional_params}) \
         &> {log}"
 
