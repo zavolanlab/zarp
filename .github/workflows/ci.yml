@@ -48,7 +48,7 @@ jobs:
 
       - name: Run test script
         shell: bash -l {0}
-        run: bash tests/test_create_dag_image/test.sh
+        run: bash -l {0} tests/test_create_dag_image/test.sh
 
   tests-snakemake-rulegraph:
     needs: setup-env
@@ -60,7 +60,7 @@ jobs:
 
       - name: Run test script
         shell: bash -l {0}
-        run: bash tests/test_create_rule_graph/test.sh
+        run: bash -l {0} tests/test_create_rule_graph/test.sh
 
   tests-integration-singularity:
     needs:
