@@ -1,35 +1,41 @@
-# ZARP
+<div align="left">
+    <img width="20%" align="left" src=images/zarp_logo.svg>
+</div> 
 
-[Snakemake][snakemake] workflow that covers common steps of short read RNA-Seq 
-library analysis developed by the [Zavolan lab][zavolan-lab].
+**ZARP** ([Zavolan-Lab][zavolan-lab] Automated RNA-Seq Pipeline) is a generic RNA-Seq analysis workflow that allows 
+users to process and analyze Illumina short-read sequencing libraries with minimum effort. The workflow relies on 
+publicly available bioinformatics tools and currently handles single or paired-end stranded bulk RNA-seq data.
+The workflow is developed in [Snakemake][snakemake], a widely used workflow management system in the bioinformatics
+community.
 
-Reads are analyzed (pre-processed, aligned, quantified) with state-of-the-art
-tools to give meaningful initial insights into the quality and composition 
-of an RNA-Seq library, reducing hands-on time for bioinformaticians and giving
-experimentalists the possibility to rapidly assess their data.
+According to the current ZARP implementation, reads are analyzed (pre-processed, aligned, quantified) with state-of-the-art
+tools to give meaningful initial insights into the quality and composition of an RNA-Seq library, reducing hands-on time for bioinformaticians and giving experimentalists the possibility to rapidly assess their data. Additional reports summarise the results of the individual steps and provide useful visualisations.
 
-Below is a schematic representation of the individual steps of the workflow 
-("pe" refers to "paired-end"):
+<div align="center">
+    <img width="60%" src=images/zarp_schema.png>
+</div> 
 
-> ![rule_graph][rule-graph]
 
-For a more detailed description of each step, please refer to the [workflow
-documentation][pipeline-documentation].
+> **Note:** For a more detailed description of each step, please refer to the [workflow
+> documentation][pipeline-documentation].
 
-## Requirements
 
-Currently the workflow is only available for Linux distributions. It was tested
-on the following distributions:
+# Requirements
 
+The workflow has been tested on:
 - CentOS 7.5
 - Debian 10
 - Ubuntu 16.04, 18.04
 
-## Installation
+> **NOTE:**
+> Currently, we only support **Linux** execution. 
 
-### Cloning the repository
 
-Traverse to the desired directory/folder on your file system, then clone/get the 
+# Installation
+
+## 1. Clone the repository
+
+Go to the desired directory/folder on your file system, then clone/get the 
 repository and move into the respective directory with:
 
 ```bash
@@ -37,42 +43,45 @@ git clone ssh://git@git.scicore.unibas.ch:2222/zavolan_group/pipelines/zarp.git
 cd zarp
 ```
 
-### Installing Conda
+## 2. Conda installation
 
 Workflow dependencies can be conveniently installed with the [Conda][conda]
-package manager. We recommend that you install
-[Miniconda][miniconda-installation] for your system (Linux). Be sure to select
-Python 3 option. The workflow was built and tested with `miniconda 4.7.12`.
+package manager. We recommend that you install [Miniconda][miniconda-installation] 
+for your system (Linux). Be sure to select Python 3 option. 
+The workflow was built and tested with `miniconda 4.7.12`.
 Other versions are not guaranteed to work as expected.
 
-### Installing dependencies
+## 3. Dependencies installation
 
 For improved reproducibility and reusability of the workflow,
 each individual step of the workflow runs either in its own [Singularity][singularity]
-container or in its own [Conda][conda] virtual environemnt. As a consequence, running this workflow has very few individual dependencies. However, for the **container execution** it requires Singularity to be installed on the system where the workflow is executed. As the functional installation of Singularity requires root privileges, and Conda currently only provides Singularity for Linux architectures, the installation instructions are
-slightly different depending on your system/setup:
+container or in its own [Conda][conda] virtual environemnt. 
+As a consequence, running this workflow has very few individual dependencies. 
+The **container execution** requires Singularity to be installed on the system where the workflow is executed. 
+As the functional installation of Singularity requires root privileges, and Conda currently only provides Singularity
+for Linux architectures, the installation instructions are slightly different depending on your system/setup:
 
-#### For most users
+### For most users
 
-If you do *not* have root privileges on the machine you want to run the
-workflow on *or* if you do not have a Linux machine, please [install
+If you do *not* have root privileges on the machine you want
+to run the workflow on *or* if you do not have a Linux machine, please [install
 Singularity][singularity-install] separately and in privileged mode, depending
 on your system. You may have to ask an authorized person (e.g., a systems
 administrator) to do that. This will almost certainly be required if you want
-to run the workflow on a high-performance computing (HPC) cluster. We have
-successfully tested the workflow with the following Singularity versions:
+to run the workflow on a high-performance computing (HPC) cluster. 
 
-- `v2.4.5`
-- `v2.6.2`
-- `v3.5.2`
+> **NOTE:**
+> The workflow has been tested with the following Singularity versions:  
+>  * `v2.6.2`
+>  * `v3.5.2`
 
 After installing Singularity, install the remaining dependencies with:
-
 ```bash
 conda env create -f install/environment.yml
 ```
 
-#### As root user on Linux
+
+### As root user on Linux
 
 If you have a Linux machine, as well as root privileges, (e.g., if you plan to
 run the workflow on your own computer), you can execute the following command
@@ -82,7 +91,7 @@ to include Singularity in the Conda environment:
 conda env create -f install/environment.root.yml
 ```
 
-### Activate environment
+## 4. Activate environment
 
 Activate the Conda environment with:
 
@@ -90,7 +99,9 @@ Activate the Conda environment with:
 conda activate zarp
 ```
 
-### Installing non-essential dependencies
+# Extra installation steps (optional)
+
+## 5. Non-essential dependencies installation
 
 Most tests have additional dependencies. If you are planning to run tests, you
 will need to install these by executing the following command _in your active
@@ -100,38 +111,33 @@ Conda environment_:
 conda env update -f install/environment.dev.yml
 ```
 
-## Testing the installation
+## 6. Successful installation tests
 
 We have prepared several tests to check the integrity of the workflow and its
 components. These can be found in subdirectories of the `tests/` directory. 
-The most critical of these tests enable you execute the entire workflow on a 
+The most critical of these tests enable you to execute the entire workflow on a 
 set of small example input files. Note that for this and other tests to complete
 successfully, [additional dependencies](#installing-non-essential-dependencies) 
-need to be installed.
-
-### Test workflow on local machine
-
-Execute the following command to run the test workflow on your local machine (with singularity):
-
+need to be installed. 
+Execute one of the following commands to run the test workflow 
+on your local machine:
+* Test workflow on local machine with **Singularity**:
 ```bash
 bash tests/test_integration_workflow/test.local.sh
 ```
-
-Alternatively execute the following command to run the test workflow on your local machine (with conda):
+* Test workflow on local machine with **Conda**:
 ```bash
 bash tests/test_integration_workflow_with_conda/test.local.sh
 ```
+Execute one of the following commands to run the test workflow 
+on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
 
-### Test workflow via Slurm
-
-Execute the following command to run the test workflow on a
-[Slurm][slurm]-managed high-performance computing (HPC) cluster:
+* Test workflow with **Singularity**:
 
 ```bash
 bash tests/test_integration_workflow/test.slurm.sh
 ```
-
-or
+* Test workflow with **Conda**:
 
 ```bash
 bash tests/test_integration_workflow_with_conda/test.slurm.sh
@@ -144,10 +150,10 @@ bash tests/test_integration_workflow_with_conda/test.slurm.sh
 > Consult the manual of your workload manager as well as the section of the
 > Snakemake manual dealing with [profiles].
 
-## Running the workflow on your own samples
+# Running the workflow on your own samples
 
 1. Assuming that your current directory is the repository's root directory,
-create a directory for your workflow run and traverse inside it with:
+create a directory for your workflow run and move into it with:
 
     ```bash
     mkdir config/my_run
@@ -176,7 +182,7 @@ or cluster execution. Before execution of the respective command, you need to
 remember to update the argument of the `--singularity-args` option of a
 respective profile (file: `profiles/{profile}/config.yaml`) so that
 it contains a comma-separated list of _all_ directories
-containing input data files (samples and any annoation files etc) required for
+containing input data files (samples and any annotation files etc) required for
 your run.
 
     Runner script for _local execution_:
@@ -223,6 +229,8 @@ your run.
 [profiles]: <https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles>
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
 [rule-graph]: images/rule_graph.svg
+[zarp-logo]: images/zarp_logo.svg
+[zarp-schema]: images/zarp_schema.svg
 [snakemake]: <https://snakemake.readthedocs.io/en/stable/>
 [singularity]: <https://sylabs.io/singularity/>
 [singularity-install]: <https://sylabs.io/guides/3.5/admin-guide/installation.html>
