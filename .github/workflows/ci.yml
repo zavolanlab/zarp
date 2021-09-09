@@ -46,9 +46,13 @@ jobs:
       - name: Checkout zarp repository
         uses: actions/checkout@v2
 
+      - name: test if snakemake is accessible
+        shell: bash -l {0}
+        run: snakemake --version
+
       - name: Run test script
         shell: bash -l {0}
-        run: bash -l {0} tests/test_create_dag_image/test.sh
+        run: bash tests/test_create_dag_image/test.sh
 
   tests-snakemake-rulegraph:
     needs: setup-env
@@ -60,7 +64,7 @@ jobs:
 
       - name: Run test script
         shell: bash -l {0}
-        run: bash -l {0} tests/test_create_rule_graph/test.sh
+        run: bash tests/test_create_rule_graph/test.sh
 
   tests-integration-singularity:
     needs:
