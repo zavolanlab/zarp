@@ -101,27 +101,26 @@ Visual representation of workflow. Automatically prepared with
 
 Parameter name | Description | Data type(s)
 --- | --- | ---
-sample | Descriptive sample name | `str`
-seqmode | Required for various steps of the workflow. One of `pe` (for paired-end libraries) or `se` (for single-end libraries). | `str`
-fq1 | Path of library file in `.fastq.gz` format (or mate 1 read file for paired-end libraries) | `str`
-index_size | Required for [STAR](#third-party-software-used). Ideally the maximum read length minus 1 (`max(ReadLength)-1`). Values lower than maximum read length may result in lower mapping accuracy, while higher values may result in longer processing times. | `int`
-kmer | Required for [Salmon](#third-party-software-used). Default value of 31 usually works fine for reads of 75 bp or longer. Consider using lower values if poor mapping is observed. | `int`
+sample | Descriptive sample name. <br> **NOTE**: samples split in multiple fastq files (multilane samples), can be automatically merged by using the same ID| `str`
+seqmode | There are two allowed values `pe` (paired-end) and `se` (single-end) according to the protocol used. | `str`
+fq1 | Path of library file in `.fastq.gz` format (or mate 1 read file for paired-end libraries). | `str`
 fq2 | Path of mate 2 read file in `.fastq.gz` format. Value ignored for for single-end libraries. | `str`
 fq1_3p | Required for [Cutadapt](#third-party-software-used). 3' adapter of mate 1. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. | `str`
 fq1_5p | Required for [Cutadapt](#third-party-software-used). 5' adapter of mate 1. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. | `str`
 fq2_3p | Required for [Cutadapt](#third-party-software-used). 3' adapter of mate 2. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. Value ignored for single-end libraries. | `str`
 fq2_5p | Required for [Cutadapt](#third-party-software-used). 5' adapter of mate 2. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. Value ignored for single-end libraries. | `str`
-organism | Name or identifier of organism or organism-specific genome resource version. Has to correspond to the naming of provided genome and gene annotation files and directories, like "ORGANISM" in the path below. Example: `GRCh38` | `str`
-gtf | Required for [STAR](#third-party-software-used). Path to gene annotation `.fa` file. File needs to be in subdirectory corresponding to `organism` field. Example: `/path/to/GRCh38/gene_annotations.gtf` | `str`
-gtf_filtered | Required for [Salmon](#third-party-software-used). Path to filtered gene annotation `.gtf` file. File needs to be in subdirectory corresponding to `organism` field. Example: `/path/to/GRCh38/gene_annotations.filtered.gtf` | `str`
-genome | Required for [STAR](#third-party-software-used). Path to genome `.fa` file. File needs to be in subdirectory corresponding to `organism` field. Example: `/path/to/GRCh38/genome.fa` | `str`
-sd | Required for [kallisto](#third-party-software-used) and [Salmon](#third-party-software-used), but only for single-end libraries. Estimated standard deviation of fragment length distribution. Can be assessed from, e.g., BioAnalyzer profiles. Value ignored for paired-end libraries. | `int`
-mean | Required for [kallisto](#third-party-software-used) and [Salmon](#third-party-software-used), but only for single-end libraries. Estimated mean of fragment length distribution. Can be assessed, e.g., from BioAnalyzer profiles. Value ignored for paired-end libraries. | `int`
-libtype | Required for [Salmon](#third-party-software-used), and, after internal conversion, for [kallisto](#third-party-software-used) and [ALFA](#third-party-software-used) . See [Salmon manual][docs-salmon] for allowed values.    **WARNING**: do *NOT* use `A` to automatically infer the salmon library type, this will cause kallisto and ALFA to fail.  | `str`
 fq1_polya3p | Required for [Cutadapt](#third-party-software-used). Stretch of `A`s or `T`s, depending on read orientation. Trimmed from the 3' end of the read. Use value such as `XXXXXXXXXXXXXXX` if no poly(A) stretch present or if no trimming is desired. | `str`
 fq1_polya5p | Required for [Cutadapt](#third-party-software-used). Stretch of `A`s or `T`s, depending on read orientation. Trimmed from the 5' end of the read. Use value such as `XXXXXXXXXXXXXXX` if no poly(A) stretch present or if no trimming is desired. | `str`
 fq2_polya3p | Required for [Cutadapt](#third-party-software-used). Stretch of `A`s or `T`s, depending on read orientation. Trimmed from the 3' end of the read. Use value such as `XXXXXXXXXXXXXXX` if no poly(A) stretch present or if no trimming is desired. Value ignored for single-end libraries. | `str`
 fq2_polya5p | Required for [Cutadapt](#third-party-software-used). Stretch of `A`s or `T`s, depending on read orientation. Trimmed from the 5' end of the read. Use value such as `XXXXXXXXXXXXXXX` if no poly(A) stretch present or if no trimming is desired. Value ignored for single-end libraries. | `str`
+index_size | Required for [STAR](#third-party-software-used). Ideally the maximum read length minus 1. (`max(ReadLength)-1`). Values lower than maximum read length may result in lower mapping accuracy, while higher values may result in longer processing times. | `int`
+kmer | Required for [Salmon](#third-party-software-used). Default value of 31 usually works fine for reads of 75 bp or longer. Consider using lower values if poor mapping is observed. | `int`
+organism | Name or identifier of organism or organism-specific genome resource version. Has to correspond to the naming of provided genome and gene annotation files and directories, like "ORGANISM" in the path below. <br> **Example:** `GRCh38` | `str`
+gtf | Required for [STAR](#third-party-software-used). Path to gene annotation `.gtf` file. File needs to be in subdirectory corresponding to `organism` field. <br> **Example:** `/path/to/GRCh38/gene_annotations.gtf` | `str`
+genome | Required for [STAR](#third-party-software-used). Path to genome `.fa` file. File needs to be in subdirectory corresponding to `organism` field. <br> **Example:** `/path/to/GRCh38/genome.fa` | `str`
+sd | Required for [kallisto](#third-party-software-used) and [Salmon](#third-party-software-used), but **only** for single-end libraries. Estimated standard deviation of fragment length distribution. Can be assessed from, e.g., BioAnalyzer profiles | `int`
+mean | Required for [kallisto](#third-party-software-used) and [Salmon](#third-party-software-used), but **only** for single-end libraries. Estimated mean of fragment length distribution. Can be assessed, e.g., from BioAnalyzer profiles | `int`
+libtype | Required for [Salmon](#third-party-software-used), and, after internal conversion, for [kallisto](#third-party-software-used) and [ALFA](#third-party-software-used). See [Salmon manual][docs-salmon] for allowed values.    <br>**WARNING**: do *NOT* use `A` to automatically infer the salmon library type, this will cause kallisto and ALFA to fail.  | `str`
 
 #### Create log directories
 
