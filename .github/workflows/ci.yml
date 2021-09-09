@@ -38,6 +38,10 @@ jobs:
           conda info -a
           conda list
 
+      - name: test if snakemake is accessible
+        shell: bash -l {0}
+        run: snakemake --version
+
   tests-snakemake-DAG:
     needs: setup-env
     runs-on: ubuntu-20.04
