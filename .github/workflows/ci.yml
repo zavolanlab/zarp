@@ -38,18 +38,6 @@ jobs:
           conda info -a
           conda list
 
-  tests-scripts-prepare-input-table:
-    needs: setup-env
-    runs-on: ubuntu-20.04
-    steps:
-
-      - name: Checkout zarp repository
-        uses: actions/checkout@v2
-
-      - name: Run test script
-        shell: bash -l {0}
-        run: bash tests/test_scripts_prepare_inputs_table/test.sh
-
   tests-snakemake-DAG:
     needs: setup-env
     runs-on: ubuntu-20.04
