@@ -11,7 +11,7 @@ on:
 
 jobs:
 
-  setup-env:
+  snakemake-graphs:
     runs-on: ubuntu-20.04
     steps:
 
@@ -38,42 +38,17 @@ jobs:
           conda info -a
           conda list
 
-      - name: test if snakemake is accessible
-        shell: bash -l {0}
-        run: snakemake --version
-
-  tests-snakemake-DAG:
-    needs: setup-env
-    runs-on: ubuntu-20.04
-    steps:
-
-      - name: Checkout zarp repository
-        uses: actions/checkout@v2
-
-      - name: test if snakemake is accessible
-        shell: bash -l {0}
-        run: snakemake --version
-
-      - name: Run test script
-        shell: bash -l {0}
-        run: bash tests/test_create_dag_image/test.sh
-
-  tests-snakemake-rulegraph:
-    needs: setup-env
-    runs-on: ubuntu-20.04
-    steps:
-
-      - name: Checkout zarp repository
-        uses: actions/checkout@v2
-
-      - name: Run test script
+      - name: Run test script for snakemake rulegraph
         shell: bash -l {0}
         run: bash tests/test_create_rule_graph/test.sh
 
+      - name: Run test script for snakemake DAG
+        shell: bash -l {0}
+        run: bash tests/test_create_dag_image/test.sh
+
   tests-integration-singularity:
     needs:
-      - tests-snakemake-DAG
-      - tests-snakemake-rulegraph
+      - snakemake-graphs
     runs-on: ubuntu-20.04
     steps:
 
@@ -86,8 +61,7 @@ jobs:
 
   tests-integration-singularity-MultipleLanes:
     needs:
-      - tests-snakemake-DAG
-      - tests-snakemake-rulegraph
+      - snakemake-graphs
     runs-on: ubuntu-20.04
     steps:
 
@@ -100,8 +74,7 @@ jobs:
 
   tests-integration-conda:
     needs:
-      - tests-snakemake-DAG
-      - tests-snakemake-rulegraph
+      - snakemake-graphs
     runs-on: ubuntu-20.04
     steps:
 
