@@ -13,6 +13,9 @@ jobs:
 
   snakemake-graphs:
     runs-on: ubuntu-20.04
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
 
       - name: Checkout zarp repository
@@ -29,27 +32,26 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with dev. packages
-        shell: bash -l {0}
         run: conda env update -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
-        shell: bash -l {0}
         run: |
           conda info -a
           conda list
 
       - name: Run test script for snakemake rulegraph
-        shell: bash -l {0}
         run: bash tests/test_create_rule_graph/test.sh
 
       - name: Run test script for snakemake DAG
-        shell: bash -l {0}
         run: bash tests/test_create_dag_image/test.sh
 
   integration-singularity:
     needs:
       - snakemake-graphs
     runs-on: ubuntu-20.04
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
 
       - name: Checkout zarp repository
@@ -66,23 +68,23 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with dev. packages
-        shell: bash -l {0}
         run: conda env update -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
-        shell: bash -l {0}
         run: |
           conda info -a
           conda list
 
       - name: Run test script
-        shell: bash -l {0}
         run: bash tests/test_integration_workflow/test.local.sh
 
   integration-singularity-MultipleLanes:
     needs:
       - snakemake-graphs
     runs-on: ubuntu-20.04
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
 
       - name: Checkout zarp repository
@@ -99,23 +101,23 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with dev. packages
-        shell: bash -l {0}
         run: conda env update -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
-        shell: bash -l {0}
         run: |
           conda info -a
           conda list
 
       - name: Run test script
-        shell: bash -l {0}
         run: bash tests/test_integration_workflow_multiple_lanes/test.local.sh
 
   integration-conda:
     needs:
       - snakemake-graphs
     runs-on: ubuntu-20.04
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
 
       - name: Checkout zarp repository
@@ -132,15 +134,12 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with dev. packages
-        shell: bash -l {0}
         run: conda env update -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
-        shell: bash -l {0}
         run: |
           conda info -a
           conda list
 
       - name: Run test script
-        shell: bash -l {0}
         run: bash tests/test_integration_workflow_with_conda/test.local.sh
