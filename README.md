@@ -43,7 +43,7 @@ Go to the desired directory/folder on your file system, then clone/get the
 repository and move into the respective directory with:
 
 ```bash
-git clone ssh://git@git.scicore.unibas.ch:2222/zavolan_group/pipelines/zarp.git
+git clone https://github.com/zavolanlab/zarp.git
 cd zarp
 ```
 
