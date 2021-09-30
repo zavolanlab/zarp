@@ -25,7 +25,6 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: 3.7.4
-          miniconda-version: 4.7.12
           auto-update-conda: false
           environment-file: install/environment.root.yml
           activate-environment: zarp
