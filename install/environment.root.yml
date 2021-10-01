@@ -5,7 +5,7 @@ channels:
 dependencies:
   - graphviz=2.40.1
   - jinja2=2.11.2
-  - mamba=0.16.0
+  #- mamba=0.16.0
   - networkx=2.4
   - pip=20.0.2
   - pygments=2.6.1
