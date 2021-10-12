@@ -13,4 +13,4 @@ dependencies:
   - python=3.7.4
   - pip:
     - pandas==1.0.1
-    - snakemake==6.5.5
+    - snakemake==6.9.1
