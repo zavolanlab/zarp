@@ -3,6 +3,7 @@ cores: 4
 printshellcmds: true
 rerun-incomplete: true
 use-conda: true
+conda-frontend: conda
 notemp: true
 no-hooks: true
 verbose: true
