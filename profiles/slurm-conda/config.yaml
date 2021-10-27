@@ -8,6 +8,6 @@ printshellcmds: true
 rerun-incomplete: true
 use-conda: true
 conda-frontend: conda
-notemp: true
+keep-going: true
 no-hooks: true
 verbose: true

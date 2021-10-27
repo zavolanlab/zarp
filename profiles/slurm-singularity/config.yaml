@@ -8,6 +8,6 @@ printshellcmds: true
 rerun-incomplete: true
 use-singularity: true
 singularity-args: "--bind ./../input_files,./../../images"
-notemp: true
+keep-going: true
 no-hooks: true
 verbose: true

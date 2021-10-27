@@ -2,5 +2,4 @@ snakefile: "../../workflow/Snakefile"
 printshellcmds: true
 dryrun: true
 verbose: true
-notemp: true
 no-hooks: true
