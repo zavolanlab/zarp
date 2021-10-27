@@ -1,4 +1,5 @@
 snakefile: "../../workflow/Snakefile"
+default-resources: "tmpdir=system_tmpdir"
 cores: 4
 printshellcmds: true
 rerun-incomplete: true

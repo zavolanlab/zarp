@@ -2,6 +2,7 @@ jobscript: "../slurm-jobscript.sh"
 cluster: "../slurm-submit.py"
 cluster-status: "../slurm-status.py"
 snakefile: "../../workflow/Snakefile"
+default-resources: "tmpdir=system_tmpdir"
 cores: 256
 jobs: 256
 printshellcmds: true
