@@ -168,6 +168,7 @@ map_genome_star:
     --twopassMode: Basic
     # alignments (all of them) will be output only if the read maps to no more loci than 10
     --outFilterMultimapNmax: '10'
+    --outTmpDir: '/tmp/star_tmp'
 
 pe_map_genome_star:
     # The score range below the maximum score for multimapping alignments
@@ -183,6 +184,7 @@ pe_map_genome_star:
     --twopassMode: Basic
     # alignments (all of them) will be output only if the read maps to no more loci than 10
     --outFilterMultimapNmax: '10'
+    --outTmpDir: '/tmp/star_tmp'
 
 quantification_salmon:
     # Correct for sequence specific biases; cf.
