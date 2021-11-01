@@ -838,7 +838,7 @@ rule calculate_TIN_scores:
     threads: 8
 
     singularity:
-        "docker://quay.io/biocontainers/tin-score-calculation:0.6.2--pyh5e36f6f_0"
+        "docker://quay.io/biocontainers/tin-score-calculation:0.6.3--pyh5e36f6f_0"
 
     conda:
         os.path.join(workflow.basedir, "envs", "tin-score-calculation.yaml")
@@ -848,6 +848,7 @@ rule calculate_TIN_scores:
         -i {input.bam} \
         -r {input.transcripts_bed12} \
         --names {params.sample} \
+        -p {threads} \
         {params.additional_params} \
         > {output.TIN_score};) 2> {log.stderr}"
 
