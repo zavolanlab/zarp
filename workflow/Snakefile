@@ -20,16 +20,23 @@ samples_table = pd.read_csv(
 
 # dict for translation of "directionality parameters"
 directionality_dict = {
-    "SF": 
+    "SF": # stranded single- and paired-end with first read from the forward strand (ISF and SF)
         {"kallisto":"--fr-stranded", 
         "alfa": "fr-secondstrand", 
         "alfa_plus": "str1", 
         "alfa_minus": "str2"},
-    "SR":
+    "SR": # stranded single- and paired-end with first read from the reverse strand (ISR and SR)
         {"kallisto":"--rf-stranded", 
         "alfa": "fr-firststrand", 
         "alfa_plus": "str2", 
         "alfa_minus": "str1"},
+    "IU": # unstranded paired-end
+        {
+            "kallisto": " ", # no optional argument
+            "alfa": "fr-secondstrand", # TODO: replace this dirty fix by duplicating ALFA rule for unstranded support
+            "alfa_plus": "str1",
+            "alfa_minus": "str2"
+        }
 }
 # dict for alfa output"
 alfa_dict = {
