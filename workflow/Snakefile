@@ -648,8 +648,8 @@ rule extract_transcripts_as_bed12:
     shell:
         "(gtf2bed12 \
         --gtf {input.gtf} \
-        --bed12 {output.bed12}); \
-        {params.additional_params} \
+        --bed12 {output.bed12} \
+        {params.additional_params}) \
         1> {log.stdout} 2> {log.stderr}"
 
 
