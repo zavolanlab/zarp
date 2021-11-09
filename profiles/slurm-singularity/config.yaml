@@ -12,3 +12,6 @@ keep-going: true
 notemp: true
 no-hooks: true
 verbose: true
+restart-times: 2
+default-resources: mem_mb=2048
+resources: mem_mb=200000

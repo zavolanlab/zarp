@@ -264,7 +264,10 @@ rule fastqc:
                 )
             )
 
-    threads: 2
+    threads: 1
+
+    resources:
+        mem_mb=1024
 
     singularity:
         "docker://quay.io/biocontainers/fastqc:0.11.9--hdfd78af_1"
@@ -359,6 +362,9 @@ rule create_index_star:
 
     threads: 12
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 40000 * attempt
+
     log:
         stderr = os.path.join(
             config['log_dir'],
@@ -424,6 +430,9 @@ rule extract_transcriptome:
             config['log_dir'],
             current_rule + "_{organism}.log")
 
+    resources:
+        mem_mb=1024
+
     singularity:
         "docker://quay.io/biocontainers/gffread:0.12.1--h2e03b76_1"
 
@@ -466,6 +475,9 @@ rule concatenate_transcriptome_and_genome:
     
     params:
         cluster_log_path = config["cluster_log_dir"]
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 1024 * attempt
 
     singularity:
         "docker://ubuntu:focal-20210416"
@@ -538,6 +550,9 @@ rule create_index_salmon:
 
     threads: 8
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 40000 * attempt
+
     shell:
         "(salmon index \
         --transcripts {input.genome_transcriptome} \
@@ -579,6 +594,9 @@ rule create_index_kallisto:
                 '-i',
                 )
             )
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 10000 * attempt
 
     singularity:
         "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
@@ -699,6 +717,9 @@ rule sort_genomic_alignment_samtools:
 
     threads: 8
 
+    resources:
+        mem_mb=8192
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -758,6 +779,9 @@ rule index_genomic_alignment_samtools:
         os.path.join(workflow.basedir, "envs", "samtools.yaml")
 
     threads: 1
+
+    resources:
+        mem_mb=512
 
     log:
         stderr = os.path.join(
@@ -843,6 +867,9 @@ rule calculate_TIN_scores:
             current_rule + ".log")
 
     threads: 8
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 15360 * attempt
 
     singularity:
         "docker://quay.io/biocontainers/tin-score-calculation:0.6.3--pyh5e36f6f_0"
@@ -1403,6 +1430,9 @@ rule star_rpm:
 
     threads: 4
 
+    resources:
+        mem_mb=lambda wildcard, attempt: 4096 * attempt
+
     shell:
         "(mkdir -p {params.out_dir}; \
         chmod -R 777 {params.out_dir}; \
@@ -1466,6 +1496,9 @@ rule rename_star_rpm_for_alfa:
     
     params:
         cluster_log_path = config["cluster_log_dir"]
+
+    resources:
+        mem_mb=4096
 
     log:
         stderr = os.path.join(
@@ -1545,6 +1578,9 @@ rule generate_alfa_index:
             )
 
     threads: 4
+
+    resources:
+        mem_mb=lambda wildcard, attempt: 4096 * attempt
 
     singularity:
         "docker://quay.io/biocontainers/alfa:1.1.1--pyh5e36f6f_0"
@@ -1905,6 +1941,11 @@ rule sort_bed_4_big:
                 '-i',
                 )
             )
+
+    threads: 1
+
+    resources:
+        mem_mb=lambda wildcard, attempt: 2048 * attempt
 
     singularity:
         "docker://quay.io/biocontainers/bedtools:2.27.1--h9a82719_5"

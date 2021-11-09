@@ -8,3 +8,6 @@ keep-going: true
 notemp: true
 no-hooks: true
 verbose: true
+restart-times: 0
+default-resources: mem_mb=1024
+resources: mem_mb=30000

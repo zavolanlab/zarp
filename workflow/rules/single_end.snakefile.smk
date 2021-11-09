@@ -51,6 +51,9 @@ rule remove_adapters_cutadapt:
 
     threads: 8
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 1024 * attempt
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -125,6 +128,9 @@ rule remove_polya_cutadapt:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
 
     threads: 8
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 1024 * attempt
 
     log:
         stderr = os.path.join(
@@ -222,6 +228,9 @@ rule map_genome_star:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
 
     threads: 12
+
+    resources:
+        mem_mb=lambda wildcard, attempt: 40000 * attempt
 
     log:
         stderr = os.path.join(
@@ -352,7 +361,10 @@ rule quantification_salmon:
             "{sample}",
             current_rule + ".se.stdout.log")
 
-    threads: 12
+    threads: 6
+
+    resources:
+        mem_mb=lambda wildcard, attempt: 20000 * attempt
 
     singularity:
         "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
@@ -448,6 +460,9 @@ rule genome_quantification_kallisto:
             )
 
     threads: 8
+
+    resources:
+        mem_mb=lambda wildcard, attempt: 15000 * attempt
 
     log:
         stderr = os.path.join(
