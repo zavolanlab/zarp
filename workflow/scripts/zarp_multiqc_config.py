@@ -92,6 +92,7 @@ report_header_info:
 module_order:
 
   - fastqc:
+      name: "FastQC"
       path_filters:
       - "*/*/fastqc/*/*"
 
@@ -104,6 +105,12 @@ module_order:
       name: "Cutadapt: polyA tails removal"
       path_filters:
       - "*/*/*remove_polya_cutadapt*.stdout.log"
+
+  - fastqc:
+      name: "FastQC (trimmed)"
+      info: "This section of the report shows FastQC results after adapter and polyA tail removal."
+      path_filters:
+      - "*/*/fastqc_trimmed/*/*"
 
   - star:
       path_filters:
