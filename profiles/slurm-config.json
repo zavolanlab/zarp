@@ -111,22 +111,22 @@
   "pe_remove_adapters_cutadapt":
   {
     "qos": "6hours",
-    "time": "06:00:00"
+    "time": "02:00:00"
   },
   "remove_adapters_cutadapt":
   {
     "qos": "6hours",
-    "time": "06:00:00"
+    "time": "02:00:00"
   },
   "pe_remove_polya_cutadapt":
   {
     "qos": "6hours",
-    "time": "06:00:00"
+    "time": "02:00:00"
   },
   "remove_polya_cutadapt":
   {
     "qos": "6hours",
-    "time": "06:00:00"
+    "time": "02:00:00"
   },
   "pe_map_genome_star":
   {

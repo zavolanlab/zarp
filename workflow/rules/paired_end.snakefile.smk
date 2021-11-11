@@ -62,7 +62,7 @@ rule pe_remove_adapters_cutadapt:
     threads: 8
 
     resources:
-        mem_mb=lambda wildcards, attempt: 1024 * attempt
+        mem_mb=lambda wildcards, attempt: 16384 * attempt
 
     log:
         stderr = os.path.join(
@@ -165,7 +165,7 @@ rule pe_remove_polya_cutadapt:
     threads: 8
 
     resources:
-        mem_mb=lambda wildcards, attempt: 1024 * attempt
+        mem_mb=lambda wildcards, attempt: 16384 * attempt
 
     log:
         stderr = os.path.join(
