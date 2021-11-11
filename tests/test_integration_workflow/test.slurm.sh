@@ -26,20 +26,12 @@ cd $script_dir
 
 # Run tests
 snakemake \
-    --snakefile="../../Snakefile" \
-    --configfile="../input_files/config.yaml" \
-    --cluster-config="../input_files/cluster.json" \
-    --cluster="sbatch --cpus-per-task={cluster.threads} --mem={cluster.mem} --qos={cluster.queue} --time={cluster.time} --job-name={cluster.name} -o {cluster.out} -p scicore" \
-    --cores=256 \
-    --printshellcmds \
-    --rerun-incomplete \
-    --use-singularity \
-    --singularity-args="--bind ${PWD}/../input_files,${PWD}/../../images" \
-    --verbose
+    --profile="../../profiles/slurm-singularity" \
+    --configfile="../input_files/config.yaml"
 
 # Create a Snakemake report after the workflow execution
 snakemake \
-    --snakefile="../../Snakefile" \
+    --snakefile="../../workflow/Snakefile" \
     --configfile="../input_files/config.yaml" \
     --report="snakemake_report.html"
 

@@ -5,6 +5,7 @@ channels:
 dependencies:
   - graphviz=2.40.1
   - jinja2=2.11.2
+  - mamba=0.16.0
   - networkx=2.4
   - pip=20.0.2
   - pygments=2.6.1
@@ -12,5 +13,4 @@ dependencies:
   - python=3.7.4
   - pip:
     - pandas==1.0.1
-    - snakemake==5.19.2
-
+    - snakemake==6.9.1

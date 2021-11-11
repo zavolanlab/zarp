@@ -89,7 +89,7 @@ report_header_info:
   - Analysis Author: "{author_name}"
   - Contact E-mail: "{author_email}"
 
-top_modules:
+module_order:
 
   - fastqc:
       path_filters:
@@ -98,28 +98,24 @@ top_modules:
   - cutadapt:
       name: "Cutadapt: adapter removal"
       path_filters:
-      - "*/*/remove_adapters_cutadapt*.stdout.log"
+      - "*/*/*remove_adapters_cutadapt*.stdout.log"
 
   - cutadapt:
       name: "Cutadapt: polyA tails removal"
       path_filters:
-      - "*/*/remove_polya_cutadapt*.stdout.log"
+      - "*/*/*remove_polya_cutadapt*.stdout.log"
 
   - star:
       path_filters:
       - "*/*/map_genome/*"
 
-  - alfa:
-      name: "ALFA"
-      anchor: "ALFA"
+  - ALFA:
       path_filters:
-      - "*/ALFA_plots.concat_mqc.png"
+      - "*/*/ALFA/*/*ALFA_feature_counts.tsv"
 
-  - TIN_scores:
-      name: "TIN_scores"
-      anchor: "TIN_scores"
+  - tin-score:
       path_filters:
-      - "*/TIN_scores_boxplot_mqc.png"
+      - "*/*/TIN/TIN_score.tsv"
 
   - salmon:
       path_filters:
@@ -127,7 +123,27 @@ top_modules:
 
   - kallisto:
       path_filters:
-      - "*/*/genome_quantification_kallisto*.stderr.log"
+      - "*/*/*genome_quantification_kallisto*.stderr.log"
+
+  - zpca:
+      name: "zpca: salmon | gene expression"
+      path_filters:
+      - "*/zpca/pca_salmon_genes/*"
+
+  - zpca:
+      name: "zpca: salmon | transcript expression"
+      path_filters:
+      - "*/zpca/pca_salmon_transcripts/*"
+
+  - zpca:
+      name: "zpca: kallisto | gene expression"
+      path_filters:
+      - "*/zpca/pca_kallisto_genes/*"
+
+  - zpca:
+      name: "zpca: kallisto | transcript expression"
+      path_filters:
+      - "*/zpca/pca_kallisto_transcripts/*"
 
 fn_clean_exts:
   - '.fq1'
@@ -143,8 +159,6 @@ fn_clean_exts:
   - '.pseudo'
   - '.salmon'
   - '.sam'
-  - 'mqc'
-  - '.png'
 ..."""
 
     with open(options.config, "w") as config:

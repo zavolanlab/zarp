@@ -1,3 +1,4 @@
+current_rule = 'pe_remove_adapters_cutadapt'
 rule pe_remove_adapters_cutadapt:
     '''
         Remove adapters
@@ -18,18 +19,19 @@ rule pe_remove_adapters_cutadapt:
             "{sample}.fq2.fastq.gz"),
 
     output:
-        reads1 = os.path.join(
+        reads1 = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_adapters_mate1.fastq.gz"),
-        reads2 = os.path.join(
+            "{sample}.pe.remove_adapters_mate1.fastq.gz")),
+        reads2 = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_adapters_mate2.fastq.gz")
+            "{sample}.pe.remove_adapters_mate2.fastq.gz"))
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         adapter_3_mate1 = lambda wildcards:
             get_sample('fq1_3p', search_id='index', search_value=wildcards.sample),
         adapter_5_mate1 = lambda wildcards:
@@ -37,10 +39,25 @@ rule pe_remove_adapters_cutadapt:
         adapter_3_mate2 = lambda wildcards:
             get_sample('fq2_3p', search_id='index', search_value=wildcards.sample),
         adapter_5_mate2 = lambda wildcards:
-            get_sample('fq2_5p', search_id='index', search_value=wildcards.sample)
+            get_sample('fq2_5p', search_id='index', search_value=wildcards.sample),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '-a',
+                '-A',
+                '-g',
+                '-G',
+                '-o',
+                '-p',
+                )
+            )
 
     singularity:
-        "docker://zavolab/cutadapt:1.16-slim"
+        "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
 
     threads: 8
 
@@ -49,24 +66,22 @@ rule pe_remove_adapters_cutadapt:
             config["log_dir"],
             "samples",
             "{sample}",
-            "remove_adapters_cutadapt.pe.stderr.log"),
+            current_rule + ".stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "remove_adapters_cutadapt.pe.stdout.log")
+            current_rule + ".stdout.log")
 
     shell:
         "(cutadapt \
-        -e 0.1 \
         -j {threads} \
-        --pair-filter=any \
-        -m 10 \
-        -n 2 \
         -a {params.adapter_3_mate1} \
         -g {params.adapter_5_mate1} \
         -A {params.adapter_3_mate2} \
         -G {params.adapter_5_mate2} \
+        -m 1 \
+        {params.additional_params} \
         -o {output.reads1} \
         -p {output.reads2} \
         {input.reads1} \
@@ -74,6 +89,7 @@ rule pe_remove_adapters_cutadapt:
         1> {log.stdout} 2>{log.stderr}"
 
 
+current_rule = 'pe_remove_polya_cutadapt'
 rule pe_remove_polya_cutadapt:
     '''
         Remove polyA tails
@@ -91,18 +107,19 @@ rule pe_remove_polya_cutadapt:
             "{sample}.pe.remove_adapters_mate2.fastq.gz")
 
     output:
-        reads1 = os.path.join(
+        reads1 = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_polya_mate1.fastq.gz"),
-        reads2 = os.path.join(
+            "{sample}.pe.remove_polya_mate1.fastq.gz")),
+        reads2 = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_polya_mate2.fastq.gz")
+            "{sample}.pe.remove_polya_mate2.fastq.gz"))
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         polya_3_mate1 = lambda wildcards:
             get_sample(
                 'fq1_polya_3p',
@@ -122,10 +139,25 @@ rule pe_remove_polya_cutadapt:
             get_sample(
                 'fq2_polya_5p',
                 search_id='index',
-                search_value=wildcards.sample)
+                search_value=wildcards.sample),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '-a',
+                '-A',
+                '-g',
+                '-G',
+                '-o',
+                '-p',
+                )
+            )
 
     singularity:
-        "docker://zavolab/cutadapt:1.16-slim"
+        "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
 
     threads: 8
 
@@ -134,25 +166,22 @@ rule pe_remove_polya_cutadapt:
             config["log_dir"],
             "samples",
             "{sample}",
-            "remove_polya_cutadapt.pe.stderr.log"),
+            current_rule + ".stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "remove_polya_cutadapt.pe.stdout.log")
+            current_rule + ".stdout.log")
 
     shell:
         "(cutadapt \
         -j {threads} \
-        --pair-filter=any \
-        -m 10 \
-        -n 1 \
-        -e 0.1 \
-        -O 1 \
         -a {params.polya_3_mate1} \
         -g {params.polya_5_mate1} \
         -A {params.polya_3_mate2} \
         -G {params.polya_5_mate2} \
+        -m 1 \
+        {params.additional_params} \
         -o {output.reads1} \
         -p {output.reads2} \
         {input.reads1} \
@@ -160,6 +189,7 @@ rule pe_remove_polya_cutadapt:
         1> {log.stdout} 2>{log.stderr}"
 
 
+current_rule = 'pe_map_genome_star'
 rule pe_map_genome_star:
     '''
         Map to genome using STAR
@@ -176,8 +206,8 @@ rule pe_map_genome_star:
                     'index_size',
                     search_id='index',
                     search_value=wildcards.sample),
-                "STAR_index",
-                "chrNameLength.txt"),
+                    "STAR_index",
+                    "chrNameLength.txt"),
         reads1 = os.path.join(
             config["output_dir"],
             "samples",
@@ -195,7 +225,7 @@ rule pe_map_genome_star:
             "samples",
             "{sample}",
             "map_genome",
-            "{sample}.pe.Aligned.sortedByCoord.out.bam"),
+            "{sample}.pe.Aligned.out.bam"),
         logfile = os.path.join(
             config["output_dir"],
             "samples",
@@ -203,10 +233,13 @@ rule pe_map_genome_star:
             "map_genome",
             "{sample}.pe.Log.final.out")
 
+    shadow: "minimal"
+
     params:
+        cluster_log_path = config["cluster_log_dir"],
         sample_id = "{sample}",
         index = lambda wildcards:
-            os.path.join(
+            os.path.abspath(os.path.join(
                 config["star_indexes"],
                 get_sample(
                     'organism',
@@ -216,31 +249,33 @@ rule pe_map_genome_star:
                     'index_size',
                     search_id='index',
                     search_value=wildcards.sample),
-                "STAR_index"),
+                    "STAR_index")),
         outFileNamePrefix = os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "map_genome",
             "{sample}.pe."),
-        multimappers = lambda wildcards:
-            get_sample(
-                'multimappers',
-                search_id='index',
-                search_value=wildcards.sample),
-        soft_clip = lambda wildcards:
-            get_sample(
-                'soft_clip',
-                search_id='index',
-                search_value=wildcards.sample),
-        pass_mode = lambda wildcards:
-            get_sample(
-                'pass_mode',
-                search_id='index',
-                search_value=wildcards.sample),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--genomeDir',
+                '--readFilesIn',
+                '--readFilesCommand',
+                '--outFileNamePrefix',
+                '--outSAMattributes',
+                '--outStd',
+                '--outSAMtype',
+                '--outSAMattrRGline',
+                )
+            )
 
     singularity:
-        "docker://zavolab/star:2.7.3a-slim"
+        "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "STAR.yaml")
 
     threads: 12
 
@@ -249,33 +284,25 @@ rule pe_map_genome_star:
             config["log_dir"],
             "samples",
             "{sample}",
-            "map_genome_star.pe.stderr.log")
+            current_rule + ".stderr.log")
 
     shell:
         "(STAR \
-        --runMode alignReads \
-        --twopassMode {params.pass_mode} \
         --runThreadN {threads} \
         --genomeDir {params.index} \
         --readFilesIn {input.reads1} {input.reads2} \
         --readFilesCommand zcat \
-        --outSAMunmapped None  \
-        --outFilterMultimapNmax {params.multimappers} \
-        --outFilterMultimapScoreRange 0 \
         --outFileNamePrefix {params.outFileNamePrefix} \
         --outSAMattributes All \
-        --outStd BAM_SortedByCoordinate \
-        --outSAMtype BAM SortedByCoordinate \
-        --outFilterMismatchNoverLmax 0.04 \
-        --outFilterScoreMinOverLread 0.3 \
-        --outFilterMatchNminOverLread 0.3 \
-        --outFilterType BySJout \
-        --outReadsUnmapped None \
+        --outStd BAM_Unsorted \
+        --outSAMtype BAM Unsorted \
         --outSAMattrRGline ID:rnaseq_pipeline SM:{params.sample_id} \
-        --alignEndsType {params.soft_clip} > {output.bam};) \
+        {params.additional_params} \
+        > {output.bam};) \
         2> {log.stderr}"
 
 
+current_rule = 'pe_quantification_salmon'
 rule pe_quantification_salmon:
     '''
         Quantification at transcript and gene level using Salmon
@@ -292,10 +319,10 @@ rule pe_quantification_salmon:
             "{sample}",
             "{sample}.pe.remove_polya_mate2.fastq.gz"),
         gtf = lambda wildcards:
-            get_sample(
+            os.path.abspath(get_sample(
                 'gtf',
                 search_id='index',
-                search_value=wildcards.sample),
+                search_value=wildcards.sample)),
         index = lambda wildcards:
             os.path.join(
                 config["salmon_indexes"],
@@ -307,7 +334,7 @@ rule pe_quantification_salmon:
                     'kmer',
                     search_id='index',
                     search_value=wildcards.sample),
-                "salmon.idx")
+                    "salmon.idx")
 
     output:
         gn_estimates = os.path.join(
@@ -321,9 +348,26 @@ rule pe_quantification_salmon:
             "samples",
             "{sample}",
             "{sample}.salmon.pe",
-            "quant.sf")
+            "quant.sf"),
+        meta_info = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "{sample}.salmon.pe",
+            "aux_info",
+            "meta_info.json"),
+        flenDist = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "{sample}.salmon.pe",
+            "libParams",
+            "flenDist.txt")
+
+    shadow: "minimal"
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         output_dir = os.path.join(
             config["output_dir"],
             "samples",
@@ -333,32 +377,47 @@ rule pe_quantification_salmon:
             get_sample(
                 'libtype',
                 search_id='index',
-                search_value=wildcards.sample)
+                search_value=wildcards.sample),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--libType',
+                '--fldMean',
+                '--fldSD',
+                '--index',
+                '--geneMap',
+                '-1',
+                '-2',
+                '-o',
+                )
+            )
 
     log:
         stderr = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "genome_quantification_salmon.pe.stderr.log"),
+            current_rule + ".stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            "genome_quantification_salmon.pe.stdout.log"),
+            current_rule + ".stdout.log"),
 
     threads: 6
 
     singularity:
-        "docker://zavolab/salmon:1.1.0-slim"
+        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "salmon.yaml")
 
     shell:
         "(salmon quant \
         --libType {params.libType} \
-        --seqBias \
-        --validateMappings \
         --threads {threads} \
-        --writeUnmappedNames \
+        {params.additional_params} \
         --index {input.index} \
         --geneMap {input.gtf} \
         -1 {input.reads1} \
@@ -367,6 +426,7 @@ rule pe_quantification_salmon:
         ) 1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'pe_genome_quantification_kallisto'
 rule pe_genome_quantification_kallisto:
     '''
         Quantification at transcript and gene level using Kallisto
@@ -389,7 +449,7 @@ rule pe_genome_quantification_kallisto:
                     'organism',
                     search_id='index',
                     search_value=wildcards.sample),
-                "kallisto.idx")
+                    "kallisto.idx")
 
     output:
         pseudoalignment = os.path.join(
@@ -397,22 +457,49 @@ rule pe_genome_quantification_kallisto:
             "samples",
             "{sample}",
             "quant_kallisto",
-            "{sample}.pe.kallisto.pseudo.sam")
+            "{sample}.pe.kallisto.pseudo.sam"),
+        abundances = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "quant_kallisto",
+            "abundance.h5")
+
+    shadow: "minimal"
 
     params:
+        cluster_log_path = config["cluster_log_dir"],
         output_dir = os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
             "quant_kallisto"),
         directionality = lambda wildcards:
-            get_sample(
-                'kallisto_directionality',
-                search_id='index',
-                search_value=wildcards.sample)
+            get_directionality(get_sample(
+                    'libtype',
+                    search_id='index',
+                    search_value=wildcards.sample),"kallisto"),
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--single',
+                '-i',
+                '-o',
+                '-l',
+                '-s',
+                '--pseudobam',
+                '--fr-stranded',
+                '--rf-stranded',
+                )
+            )
+
 
     singularity:
-        "docker://zavolab/kallisto:0.46.1-slim"
+        "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "kallisto.yaml")
 
     threads: 8
 
@@ -421,14 +508,16 @@ rule pe_genome_quantification_kallisto:
             config["log_dir"],
             "samples",
             "{sample}",
-            "genome_quantification_kallisto.pe.stderr.log")
+            current_rule + ".stderr.log")
 
     shell:
         "(kallisto quant \
         -i {input.index} \
         -o {params.output_dir} \
+        -t {threads} \
+        {params.directionality} \
+        {params.additional_params} \
         --pseudobam \
-        {params.directionality}-stranded \
         {input.reads1} {input.reads2} > {output.pseudoalignment}) \
         2> {log.stderr}"
 

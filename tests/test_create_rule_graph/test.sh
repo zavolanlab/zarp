@@ -20,11 +20,7 @@ cd $script_dir
 
 # Run tests
 snakemake \
-    --snakefile="../../Snakefile" \
+    --profile="../../profiles/graphs" \
     --configfile="../input_files/config.yaml" \
     --rulegraph \
-    --printshellcmds \
-    --dryrun \
-    --verbose \
     | dot -Tsvg > "../../images/rule_graph.svg"
-
