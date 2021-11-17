@@ -1,6 +1,6 @@
 [![ci](https://github.com/zavolanlab/zarp/workflows/CI/badge.svg?branch=dev)](https://github.com/zavolanlab/zarp/actions?query=workflow%3Aci)
 [![GitHub license](https://img.shields.io/github/license/zavolanlab/zarp?color=orange)](https://github.com/zavolanlab/zarp/blob/dev/LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3891135.svg)](https://doi.org/10.5281/zenodo.3891135)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5703358.svg)](https://doi.org/10.5281/zenodo.5703358)
 
 <div align="left">
     <img width="20%" align="left" src=images/zarp_logo.svg>
