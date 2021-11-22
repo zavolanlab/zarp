@@ -41,7 +41,7 @@ preferred-citation:
   - family-names: "Kanitz"
     given-names: "Alexander"
     orcid: "https://orcid.org/0000-0002-3468-0652"
-  doi: "10.0000/00000"
+  doi: "10.1101/2021.11.18.469017
   journal: "bioRxiv"
   month: 11
   title: "ZARP: An automated workflow for processing of RNA-seq data"
