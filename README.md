@@ -13,8 +13,11 @@ publicly available bioinformatics tools and currently handles single or paired-e
 The workflow is developed in [Snakemake][snakemake], a widely used workflow management system in the bioinformatics
 community.
 
-According to the current ZARP implementation, reads are analyzed (pre-processed, aligned, quantified) with state-of-the-art
-tools to give meaningful initial insights into the quality and composition of an RNA-Seq library, reducing hands-on time for bioinformaticians and giving experimentalists the possibility to rapidly assess their data. Additional reports summarise the results of the individual steps and provide useful visualisations.
+According to the current ZARP implementation, reads are analyzed (pre-processed, aligned, quantified) with
+state-of-the-art tools to give meaningful initial insights into the quality and composition of an RNA-Seq
+library, reducing hands-on time for bioinformaticians and giving experimentalists the possibility to rapidly
+assess their data. Additional reports summarise the results of the individual steps and provide useful
+visualisations.
 
 <div align="center">
     <img width="60%" src=images/zarp_schema.png>
