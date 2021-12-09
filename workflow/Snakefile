@@ -217,7 +217,7 @@ rule start:
             "{sample}",
             current_rule + "_{sample}.{mate}.stdout.log")
 
-    singularity:
+    container:
         "docker://ubuntu:focal-20210416"
 
     shell:
@@ -259,7 +259,7 @@ rule fastqc:
 
     threads: 2
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/fastqc:0.11.9--hdfd78af_1"
 
     conda:
@@ -270,12 +270,12 @@ rule fastqc:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{mate}.stderr.log"),
+            f"{current_rule}_{{mate}}.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{mate}.stdout.log")
+            f"{current_rule}_{{mate}}.stderr.log")
 
     shell:
         "(mkdir -p {output.outdir}; \
@@ -320,11 +320,7 @@ rule create_index_star:
 
     params:
         cluster_log_path = config["cluster_log_dir"],
-        output_dir = os.path.join(
-            config['star_indexes'],
-            "{organism}",
-            "{index_size}",
-            "STAR_index"),
+        output_dir = lambda wildcards, output: os.path.dirname(output.chromosome_info),
         outFileNamePrefix = os.path.join(
             config['star_indexes'],
             "{organism}",
@@ -344,7 +340,7 @@ rule create_index_star:
                 )
             )
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
 
     conda:
@@ -417,7 +413,7 @@ rule extract_transcriptome:
             config['log_dir'],
             current_rule + "_{organism}.log")
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/gffread:0.12.1--h2e03b76_1"
 
     conda:
@@ -460,7 +456,7 @@ rule concatenate_transcriptome_and_genome:
     params:
         cluster_log_path = config["cluster_log_dir"]
 
-    singularity:
+    container:
         "docker://ubuntu:focal-20210416"
 
     log:
@@ -515,7 +511,7 @@ rule create_index_salmon:
                 )
             )
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
     
     conda:
@@ -562,9 +558,7 @@ rule create_index_kallisto:
 
     params:
         cluster_log_path = config["cluster_log_dir"],
-        output_dir = os.path.join(
-            config['kallisto_indexes'],
-            "{organism}"),
+        output_dir = lambda wildcards, input: os.path.dirname(input.transcriptome),
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -573,7 +567,7 @@ rule create_index_kallisto:
                 )
             )
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
 
     conda:
@@ -622,7 +616,7 @@ rule extract_transcripts_as_bed12:
                 )
             )
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/zgtf:0.1.1--pyh5e36f6f_0"
 
     conda:
@@ -684,7 +678,7 @@ rule sort_genomic_alignment_samtools:
             immutable=()
             )
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/samtools:1.3.1--h1b8c3c0_8"
 
     conda:
@@ -744,7 +738,7 @@ rule index_genomic_alignment_samtools:
             immutable=()
             )
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/samtools:1.3.1--h1b8c3c0_8"
 
     conda:
@@ -837,7 +831,7 @@ rule calculate_TIN_scores:
 
     threads: 8
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/tin-score-calculation:0.6.3--pyh5e36f6f_0"
 
     conda:
@@ -923,7 +917,7 @@ rule salmon_quantmerge_genes:
 
     threads: 1
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
 
     conda:
@@ -1010,7 +1004,7 @@ rule salmon_quantmerge_transcripts:
 
     threads: 1
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
 
     conda:
@@ -1060,9 +1054,7 @@ rule kallisto_merge_genes:
 
     params:
         cluster_log_path = config["cluster_log_dir"],
-        dir_out = os.path.join(
-            config["output_dir"],
-            "summary_kallisto"),
+        dir_out = lambda wildcards, output: os.path.dirname(output.gn_tpm),
         tables = ','.join(expand(
             os.path.join(
                 config["output_dir"],
@@ -1096,7 +1088,7 @@ rule kallisto_merge_genes:
 
     threads: 1
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/r-merge-kallisto:0.6--hdfd78af_0"
 
     conda:
@@ -1146,9 +1138,7 @@ rule kallisto_merge_transcripts:
 
     params:
         cluster_log_path = config["cluster_log_dir"],
-        dir_out = os.path.join(
-            config["output_dir"],
-            "summary_kallisto"),
+        dir_out = lambda wildcards, output: os.path.dirname(output.tx_counts),
         tables = ','.join(expand(
             os.path.join(
                 config["output_dir"],
@@ -1181,7 +1171,7 @@ rule kallisto_merge_transcripts:
 
     threads: 1
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/r-merge-kallisto:0.6--hdfd78af_0"
 
     conda:
@@ -1232,7 +1222,7 @@ rule pca_salmon:
 
     threads: 1
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/zpca:0.8.3.post1--pyh5e36f6f_0"
 
     conda:
@@ -1282,7 +1272,7 @@ rule pca_kallisto:
 
     threads: 1
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/zpca:0.8.3.post1--pyh5e36f6f_0"
 
     conda:
@@ -1376,7 +1366,7 @@ rule star_rpm:
                 )
             )
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
 
     conda:
@@ -1472,7 +1462,7 @@ rule rename_star_rpm_for_alfa:
             "{sample}",
             current_rule + "_{renamed_unique}.stdout.log")
 
-    singularity:
+    container:
         "docker://ubuntu:focal-20210416"
 
     shell:
@@ -1539,7 +1529,7 @@ rule generate_alfa_index:
 
     threads: 4
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/alfa:1.1.1--pyh5e36f6f_0"
 
     conda:
@@ -1668,7 +1658,7 @@ rule alfa_qc:
                 )
             )
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/alfa:1.1.1--pyh5e36f6f_0"
 
     conda:
@@ -1726,6 +1716,9 @@ rule prepare_multiqc_config:
                 '--url',
                 )
             )
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "python.yaml")
 
     log:
         stderr = os.path.join(
@@ -1831,8 +1824,7 @@ rule multiqc_report:
 
     params:
         cluster_log_path = config["cluster_log_dir"],
-        results_dir = os.path.join(
-            config["output_dir"]),
+        results_dir = lambda wildcards, output: os.path.dirname(output.multiqc_report),
         log_dir = config["log_dir"],
         additional_params = parse_rule_config(
             rule_config,
@@ -1851,7 +1843,7 @@ rule multiqc_report:
             config["log_dir"],
             current_rule + ".stdout.log")
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/zavolan-multiqc-plugins:1.3--pyh5e36f6f_0"
 
     conda:
@@ -1899,7 +1891,7 @@ rule sort_bed_4_big:
                 )
             )
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/bedtools:2.27.1--h9a82719_5"
 
     conda:
@@ -1963,7 +1955,7 @@ rule prepare_bigWig:
             immutable=()
             )
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/ucsc-bedgraphtobigwig:377--h0b8a92a_2"
 
     conda:

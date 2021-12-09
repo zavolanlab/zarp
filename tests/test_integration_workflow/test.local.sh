@@ -3,14 +3,14 @@
 # Tear down test environment
 cleanup () {
     rc=$?
-    rm -rf .cache/
-    rm -rf .config/
-    rm -rf .fontconfig/
-    rm -rf .java/
-    rm -rf .snakemake/
-    rm -rf logs/
-    rm -rf results/
-    rm -rf snakemake_report.html
+   rm -rf .cache/
+   rm -rf .config/
+   rm -rf .fontconfig/
+   rm -rf .java/
+   rm -rf .snakemake/
+   rm -rf logs/
+   rm -rf results/
+   rm -rf snakemake_report.html
     cd $user_dir
     echo "Exit status: $rc"
 }
@@ -27,7 +27,7 @@ cd $script_dir
 # Run tests
 snakemake \
     --profile="../../profiles/local-singularity" \
-    --configfile="../input_files/config.yaml" 
+    --configfile="../input_files/config.yaml"
 
 # Create a Snakemake report after the workflow execution
 snakemake \

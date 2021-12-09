@@ -53,7 +53,7 @@ rule pe_remove_adapters_cutadapt:
                 )
             )
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
 
     conda:
@@ -153,7 +153,7 @@ rule pe_remove_polya_cutadapt:
                 )
             )
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
 
     conda:
@@ -250,12 +250,7 @@ rule pe_map_genome_star:
                     search_id='index',
                     search_value=wildcards.sample),
                     "STAR_index")),
-        outFileNamePrefix = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "map_genome",
-            "{sample}.pe."),
+        outFileNamePrefix = lambda wildcards, output: output.bam.replace("Aligned.out.bam", ""),
         additional_params = parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -271,7 +266,7 @@ rule pe_map_genome_star:
                 )
             )
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
 
     conda:
@@ -368,11 +363,7 @@ rule pe_quantification_salmon:
 
     params:
         cluster_log_path = config["cluster_log_dir"],
-        output_dir = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "{sample}.salmon.pe"),
+        output_dir = lambda wildcards, output: os.path.dirname(output.tr_estimates),
         libType = lambda wildcards:
             get_sample(
                 'libtype',
@@ -407,7 +398,7 @@ rule pe_quantification_salmon:
 
     threads: 6
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
 
     conda:
@@ -469,11 +460,7 @@ rule pe_genome_quantification_kallisto:
 
     params:
         cluster_log_path = config["cluster_log_dir"],
-        output_dir = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "quant_kallisto"),
+        output_dir = lambda wildcards, output: os.path.dirname(output.abundances),
         directionality = lambda wildcards:
             get_directionality(get_sample(
                     'libtype',
@@ -495,7 +482,7 @@ rule pe_genome_quantification_kallisto:
             )
 
 
-    singularity:
+    container:
         "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
 
     conda:

@@ -37,6 +37,9 @@ jobs:
         run: |
           conda info -a
           conda list
+      
+      - name: Run lint checks
+        run: bash tests/test_lint/test.sh
 
       - name: Run test script for snakemake rulegraph
         run: bash tests/test_create_rule_graph/test.sh
