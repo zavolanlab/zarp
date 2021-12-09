@@ -3,14 +3,14 @@
 # Tear down test environment
 cleanup () {
     rc=$?
-   rm -rf .cache/
-   rm -rf .config/
-   rm -rf .fontconfig/
-   rm -rf .java/
-   rm -rf .snakemake/
-   rm -rf logs/
-   rm -rf results/
-   rm -rf snakemake_report.html
+    rm -rf .cache/
+    rm -rf .config/
+    rm -rf .fontconfig/
+    rm -rf .java/
+    rm -rf .snakemake/
+    rm -rf logs/
+    rm -rf results/
+    rm -rf snakemake_report.html
     cd $user_dir
     echo "Exit status: $rc"
 }
