@@ -62,7 +62,7 @@ rule pe_remove_adapters_cutadapt:
     threads: 8
 
     resources:
-        mem_mb=lambda wildcards, attempt: 5000000000 * attempt
+        mem_mb=lambda wildcards, attempt: 5000 * attempt
 
     log:
         stderr = os.path.join(
@@ -165,7 +165,7 @@ rule pe_remove_polya_cutadapt:
     threads: 8
 
     resources:
-        mem_mb=lambda wildcards, attempt: 5000000000 * attempt
+        mem_mb=lambda wildcards, attempt: 5000 * attempt
 
     log:
         stderr = os.path.join(
@@ -286,7 +286,7 @@ rule pe_map_genome_star:
     threads: 12
 
     resources:
-        mem_mb=lambda wildcards, attempt: 32000000000 * attempt
+        mem_mb=lambda wildcards, attempt: 32000 * attempt
 
     log:
         stderr = os.path.join(
@@ -411,7 +411,7 @@ rule pe_quantification_salmon:
     threads: 6
 
     resources:
-        mem_mb=lambda wildcards, attempt: 32000000000 * attempt
+        mem_mb=lambda wildcards, attempt: 32000 * attempt
 
     log:
         stderr = os.path.join(
@@ -516,7 +516,7 @@ rule pe_genome_quantification_kallisto:
     threads: 8
 
     resources:
-        mem_mb=lambda wildcards, attempt: 6000000000 * attempt
+        mem_mb=lambda wildcards, attempt: 6000 * attempt
 
     log:
         stderr = os.path.join(

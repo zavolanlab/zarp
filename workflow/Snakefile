@@ -356,7 +356,7 @@ rule create_index_star:
     threads: 12
 
     resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
+        mem_mb=lambda wildcards, attempt: 32000 * attempt
 
     log:
         stderr = os.path.join(
@@ -422,7 +422,7 @@ rule extract_transcriptome:
         os.path.join(workflow.basedir, "envs", "gffread.yaml")
 
     resources:
-        mem_mb=lambda wildcards, attempt: 100 * attempt
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -473,7 +473,7 @@ rule concatenate_transcriptome_and_genome:
         "docker://ubuntu:focal-20210416"
     
     resources:
-        mem_mb=lambda wildcards, attempt: 100 * attempt
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -649,7 +649,7 @@ rule extract_transcripts_as_bed12:
     threads: 1
     
     resources:
-        mem_mb=lambda wildcards, attempt: 1000000000 * attempt
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stdout = os.path.join(
@@ -714,7 +714,7 @@ rule sort_genomic_alignment_samtools:
     threads: 8
 
     resources:
-        mem_mb=lambda wildcards, attempt: 8000000000 * attempt
+        mem_mb=lambda wildcards, attempt: 8000 * attempt
 
     log:
         stderr = os.path.join(
@@ -777,7 +777,7 @@ rule index_genomic_alignment_samtools:
     threads: 1
 
     resources:
-        mem_mb=lambda wildcards, attempt: 200000000 * attempt
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -864,7 +864,7 @@ rule calculate_TIN_scores:
     threads: 8
 
     resources:
-        mem_mb=lambda wildcards, attempt: 32000000000 * attempt
+        mem_mb=lambda wildcards, attempt: 32000 * attempt
 
     log:
         stderr = os.path.join(
@@ -952,7 +952,7 @@ rule salmon_quantmerge_genes:
     threads: 1
 
     resources:
-        mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 10 * attempt
+        mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1041,7 +1041,7 @@ rule salmon_quantmerge_transcripts:
     threads: 1
     
     resources:
-        mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 10000000 * attempt
+        mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1130,7 +1130,7 @@ rule kallisto_merge_genes:
     threads: 1
 
     resources:
-        mem_mb=lambda wildcards, attempt, input: len(input.pseudoalignment) * 10000000 * attempt
+        mem_mb=lambda wildcards, attempt, input: len(input.pseudoalignment) * 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1218,7 +1218,7 @@ rule kallisto_merge_transcripts:
     threads: 1
 
     resources:
-        mem_mb=lambda wildcards, attempt, input: len(input.pseudoalignment) * 10000000 * attempt
+        mem_mb=lambda wildcards, attempt, input: len(input.pseudoalignment) * 1000 * attempt
     
     log:
         stderr = os.path.join(
@@ -1272,7 +1272,7 @@ rule pca_salmon:
     threads: 1
 
     resources:
-        mem_mb=lambda wildcards, attempt: 100 * attempt
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1324,7 +1324,7 @@ rule pca_kallisto:
     threads: 1
 
     resources:
-        mem_mb=lambda wildcards, attempt: 100000000 * attempt
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1431,7 +1431,7 @@ rule star_rpm:
     threads: 4
 
     resources:
-        mem_mb=lambda wildcards, attempt: 1000000000 * attempt
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1595,7 +1595,7 @@ rule generate_alfa_index:
     threads: 4
         
     resources:
-        mem_mb=lambda wildcards, attempt: 1000000000 * attempt
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         os.path.join(
@@ -1727,7 +1727,7 @@ rule alfa_qc:
         os.path.join(workflow.basedir, "envs", "alfa.yaml")
 
     resources:
-        mem_mb=lambda wildcards, attempt: 300000000 * attempt
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         os.path.join(
@@ -1791,7 +1791,7 @@ rule prepare_multiqc_config:
             current_rule + ".stdout.log")
 
     resources:
-        mem_mb=lambda wildcards, attempt: 100000000 * attempt
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     shell:
         "(python {input.script} \
@@ -1908,7 +1908,7 @@ rule multiqc_report:
         os.path.join(workflow.basedir, "envs", "zavolan-multiqc-plugins.yaml")
 
     resources:
-        mem_mb=lambda wildcards, attempt: 400000000 * attempt
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1967,7 +1967,7 @@ rule sort_bed_4_big:
         os.path.join(workflow.basedir, "envs", "bedtools.yaml")
     
     resources:
-        mem_mb=lambda wildcards, attempt: 100000000 * attempt
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -2034,7 +2034,7 @@ rule prepare_bigWig:
         os.path.join(workflow.basedir, "envs", "ucsc-bedgraphtobigwig.yaml")
     
     resources:
-        mem_mb=lambda wildcards, attempt: 100000000 * attempt
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
