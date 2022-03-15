@@ -6,6 +6,7 @@ cores: 256
 jobs: 256
 printshellcmds: true
 rerun-incomplete: true
+restart-times: 3
 use-conda: true
 conda-frontend: conda
 keep-going: true

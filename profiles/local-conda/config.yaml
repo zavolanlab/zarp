@@ -5,6 +5,7 @@ rerun-incomplete: true
 use-conda: true
 conda-frontend: conda
 keep-going: true
+restart-times: 3
 notemp: true
 no-hooks: true
 verbose: true

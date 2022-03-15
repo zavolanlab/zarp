@@ -51,6 +51,9 @@ rule remove_adapters_cutadapt:
 
     threads: 8
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 5000000000 * attempt
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -62,6 +65,7 @@ rule remove_adapters_cutadapt:
             "samples",
             "{sample}",
             current_rule + ".se.stdout.log")
+    
     shell:
         "(cutadapt \
         -j {threads} \
@@ -125,6 +129,9 @@ rule remove_polya_cutadapt:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
 
     threads: 8
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 5000000000 * attempt
 
     log:
         stderr = os.path.join(
@@ -222,6 +229,9 @@ rule map_genome_star:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
 
     threads: 12
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000000000 * attempt
 
     log:
         stderr = os.path.join(
@@ -340,6 +350,18 @@ rule quantification_salmon:
                 '-o',
                 )
             )
+    
+    singularity:
+        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "salmon.yaml")
+
+    threads: 6
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000000000 * attempt
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -351,14 +373,6 @@ rule quantification_salmon:
             "samples",
             "{sample}",
             current_rule + ".se.stdout.log")
-
-    threads: 12
-
-    singularity:
-        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
-
-    conda:
-        os.path.join(workflow.basedir, "envs", "salmon.yaml")
 
     shell:
         "(salmon quant \
@@ -447,7 +461,16 @@ rule genome_quantification_kallisto:
                 )
             )
 
+    singularity:
+        "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "kallisto.yaml")
+
     threads: 8
+    
+    resources:
+        mem_mb=lambda wildcards, attempt: 6000000000 * attempt
 
     log:
         stderr = os.path.join(
@@ -455,12 +478,6 @@ rule genome_quantification_kallisto:
             "samples",
             "{sample}",
             current_rule + ".se.stderr.log")
-
-    singularity:
-        "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
-
-    conda:
-        os.path.join(workflow.basedir, "envs", "kallisto.yaml")
 
     shell:
         "(kallisto quant \

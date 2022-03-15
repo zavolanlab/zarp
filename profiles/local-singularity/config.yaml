@@ -5,6 +5,7 @@ rerun-incomplete: true
 use-singularity: true
 singularity-args: "--bind ./../input_files,./../../images"
 keep-going: true
+restart-times: 3
 notemp: true
 no-hooks: true
 verbose: true
