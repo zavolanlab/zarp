@@ -1804,7 +1804,6 @@ rule prepare_multiqc_config:
         {params.additional_params}) \
         1> {log.stdout} 2> {log.stderr}"
 
-
 current_rule = 'multiqc_report'
 rule multiqc_report:
     '''
@@ -1927,7 +1926,6 @@ rule multiqc_report:
         {params.results_dir} \
         {params.log_dir};) \
         1> {log.stdout} 2> {log.stderr}"
-
 
 current_rule = 'sort_bed_4_big'
 rule sort_bed_4_big:

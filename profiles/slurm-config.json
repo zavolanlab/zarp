@@ -3,8 +3,6 @@
   {
     "qos": "6hours",
     "time": "01:00:00",
-    "cpus-per-task": "1",
-    "mem": "4G",
     "job-name": "{rule}.{wildcards}",
     "output": "{params.cluster_log_path}/{rule}.{wildcards}-%j-%N.out"
   },
@@ -12,15 +10,11 @@
   {
     "qos": "6hours",
     "time": "06:00:00",
-    "cpus-per-task":"12",
-    "mem":"45G"
   },
   "extract_transcripts_as_bed12":
   {
     "qos": "30min",
-    "time": "00:30:00",
-    "cpus-per-task":"1",
-    "mem":"1G"
+    "time": "00:30:00"
   },
   "extract_transcriptome":
   {
