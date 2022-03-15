@@ -7,7 +7,6 @@ jobs: 256
 printshellcmds: true
 rerun-incomplete: true
 use-conda: true
-conda-frontend: "mamba"
 keep-going: true
 notemp: true
 no-hooks: true
