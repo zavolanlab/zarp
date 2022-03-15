@@ -4,7 +4,7 @@ channels:
   - defaults
 dependencies:
   - graphviz=2.40.1
-  - jinja2=2.11.2
+  - jinja2=3.0.3
   - mamba=0.16.0
   - networkx=2.4
   - pip=20.0.2
