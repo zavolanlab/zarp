@@ -299,7 +299,7 @@ rule fastqc_trimmed:
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}_{seqmode}_remove_polya_{cutadapt_mate}.fastq.gz")
+            "{sample}.{mate}.{seqmode}.remove_polya.fastq.gz")
 
     output:
         outdir = directory(
@@ -308,7 +308,7 @@ rule fastqc_trimmed:
                 "samples",
                 "{sample}",
                 "fastqc_trimmed",
-                "{seqmode}_{cutadapt_mate}"))
+                "{mate}_{seqmode}"))
     
     params:
         cluster_log_path = config["cluster_log_dir"],
@@ -320,7 +320,7 @@ rule fastqc_trimmed:
                 )
             )
 
-    threads: 2
+    threads: 1
 
     singularity:
         "docker://quay.io/biocontainers/fastqc:0.11.9--hdfd78af_1"
@@ -333,12 +333,12 @@ rule fastqc_trimmed:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{seqmode}_{cutadapt_mate}.stderr.log"),
+            current_rule + "_{seqmode}_{mate}.stderr.log"),
         stdout = os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{seqmode}_{cutadapt_mate}.stdout.log")
+            current_rule + "_{seqmode}_{mate}.stdout.log")
 
     shell:
         "(mkdir -p {output.outdir}; \
@@ -1897,10 +1897,10 @@ rule multiqc_report:
                 "samples",
                 "{sample}",
                 "fastqc_trimmed",
-                "{seqmode}_mate1"),
+                "fq1_{seqmode}"),
             zip,
             sample=pd.unique(samples_table.index.values),
-            seqmode=[get_sample('seqmode', search_id='index',       search_value=i) 
+            seqmode=[get_sample('seqmode', search_id='index', search_value=i) 
                 for i in pd.unique(samples_table.index.values)]),
 
         fastqc_trimmed_pe = expand(
@@ -1909,9 +1909,10 @@ rule multiqc_report:
                 "samples",
                 "{sample}",
                 "fastqc_trimmed",
-                "pe_mate2"),
+                "{mate}_pe"),
             sample=[i for i in pd.unique(
                 samples_table[samples_table['seqmode'] == 'pe'].index.values)],
+            mate='fq2'
             ),
 
         pseudoalignment = expand(

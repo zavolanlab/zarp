@@ -105,7 +105,7 @@ module_order:
   - cutadapt:
       name: "Cutadapt: polyA tails removal"
       path_filters:
-      - "*/*/*remove_polya_cutadapt*.stdout.log"
+      - "*/*/*_remove_polya_cutadapt*.stdout.log"
 
   - fastqc:
       name: "FastQC: trimmed reads"
@@ -155,6 +155,8 @@ module_order:
 
 fn_clean_exts:
   - '.fq1'
+  - '.se.remove_polya'
+  - '.pe.remove_polya'
   - '.gz'
   - '.stdout'
   - '.log'
