@@ -747,15 +747,6 @@ rule sort_genomic_alignment_samtools:
             "{sample}",
             "map_genome",
             "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam"),
-        prefix_temp_dir = temp(
-            directory(
-                os.path.join(
-                    config["output_dir"],
-                    "samples",
-                    "{sample}.{seqmode}",
-                    "sort_genomic_alignment_samtools")
-            )
-        )
 
     params:
         cluster_log_path = config["cluster_log_dir"],
@@ -789,10 +780,8 @@ rule sort_genomic_alignment_samtools:
             current_rule + ".{seqmode}.stdout.log")
 
     shell:
-        "(mkdir -p {output.prefix_temp_dir}; \
-        samtools sort \
+        "(samtools sort \
         -o {output.bam} \
-        -T {output.prefix_temp_dir} \
         -@ {threads} \
         {params.additional_params} \
         {input.bam}) \
