@@ -671,8 +671,9 @@ rule sort_genomic_alignment_samtools:
                 os.path.join(
                     config["output_dir"],
                     "samples",
-                    "{sample}.{seqmode}",
-                    "sort_genomic_alignment_samtools")
+                    "{sample}",
+                    "map_genome",
+                    "{sample}.{seqmode}.sort_genomic_alignment_samtools")
             )
         )
 
