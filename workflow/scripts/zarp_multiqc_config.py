@@ -93,6 +93,7 @@ module_order:
 
   - fastqc:
       name: "FastQC: raw reads"
+      anchor: "fastqc_raw"
       path_filters:
       - "*/*/fastqc/*/*"
 
@@ -106,8 +107,9 @@ module_order:
       path_filters:
       - "*/*/*remove_polya_cutadapt*.stdout.log"
 
-  - fastqc_trimmed:
+  - fastqc:
       name: "FastQC: trimmed reads"
+      anchor: "fastqc_trimmed"
       path_filters:
       - "*/*/fastqc_trimmed/*/*"
 

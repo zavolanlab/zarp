@@ -296,7 +296,7 @@ rule fastqc_trimmed:
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.{seqmode}.remove_polya_{cutadapt_mate}.fastq.gz")
+            "{sample}_{seqmode}_remove_polya_{cutadapt_mate}.fastq.gz")
 
     output:
         outdir = directory(

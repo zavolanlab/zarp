@@ -91,7 +91,7 @@ rule remove_polya_cutadapt:
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.se.remove_polya_mate1.fastq.gz"))
+            "{sample}_se_remove_polya_mate1.fastq.gz"))
 
     params:
         cluster_log_path = config["cluster_log_dir"],
@@ -167,7 +167,7 @@ rule map_genome_star:
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.se.remove_polya_mate1.fastq.gz")
+            "{sample}_se_remove_polya_mate1.fastq.gz")
 
     output:
         bam = os.path.join(
@@ -256,7 +256,7 @@ rule quantification_salmon:
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.se.remove_polya_mate1.fastq.gz"),
+            "{sample}_se_remove_polya_mate1.fastq.gz"),
         index = lambda wildcards:
             os.path.join(
                 config["salmon_indexes"],
@@ -384,7 +384,7 @@ rule genome_quantification_kallisto:
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.se.remove_polya_mate1.fastq.gz"),
+            "{sample}_se_remove_polya_mate1.fastq.gz"),
         index = lambda wildcards:
             os.path.join(
                 config["kallisto_indexes"],

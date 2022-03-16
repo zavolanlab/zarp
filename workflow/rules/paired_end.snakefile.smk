@@ -111,12 +111,12 @@ rule pe_remove_polya_cutadapt:
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_polya_mate1.fastq.gz")),
+            "{sample}_pe_remove_polya_mate1.fastq.gz")),
         reads2 = temp(os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_polya_mate2.fastq.gz"))
+            "{sample}_pe_remove_polya_mate2.fastq.gz"))
 
     params:
         cluster_log_path = config["cluster_log_dir"],
@@ -212,12 +212,12 @@ rule pe_map_genome_star:
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_polya_mate1.fastq.gz"),
+            "{sample}_pe_remove_polya_mate1.fastq.gz"),
         reads2 = os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_polya_mate2.fastq.gz")
+            "{sample}_pe_remove_polya_mate2.fastq.gz")
 
     output:
         bam = os.path.join(
@@ -312,12 +312,12 @@ rule pe_quantification_salmon:
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_polya_mate1.fastq.gz"),
+            "{sample}_pe_remove_polya_mate1.fastq.gz"),
         reads2 = os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_polya_mate2.fastq.gz"),
+            "{sample}_pe_remove_polya_mate2.fastq.gz"),
         gtf = lambda wildcards:
             os.path.abspath(get_sample(
                 'gtf',
@@ -436,12 +436,12 @@ rule pe_genome_quantification_kallisto:
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_polya_mate1.fastq.gz"),
+            "{sample}_pe_remove_polya_mate1.fastq.gz"),
         reads2 = os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
-            "{sample}.pe.remove_polya_mate2.fastq.gz"),
+            "{sample}_pe_remove_polya_mate2.fastq.gz"),
         index = lambda wildcards:
             os.path.join(
                 config["kallisto_indexes"],
