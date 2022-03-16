@@ -48,13 +48,21 @@ git clone https://github.com/zavolanlab/zarp.git
 cd zarp
 ```
 
-## 2. Conda installation
+## 2. Conda and Mamba installation
 
 Workflow dependencies can be conveniently installed with the [Conda][conda]
 package manager. We recommend that you install [Miniconda][miniconda-installation] 
 for your system (Linux). Be sure to select Python 3 option. 
 The workflow was built and tested with `miniconda 4.7.12`.
 Other versions are not guaranteed to work as expected.
+
+Given that Miniconda has been installed and is available in the current shell the first
+dependency for ZARP is the [Mamba][mamba] package manager, which needs to be installed in
+the `base` conda environment with:
+
+```bash
+conda install mamba -n base -c conda-forge
+```
 
 ## 3. Dependencies installation
 
@@ -82,7 +90,7 @@ to run the workflow on a high-performance computing (HPC) cluster.
 
 After installing Singularity, install the remaining dependencies with:
 ```bash
-conda env create -f install/environment.yml
+mamba env create -f install/environment.yml
 ```
 
 
@@ -93,7 +101,7 @@ run the workflow on your own computer), you can execute the following command
 to include Singularity in the Conda environment:
 
 ```bash
-conda env create -f install/environment.root.yml
+mamba env create -f install/environment.root.yml
 ```
 
 ## 4. Activate environment
@@ -232,6 +240,7 @@ your run.
 
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
 [profiles]: <https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles>
+[mamba]: <https://github.com/mamba-org/mamba>
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
 [rule-graph]: images/rule_graph.svg
 [zarp-logo]: images/zarp_logo.svg

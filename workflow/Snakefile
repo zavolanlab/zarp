@@ -37,7 +37,7 @@ alfa_dict = {
     "UniqueMappers":"Unique"
 }
 
-# Validat config
+# Validate config
 validate(config, os.path.join("..", "resources", "config_schema.json"))
 logger.info(f'Config file after validation: {config}')
 
@@ -257,7 +257,10 @@ rule fastqc:
                 )
             )
 
-    threads: 2
+    threads: 1
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     singularity:
         "docker://quay.io/biocontainers/fastqc:0.11.9--hdfd78af_1"
@@ -352,6 +355,9 @@ rule create_index_star:
 
     threads: 12
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000 * attempt
+
     log:
         stderr = os.path.join(
             config['log_dir'],
@@ -409,6 +415,15 @@ rule extract_transcriptome:
                 )
             )
 
+    singularity:
+        "docker://quay.io/biocontainers/gffread:0.12.1--h2e03b76_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "gffread.yaml")
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
+
     log:
         stderr = os.path.join(
             config['log_dir'],
@@ -416,12 +431,6 @@ rule extract_transcriptome:
         stdout = os.path.join(
             config['log_dir'],
             current_rule + "_{organism}.log")
-
-    singularity:
-        "docker://quay.io/biocontainers/gffread:0.12.1--h2e03b76_1"
-
-    conda:
-        os.path.join(workflow.basedir, "envs", "gffread.yaml")
 
     shell:
         "(gffread \
@@ -462,6 +471,9 @@ rule concatenate_transcriptome_and_genome:
 
     singularity:
         "docker://ubuntu:focal-20210416"
+    
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -520,6 +532,11 @@ rule create_index_salmon:
     
     conda:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
+    
+    threads: 8
+    
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000 * attempt
 
     log:
         stderr = os.path.join(
@@ -528,8 +545,6 @@ rule create_index_salmon:
         stdout = os.path.join(
             config['log_dir'],
             current_rule + "_{organism}_{kmer}.stdout.log")
-
-    threads: 8
 
     shell:
         "(salmon index \
@@ -578,6 +593,9 @@ rule create_index_kallisto:
 
     conda:
         os.path.join(workflow.basedir, "envs", "kallisto.yaml")
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 5000 * attempt
 
     log:
         stderr = os.path.join(
@@ -629,6 +647,9 @@ rule extract_transcripts_as_bed12:
         os.path.join(workflow.basedir, "envs", "zgtf.yaml")
 
     threads: 1
+    
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stdout = os.path.join(
@@ -692,6 +713,9 @@ rule sort_genomic_alignment_samtools:
 
     threads: 8
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 8000 * attempt
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -751,6 +775,9 @@ rule index_genomic_alignment_samtools:
         os.path.join(workflow.basedir, "envs", "samtools.yaml")
 
     threads: 1
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -828,20 +855,23 @@ rule calculate_TIN_scores:
                 )
             )
 
+    singularity:
+        "docker://quay.io/biocontainers/tin-score-calculation:0.6.3--pyh5e36f6f_0"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "tin-score-calculation.yaml")
+
+    threads: 8
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000 * attempt
+
     log:
         stderr = os.path.join(
             config['log_dir'],
             "samples",
             "{sample}",
             current_rule + ".log")
-
-    threads: 8
-
-    singularity:
-        "docker://quay.io/biocontainers/tin-score-calculation:0.6.3--pyh5e36f6f_0"
-
-    conda:
-        os.path.join(workflow.basedir, "envs", "tin-score-calculation.yaml")
 
     shell:
         "(calculate-tin.py \
@@ -913,6 +943,17 @@ rule salmon_quantmerge_genes:
                 )
             )
 
+    singularity:
+        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "salmon.yaml")
+
+    threads: 1
+
+    resources:
+        mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1000 * attempt
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -920,14 +961,6 @@ rule salmon_quantmerge_genes:
         stdout = os.path.join(
             config["log_dir"],
             current_rule + "_{salmon_merge_on}.stdout.log")
-
-    threads: 1
-
-    singularity:
-        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
-
-    conda:
-        os.path.join(workflow.basedir, "envs", "salmon.yaml")
 
     shell:
         "(salmon quantmerge \
@@ -999,6 +1032,16 @@ rule salmon_quantmerge_transcripts:
                 '--output',
                 )
             )
+    singularity:
+        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "salmon.yaml")
+    
+    threads: 1
+    
+    resources:
+        mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1007,14 +1050,6 @@ rule salmon_quantmerge_transcripts:
         stdout = os.path.join(
             config["log_dir"],
             current_rule + "_{salmon_merge_on}.stdout.log")
-
-    threads: 1
-
-    singularity:
-        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
-
-    conda:
-        os.path.join(workflow.basedir, "envs", "salmon.yaml")
 
     shell:
         "(salmon quantmerge \
@@ -1086,6 +1121,17 @@ rule kallisto_merge_genes:
                 )
             )
 
+    singularity:
+        "docker://quay.io/biocontainers/r-merge-kallisto:0.6--hdfd78af_0"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "r-merge-kallisto.yaml")
+    
+    threads: 1
+
+    resources:
+        mem_mb=lambda wildcards, attempt, input: len(input.pseudoalignment) * 1000 * attempt
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -1093,14 +1139,6 @@ rule kallisto_merge_genes:
         stdout = os.path.join(
             config["log_dir"],
             current_rule + ".stdout.log")
-
-    threads: 1
-
-    singularity:
-        "docker://quay.io/biocontainers/r-merge-kallisto:0.6--hdfd78af_0"
-
-    conda:
-        os.path.join(workflow.basedir, "envs", "r-merge-kallisto.yaml")
 
     shell:
         "(merge_kallisto.R \
@@ -1171,6 +1209,17 @@ rule kallisto_merge_transcripts:
                 )
             )
 
+    singularity:
+        "docker://quay.io/biocontainers/r-merge-kallisto:0.6--hdfd78af_0"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "r-merge-kallisto.yaml")
+    
+    threads: 1
+
+    resources:
+        mem_mb=lambda wildcards, attempt, input: len(input.pseudoalignment) * 1000 * attempt
+    
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -1178,14 +1227,6 @@ rule kallisto_merge_transcripts:
         stdout = os.path.join(
             config["log_dir"],
             current_rule + ".stdout.log")
-
-    threads: 1
-
-    singularity:
-        "docker://quay.io/biocontainers/r-merge-kallisto:0.6--hdfd78af_0"
-
-    conda:
-        os.path.join(workflow.basedir, "envs", "r-merge-kallisto.yaml")
 
     shell:
         "(merge_kallisto.R \
@@ -1222,6 +1263,17 @@ rule pca_salmon:
                 )
             )
 
+    singularity:
+        "docker://quay.io/biocontainers/zpca:0.8.3.post1--pyh5e36f6f_0"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "zpca.yaml")
+    
+    threads: 1
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -1229,14 +1281,6 @@ rule pca_salmon:
         stdout = os.path.join(
             config["log_dir"],
             current_rule + "_{molecule}.stdout.log")
-
-    threads: 1
-
-    singularity:
-        "docker://quay.io/biocontainers/zpca:0.8.3.post1--pyh5e36f6f_0"
-
-    conda:
-        os.path.join(workflow.basedir, "envs", "zpca.yaml")
 
     shell:
         "(zpca-tpm  \
@@ -1253,7 +1297,6 @@ rule pca_kallisto:
             config["output_dir"],
             "summary_kallisto",
             "{molecule}_tpm.tsv")
-
 
     output:
         out = directory(os.path.join(
@@ -1272,6 +1315,17 @@ rule pca_kallisto:
                 )
             )
 
+    singularity:
+        "docker://quay.io/biocontainers/zpca:0.8.3.post1--pyh5e36f6f_0"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "zpca.yaml")
+
+    threads: 1
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -1279,14 +1333,6 @@ rule pca_kallisto:
         stdout = os.path.join(
             config["log_dir"],
             current_rule + "_{molecule}.stdout.log")
-
-    threads: 1
-
-    singularity:
-        "docker://quay.io/biocontainers/zpca:0.8.3.post1--pyh5e36f6f_0"
-
-    conda:
-        os.path.join(workflow.basedir, "envs", "zpca.yaml")
 
     shell:
         "(zpca-tpm  \
@@ -1382,6 +1428,11 @@ rule star_rpm:
     conda:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
 
+    threads: 4
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -1393,8 +1444,6 @@ rule star_rpm:
             "samples",
             "{sample}",
             current_rule + ".stdout.log")
-
-    threads: 4
 
     shell:
         "(mkdir -p {params.out_dir}; \
@@ -1460,6 +1509,9 @@ rule rename_star_rpm_for_alfa:
     params:
         cluster_log_path = config["cluster_log_dir"]
 
+    singularity:
+        "docker://ubuntu:focal-20210416"
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -1471,9 +1523,6 @@ rule rename_star_rpm_for_alfa:
             "samples",
             "{sample}",
             current_rule + "_{renamed_unique}.stdout.log")
-
-    singularity:
-        "docker://ubuntu:focal-20210416"
 
     shell:
         "(cp {input.plus} {output.plus}; \
@@ -1537,13 +1586,16 @@ rule generate_alfa_index:
                 )
             )
 
-    threads: 4
-
     singularity:
         "docker://quay.io/biocontainers/alfa:1.1.1--pyh5e36f6f_0"
 
     conda:
         os.path.join(workflow.basedir, "envs", "alfa.yaml")
+
+    threads: 4
+        
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         os.path.join(
@@ -1674,6 +1726,9 @@ rule alfa_qc:
     conda:
         os.path.join(workflow.basedir, "envs", "alfa.yaml")
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
+
     log:
         os.path.join(
             config["log_dir"],
@@ -1734,6 +1789,9 @@ rule prepare_multiqc_config:
         stdout = os.path.join(
             config["log_dir"],
             current_rule + ".stdout.log")
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     shell:
         "(python {input.script} \
@@ -1843,6 +1901,15 @@ rule multiqc_report:
                 )
             )
 
+    singularity:
+        "docker://quay.io/biocontainers/zavolan-multiqc-plugins:1.3--pyh5e36f6f_0"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "zavolan-multiqc-plugins.yaml")
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -1850,12 +1917,6 @@ rule multiqc_report:
         stdout = os.path.join(
             config["log_dir"],
             current_rule + ".stdout.log")
-
-    singularity:
-        "docker://quay.io/biocontainers/zavolan-multiqc-plugins:1.3--pyh5e36f6f_0"
-
-    conda:
-        os.path.join(workflow.basedir, "envs", "zavolan-multiqc-plugins.yaml")
 
     shell:
         "(multiqc \
@@ -1904,6 +1965,9 @@ rule sort_bed_4_big:
 
     conda:
         os.path.join(workflow.basedir, "envs", "bedtools.yaml")
+    
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1968,6 +2032,9 @@ rule prepare_bigWig:
 
     conda:
         os.path.join(workflow.basedir, "envs", "ucsc-bedgraphtobigwig.yaml")
+    
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
