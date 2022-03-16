@@ -248,6 +248,7 @@ rule fastqc:
                 "{mate}"))
     
     params:
+        time = lambda wildcards, input, attempt: (input.reads.size_mb) /7  * attempt
         cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
