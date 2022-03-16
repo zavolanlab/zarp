@@ -286,6 +286,66 @@ rule fastqc:
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = 'fastqc_trimmed'
+rule fastqc_trimmed:
+    '''
+        A quality control tool for high throughput sequence data
+    '''
+    input:
+        reads = os.path.join(
+            config["output_dir"],
+            "samples",
+            "{sample}",
+            "{sample}.{seqmode}.remove_polya_{cutadapt_mate}.fastq.gz")
+
+    output:
+        outdir = directory(
+            os.path.join(
+                config["output_dir"],
+                "samples",
+                "{sample}",
+                "fastqc_trimmed",
+                "{seqmode}_{cutadapt_mate}"))
+    
+    params:
+        cluster_log_path = config["cluster_log_dir"],
+        additional_params = parse_rule_config(
+            rule_config,
+            current_rule=current_rule,
+            immutable=(
+                '--outdir',
+                )
+            )
+
+    threads: 2
+
+    singularity:
+        "docker://quay.io/biocontainers/fastqc:0.11.9--hdfd78af_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "fastqc.yaml")
+
+    log:
+        stderr = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            current_rule + "_{seqmode}_{cutadapt_mate}.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            current_rule + "_{seqmode}_{cutadapt_mate}.stdout.log")
+
+    shell:
+        "(mkdir -p {output.outdir}; \
+        fastqc --outdir {output.outdir} \
+        --threads {threads} \
+        {params.additional_params} \
+        {input.reads}) \
+        1> {log.stdout} 2> {log.stderr}"
+
+
 current_rule = 'create_index_star'
 rule create_index_star:
     """
@@ -1772,6 +1832,29 @@ rule multiqc_report:
             sample=[i for i in pd.unique(
                 samples_table[samples_table['seqmode'] == 'pe'].index.values)],
             mate="fq2"),
+
+        fastqc_trimmed_se = expand(
+            os.path.join(
+                config['output_dir'],
+                "samples",
+                "{sample}",
+                "fastqc_trimmed",
+                "{seqmode}_mate1"),
+            zip,
+            sample=pd.unique(samples_table.index.values),
+            seqmode=[get_sample('seqmode', search_id='index',       search_value=i) 
+                for i in pd.unique(samples_table.index.values)]),
+
+        fastqc_trimmed_pe = expand(
+            os.path.join(
+                config['output_dir'],
+                "samples",
+                "{sample}",
+                "fastqc_trimmed",
+                "pe_mate2"),
+            sample=[i for i in pd.unique(
+                samples_table[samples_table['seqmode'] == 'pe'].index.values)],
+            ),
 
         pseudoalignment = expand(
             os.path.join(
