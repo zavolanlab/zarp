@@ -9,7 +9,6 @@ rerun-incomplete: true
 use-conda: true
 default-resources: mem_mb=1024
 restart-times: 3
-conda-frontend: conda
 keep-going: true
 notemp: true
 no-hooks: true
