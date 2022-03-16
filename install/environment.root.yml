@@ -4,7 +4,7 @@ channels:
   - defaults
 dependencies:
   - graphviz=2.40.1
-  - jinja2=2.11.2
+  - jinja2=3.0.3
   - mamba=0.16.0
   - networkx=2.4
   - pip=20.0.2
@@ -14,5 +14,5 @@ dependencies:
   - singularity=3.5.2
   - pip:
     - pandas==1.0.1
-    - snakemake==6.9.1
+    - snakemake==7.2.1
 
