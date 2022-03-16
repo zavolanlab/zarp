@@ -4,6 +4,8 @@ printshellcmds: true
 rerun-incomplete: true
 use-conda: true
 keep-going: true
+default-resources: mem_mb=1024
+restart-times: 3
 notemp: true
 no-hooks: true
 verbose: true
