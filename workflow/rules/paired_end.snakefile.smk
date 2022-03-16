@@ -61,6 +61,9 @@ rule pe_remove_adapters_cutadapt:
 
     threads: 8
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 5000 * attempt
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -160,6 +163,9 @@ rule pe_remove_polya_cutadapt:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
 
     threads: 8
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 5000 * attempt
 
     log:
         stderr = os.path.join(
@@ -279,6 +285,9 @@ rule pe_map_genome_star:
 
     threads: 12
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000 * attempt
+
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -392,6 +401,17 @@ rule pe_quantification_salmon:
                 '-o',
                 )
             )
+    
+    singularity:
+        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
+
+    conda:
+        os.path.join(workflow.basedir, "envs", "salmon.yaml")
+
+    threads: 6
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000 * attempt
 
     log:
         stderr = os.path.join(
@@ -404,14 +424,6 @@ rule pe_quantification_salmon:
             "samples",
             "{sample}",
             current_rule + ".stdout.log"),
-
-    threads: 6
-
-    singularity:
-        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
-
-    conda:
-        os.path.join(workflow.basedir, "envs", "salmon.yaml")
 
     shell:
         "(salmon quant \
@@ -502,6 +514,9 @@ rule pe_genome_quantification_kallisto:
         os.path.join(workflow.basedir, "envs", "kallisto.yaml")
 
     threads: 8
+
+    resources:
+        mem_mb=lambda wildcards, attempt: 6000 * attempt
 
     log:
         stderr = os.path.join(
