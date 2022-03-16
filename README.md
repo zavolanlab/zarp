@@ -121,7 +121,7 @@ will need to install these by executing the following command _in your active
 Conda environment_:
 
 ```bash
-mamba env update -f install/environment.dev.yml
+conda env update -f install/environment.dev.yml
 ```
 
 ## 6. Successful installation tests
