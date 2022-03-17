@@ -247,8 +247,12 @@ rule fastqc:
                 "fastqc",
                 "{mate}"))
     
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt,
+        time_mb = "06:00:00"
+
     params:
-        time = lambda wildcards, input, attempt: (input.reads.size_mb) /7  * attempt
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
@@ -259,9 +263,6 @@ rule fastqc:
             )
 
     threads: 1
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     singularity:
         "docker://quay.io/biocontainers/fastqc:0.11.9--hdfd78af_1"
@@ -282,7 +283,8 @@ rule fastqc:
             current_rule + "_{mate}.stdout.log")
 
     shell:
-        "(mkdir -p {output.outdir}; \
+        "(echo {params.time}; \
+        mkdir -p {output.outdir}; \
         fastqc --outdir {output.outdir} \
         --threads {threads} \
         {params.additional_params} \
@@ -322,7 +324,12 @@ rule create_index_star:
             "STAR_index",
             "chrName.txt")
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         output_dir = os.path.join(
             config['star_indexes'],
@@ -355,9 +362,6 @@ rule create_index_star:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
 
     threads: 12
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 32000 * attempt
 
     log:
         stderr = os.path.join(
@@ -405,7 +409,12 @@ rule extract_transcriptome:
             "{organism}",
             "transcriptome.fa"))
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
@@ -421,9 +430,6 @@ rule extract_transcriptome:
 
     conda:
         os.path.join(workflow.basedir, "envs", "gffread.yaml")
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -467,14 +473,16 @@ rule concatenate_transcriptome_and_genome:
             "{organism}",
             "genome_transcriptome.fa"))
     
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt,
+        time_mb = "06:00:00"
+    
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"]
 
     singularity:
         "docker://ubuntu:focal-20210416"
-    
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -514,7 +522,12 @@ rule create_index_salmon:
                 "{kmer}",
                 "salmon.idx"))
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         kmerLen = "{kmer}",
         additional_params = parse_rule_config(
@@ -535,9 +548,6 @@ rule create_index_salmon:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
     
     threads: 8
-    
-    resources:
-        mem_mb=lambda wildcards, attempt: 32000 * attempt
 
     log:
         stderr = os.path.join(
@@ -575,8 +585,13 @@ rule create_index_kallisto:
             config['kallisto_indexes'],
             "{organism}",
             "kallisto.idx")
+    
+    resources:
+        mem_mb=lambda wildcards, attempt: 5000 * attempt,
+        time_mb = "06:00:00"
 
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         output_dir = os.path.join(
             config['kallisto_indexes'],
@@ -594,9 +609,6 @@ rule create_index_kallisto:
 
     conda:
         os.path.join(workflow.basedir, "envs", "kallisto.yaml")
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 5000 * attempt
 
     log:
         stderr = os.path.join(
@@ -630,7 +642,12 @@ rule extract_transcripts_as_bed12:
             config['output_dir'],
             "full_transcripts_protein_coding.bed"))
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
@@ -648,9 +665,6 @@ rule extract_transcripts_as_bed12:
         os.path.join(workflow.basedir, "envs", "zgtf.yaml")
 
     threads: 1
-    
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stdout = os.path.join(
@@ -698,7 +712,12 @@ rule sort_genomic_alignment_samtools:
             )
         )
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 8000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
@@ -713,9 +732,6 @@ rule sort_genomic_alignment_samtools:
         os.path.join(workflow.basedir, "envs", "samtools.yaml")
 
     threads: 8
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 8000 * attempt
 
     log:
         stderr = os.path.join(
@@ -761,7 +777,12 @@ rule index_genomic_alignment_samtools:
             "map_genome",
             "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam.bai")
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
@@ -776,9 +797,6 @@ rule index_genomic_alignment_samtools:
         os.path.join(workflow.basedir, "envs", "samtools.yaml")
 
     threads: 1
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -843,7 +861,12 @@ rule calculate_TIN_scores:
             "TIN",
             "TIN_score.tsv"))
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         sample = "{sample}",
         additional_params = parse_rule_config(
@@ -863,9 +886,6 @@ rule calculate_TIN_scores:
         os.path.join(workflow.basedir, "envs", "tin-score-calculation.yaml")
 
     threads: 8
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 32000 * attempt
 
     log:
         stderr = os.path.join(
@@ -912,7 +932,12 @@ rule salmon_quantmerge_genes:
             "quantmerge",
             "genes_{salmon_merge_on}.tsv")
 
+    resources:
+        mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         salmon_in = expand(
             os.path.join(
@@ -951,9 +976,6 @@ rule salmon_quantmerge_genes:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
 
     threads: 1
-
-    resources:
-        mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1002,7 +1024,12 @@ rule salmon_quantmerge_transcripts:
             "quantmerge",
             "transcripts_{salmon_merge_on}.tsv")
 
+    resources:
+        mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         salmon_in = expand(
             os.path.join(
@@ -1040,9 +1067,6 @@ rule salmon_quantmerge_transcripts:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
     
     threads: 1
-    
-    resources:
-        mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1094,7 +1118,12 @@ rule kallisto_merge_genes:
             "summary_kallisto",
             "genes_counts.tsv")
 
+    resources:
+        mem_mb=lambda wildcards, attempt, input: len(input.pseudoalignment) * 1000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         dir_out = os.path.join(
             config["output_dir"],
@@ -1129,9 +1158,6 @@ rule kallisto_merge_genes:
         os.path.join(workflow.basedir, "envs", "r-merge-kallisto.yaml")
     
     threads: 1
-
-    resources:
-        mem_mb=lambda wildcards, attempt, input: len(input.pseudoalignment) * 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1183,7 +1209,12 @@ rule kallisto_merge_transcripts:
             "summary_kallisto",
             "transcripts_counts.tsv")
 
+    resources:
+        mem_mb=lambda wildcards, attempt, input: len(input.pseudoalignment) * 1000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         dir_out = os.path.join(
             config["output_dir"],
@@ -1217,9 +1248,6 @@ rule kallisto_merge_transcripts:
         os.path.join(workflow.basedir, "envs", "r-merge-kallisto.yaml")
     
     threads: 1
-
-    resources:
-        mem_mb=lambda wildcards, attempt, input: len(input.pseudoalignment) * 1000 * attempt
     
     log:
         stderr = os.path.join(
@@ -1253,7 +1281,12 @@ rule pca_salmon:
             "zpca",
             "pca_salmon_{molecule}"))
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
@@ -1271,9 +1304,6 @@ rule pca_salmon:
         os.path.join(workflow.basedir, "envs", "zpca.yaml")
     
     threads: 1
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1305,7 +1335,12 @@ rule pca_kallisto:
             "zpca",
             "pca_kallisto_{molecule}"))
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
@@ -1323,9 +1358,6 @@ rule pca_kallisto:
         os.path.join(workflow.basedir, "envs", "zpca.yaml")
 
     threads: 1
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1404,7 +1436,12 @@ rule star_rpm:
 
     shadow: "full"
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         out_dir = lambda wildcards, output:
             os.path.dirname(output.str1),
@@ -1430,9 +1467,6 @@ rule star_rpm:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
 
     threads: 4
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -1570,8 +1604,13 @@ rule generate_alfa_index:
                 )
             )
         )
+        
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt,
+        time_mb = "06:00:00"
 
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         genome_index = "sorted_genes",
         out_dir = lambda wildcards, output:
@@ -1594,9 +1633,6 @@ rule generate_alfa_index:
         os.path.join(workflow.basedir, "envs", "alfa.yaml")
 
     threads: 4
-        
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         os.path.join(
@@ -1689,7 +1725,12 @@ rule alfa_qc:
             )
         )
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         out_dir = lambda wildcards, output:
             os.path.dirname(output.biotypes),
@@ -1726,9 +1767,6 @@ rule alfa_qc:
 
     conda:
         os.path.join(workflow.basedir, "envs", "alfa.yaml")
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         os.path.join(
@@ -1791,9 +1829,6 @@ rule prepare_multiqc_config:
             config["log_dir"],
             current_rule + ".stdout.log")
 
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
-
     shell:
         "(python {input.script} \
         --config {output.multiqc_config} \
@@ -1804,6 +1839,7 @@ rule prepare_multiqc_config:
         --author-email '{params.author_email}' \
         {params.additional_params}) \
         1> {log.stdout} 2> {log.stderr}"
+
 
 current_rule = 'multiqc_report'
 rule multiqc_report:
@@ -1888,7 +1924,12 @@ rule multiqc_report:
                 config["output_dir"],
                 "multiqc_summary"))
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         results_dir = os.path.join(
             config["output_dir"]),
@@ -1908,9 +1949,6 @@ rule multiqc_report:
     conda:
         os.path.join(workflow.basedir, "envs", "zavolan-multiqc-plugins.yaml")
 
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
-
     log:
         stderr = os.path.join(
             config["log_dir"],
@@ -1927,6 +1965,7 @@ rule multiqc_report:
         {params.results_dir} \
         {params.log_dir};) \
         1> {log.stdout} 2> {log.stderr}"
+
 
 current_rule = 'sort_bed_4_big'
 rule sort_bed_4_big:
@@ -1950,8 +1989,13 @@ rule sort_bed_4_big:
             "bigWig",
             "{renamed_unique}",
             "{sample}_{renamed_unique}_{strand}.sorted.bg"))
+    
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt,
+        time_mb = "06:00:00"
 
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
@@ -1966,9 +2010,6 @@ rule sort_bed_4_big:
 
     conda:
         os.path.join(workflow.basedir, "envs", "bedtools.yaml")
-    
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(
@@ -2019,8 +2060,13 @@ rule prepare_bigWig:
             "bigWig",
             "{renamed_unique}",
             "{sample}_{renamed_unique}_{strand}.bw")
+    
+    resources:
+        mem_mb=lambda wildcards, attempt: 1000 * attempt,
+        time_mb = "06:00:00"
 
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         additional_params = parse_rule_config(
             rule_config,
@@ -2033,9 +2079,6 @@ rule prepare_bigWig:
 
     conda:
         os.path.join(workflow.basedir, "envs", "ucsc-bedgraphtobigwig.yaml")
-    
-    resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt
 
     log:
         stderr = os.path.join(

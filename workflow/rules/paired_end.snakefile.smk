@@ -30,7 +30,12 @@ rule pe_remove_adapters_cutadapt:
             "{sample}",
             "{sample}.pe.remove_adapters_mate2.fastq.gz"))
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 5000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         adapter_3_mate1 = lambda wildcards:
             get_sample('fq1_3p', search_id='index', search_value=wildcards.sample),
@@ -60,9 +65,6 @@ rule pe_remove_adapters_cutadapt:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
 
     threads: 8
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 5000 * attempt
 
     log:
         stderr = os.path.join(
@@ -121,7 +123,12 @@ rule pe_remove_polya_cutadapt:
             "{sample}",
             "{sample}.pe.remove_polya_mate2.fastq.gz"))
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 5000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         polya_3_mate1 = lambda wildcards:
             get_sample(
@@ -163,9 +170,6 @@ rule pe_remove_polya_cutadapt:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
 
     threads: 8
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 5000 * attempt
 
     log:
         stderr = os.path.join(
@@ -241,7 +245,12 @@ rule pe_map_genome_star:
 
     shadow: "minimal"
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         sample_id = "{sample}",
         index = lambda wildcards:
@@ -284,9 +293,6 @@ rule pe_map_genome_star:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
 
     threads: 12
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 32000 * attempt
 
     log:
         stderr = os.path.join(
@@ -375,7 +381,12 @@ rule pe_quantification_salmon:
 
     shadow: "minimal"
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         output_dir = os.path.join(
             config["output_dir"],
@@ -409,9 +420,6 @@ rule pe_quantification_salmon:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
 
     threads: 6
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 32000 * attempt
 
     log:
         stderr = os.path.join(
@@ -479,7 +487,12 @@ rule pe_genome_quantification_kallisto:
 
     shadow: "minimal"
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 6000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         output_dir = os.path.join(
             config["output_dir"],
@@ -506,7 +519,6 @@ rule pe_genome_quantification_kallisto:
                 )
             )
 
-
     singularity:
         "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
 
@@ -514,9 +526,6 @@ rule pe_genome_quantification_kallisto:
         os.path.join(workflow.basedir, "envs", "kallisto.yaml")
 
     threads: 8
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 6000 * attempt
 
     log:
         stderr = os.path.join(
@@ -535,4 +544,3 @@ rule pe_genome_quantification_kallisto:
         --pseudobam \
         {input.reads1} {input.reads2} > {output.pseudoalignment}) \
         2> {log.stderr}"
-

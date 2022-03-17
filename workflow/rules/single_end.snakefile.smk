@@ -18,7 +18,12 @@ rule remove_adapters_cutadapt:
             "{sample}",
             "{sample}.se.remove_adapters_mate1.fastq.gz"))
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 5000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         adapters_3 = lambda wildcards:
             get_sample(
@@ -50,9 +55,6 @@ rule remove_adapters_cutadapt:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
 
     threads: 8
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 5000 * attempt
 
     log:
         stderr = os.path.join(
@@ -97,7 +99,12 @@ rule remove_polya_cutadapt:
             "{sample}",
             "{sample}.se.remove_polya_mate1.fastq.gz"))
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 5000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         polya_3 = lambda wildcards:
             get_sample(
@@ -129,9 +136,6 @@ rule remove_polya_cutadapt:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
 
     threads: 8
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 5000 * attempt
 
     log:
         stderr = os.path.join(
@@ -192,7 +196,12 @@ rule map_genome_star:
 
     shadow: "minimal"
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         sample_id = "{sample}",
         index = lambda wildcards:
@@ -229,9 +238,6 @@ rule map_genome_star:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
 
     threads: 12
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 32000 * attempt
 
     log:
         stderr = os.path.join(
@@ -315,7 +321,12 @@ rule quantification_salmon:
 
     shadow: "minimal"
 
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000 * attempt,
+        time_mb = "06:00:00"
+
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         output_dir = os.path.join(
             config["output_dir"],
@@ -358,9 +369,6 @@ rule quantification_salmon:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
 
     threads: 6
-
-    resources:
-        mem_mb=lambda wildcards, attempt: 32000 * attempt
 
     log:
         stderr = os.path.join(
@@ -423,8 +431,13 @@ rule genome_quantification_kallisto:
             "abundance.h5")
 
     shadow: "minimal"
+    
+    resources:
+        mem_mb=lambda wildcards, attempt: 6000 * attempt,
+        time_mb = "06:00:00"
 
     params:
+        time = lambda wildcards, resources: resources.time_mb,
         cluster_log_path = config["cluster_log_dir"],
         output_dir = os.path.join(
             config["output_dir"],
@@ -468,9 +481,6 @@ rule genome_quantification_kallisto:
         os.path.join(workflow.basedir, "envs", "kallisto.yaml")
 
     threads: 8
-    
-    resources:
-        mem_mb=lambda wildcards, attempt: 6000 * attempt
 
     log:
         stderr = os.path.join(
