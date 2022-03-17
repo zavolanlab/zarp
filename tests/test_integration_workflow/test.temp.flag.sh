@@ -26,9 +26,8 @@ cd $script_dir
 
 # Run tests
 snakemake \
-    --profile="../../profiles/local-conda" \
-    --configfile="../input_files/config.yaml" \
-    --notemp
+    --profile="../../profiles/local-singularity" \
+    --configfile="../input_files/config.yaml"
 
 # Create a Snakemake report after the workflow execution
 snakemake \
@@ -39,7 +38,7 @@ snakemake \
 # Check md5 sum of some output files
 find results/ -type f -name \*\.gz -exec gunzip '{}' \;
 find results/ -type f -name \*\.zip -exec sh -c 'unzip -o {} -d $(dirname {})' \;
-md5sum --check "expected_output.md5"
+md5sum --check "expected_output_temp_flag.md5"
 
 # Checksum file generated with
 #find results/ \
