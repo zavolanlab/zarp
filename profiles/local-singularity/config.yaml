@@ -7,6 +7,6 @@ singularity-args: "--bind $PWD/../../../zarp"
 default-resources: mem_mb=1024
 restart-times: 3
 keep-going: true
-notemp: true
+notemp: false
 no-hooks: true
 verbose: true

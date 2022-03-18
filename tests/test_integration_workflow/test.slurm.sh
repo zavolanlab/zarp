@@ -27,7 +27,8 @@ cd $script_dir
 # Run tests
 snakemake \
     --profile="../../profiles/slurm-singularity" \
-    --configfile="../input_files/config.yaml"
+    --configfile="../input_files/config.yaml" \
+    --notemp
 
 # Create a Snakemake report after the workflow execution
 snakemake \
