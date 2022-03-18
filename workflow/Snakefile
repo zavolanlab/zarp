@@ -6,6 +6,7 @@ import yaml
 from shlex import quote
 from typing import Tuple
 from snakemake.utils import validate
+import datetime
 
 ## Preparations
 # Get sample table
@@ -231,7 +232,7 @@ rule fastqc:
         A quality control tool for high throughput sequence data
     '''
     input:
-        reads = os.path.join(
+        os.path.join(
             config["output_dir"],
             "samples",
             "{sample}",
@@ -248,8 +249,8 @@ rule fastqc:
                 "{mate}"))
     
     resources:
-        mem_mb=lambda wildcards, attempt: 1000 * attempt,
-        time_mb = "06:00:00"
+        mem_mb = lambda wildcards, input, attempt:  1000 * attempt,
+        time_mb = lambda wildcards, input, attempt: str(datetime.timedelta(seconds=max(1000, int(float(input.size_mb) / 7 * attempt))))
 
     params:
         time = lambda wildcards, resources: resources.time_mb,
@@ -288,7 +289,7 @@ rule fastqc:
         fastqc --outdir {output.outdir} \
         --threads {threads} \
         {params.additional_params} \
-        {input.reads}) \
+        {input}) \
         1> {log.stdout} 2> {log.stderr}"
 
 
@@ -323,10 +324,18 @@ rule create_index_star:
             "{index_size}",
             "STAR_index",
             "chrName.txt")
+    
+    threads: 12
 
     resources:
-        mem_mb=lambda wildcards, attempt: 32000 * attempt,
-        time_mb = "06:00:00"
+        mem_mb = lambda wildcards, attempt: 32000 * attempt,
+        time_mb = lambda wildcards, input, attempt, threads: str(
+            datetime.timedelta(
+                seconds=max(
+                    1000, int(float(input.genome.size) * 7 * 10**(-6) / threads) * attempt
+                    )
+                    )
+                    )
 
     params:
         time = lambda wildcards, resources: resources.time_mb,
@@ -361,8 +370,6 @@ rule create_index_star:
     conda:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
 
-    threads: 12
-
     log:
         stderr = os.path.join(
             config['log_dir'],
@@ -372,7 +379,8 @@ rule create_index_star:
             current_rule + "_{organism}_{index_size}.stdout.log")
 
     shell:
-        "(mkdir -p {params.output_dir}; \
+        "(echo {params.time}; \
+        mkdir -p {params.output_dir}; \
         chmod -R 777 {params.output_dir}; \
         STAR \
         --runMode genomeGenerate \
