@@ -1,13 +1,26 @@
 """Independent Snakefile for downloading samples from SRA."""
 
-localrules: prefetch, all
+import pandas as pd
+
+samples = pd.read_csv(config["samples"], header=0, index_col=0, sep = "\t")
+DOWNLOAD_DIR = config["outdir"]
+# Write fastq.gz location into new sample table.
+SAMPLES_OUT = config["samples_out"]
+samples_mod = samples.copy()
+
+localrules: prefetch, add_fq_file_path, all
+
+rule all:
+    input:
+        SAMPLES_OUT
+
 
 rule prefetch:
-    "Requires internet access."
+    "Prefetch SRA entry. Requires internet access."
     output:
-        os.path.join("sra_downloads", "{sample}", "{sample}.sra")
+        os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.sra")
     params:
-        outdir = "sra_downloads"
+        outdir = DOWNLOAD_DIR
     conda:
         "../envs/sra-tools.yaml"
     singularity:
@@ -19,15 +32,14 @@ rule prefetch:
 
 rule fasterq_dump:
     input:
-        os.path.join("sra_downloads", "{sample}", "{sample}.sra")
+        os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.sra")
     output:
-        #directory(os.path.join("sra_downloads", "{sample}"))
-        os.path.join("sra_downloads", "{sample}", "{sample}.dumped")
+        os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.dumped")
     params:
-        outdir = lambda wildcards: os.path.join("sra_downloads", wildcards.sample)
+        outdir = lambda wildcards: os.path.join(DOWNLOAD_DIR, wildcards.sample)
     resources:
         mem_mb = 2000
-    threads: 6
+    threads: 4
     conda:
         "../envs/sra-tools.yaml"
     singularity:
@@ -40,37 +52,22 @@ rule fasterq_dump:
         touch {output}
         """
 
-# def get_fastq_files(wildcards):
-#     files = os.listdir(checkpoints.fasterq_dump.get(**wildcards).output[0])
-#     to_zip = []
-#     for f in files:
-#         if f.endswith(".fastq"):
-#             to_zip.append(os.path.join("sra_downloads", wildcards.sample, f))
-#     if len(to_zip) == 1:
-#         return expand(os.path.join("sra_downloads", "{sample}", "{sample}.fastq"),
-#             sample = wildcards.sample)
-#     elif len(to_zip) == 2: 
-#         return expand(os.path.join("sra_downloads", "{sample}", "{sample}_{mate}.fastq"),
-#             sample = wildcards.sample,
-#             mate = ["1", "2"])
 
 def get_fastq_files(wildcards):
-    files = os.listdir(os.path.join("sra_downloads", wildcards.sample))
+    files = os.listdir(os.path.join(DOWNLOAD_DIR, wildcards.sample))
     to_zip = []
     for f in files:
         if f.endswith(".fastq"):
-            to_zip.append(os.path.join("sra_downloads", wildcards.sample, f))
+            to_zip.append(os.path.join(DOWNLOAD_DIR, wildcards.sample, f))
     return(to_zip)
 
 
 rule compress_fastq:
-    "Compress with pigz at best (9) compression level."
+    "Compress fastq inplace with pigz at best (9) compression level."
     input:
-        # files = glob_wildcards(os.path.join("sra_downloads", "{sample}", "{id}.fastq"))
-        tmpf = os.path.join("sra_downloads", "{sample}", "{sample}.dumped")
-        # os.path.join("sra_downloads", "{sample}", "{sample}{id}.fastq")
+        tmpf = os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.dumped")
     output:
-         os.path.join("sra_downloads", "{sample}", "{sample}.processed")
+         os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.processed")
     params:
         files = get_fastq_files
     threads: 6
@@ -84,7 +81,26 @@ rule compress_fastq:
         touch {output}
         """
 
-rule all:
+rule add_fq_file_path:
     input:
-        expand(os.path.join("sra_downloads", "{sample}", "{sample}.processed"), 
-            sample = ["SRR179707", "SRR2969253"])
+        expand(os.path.join(DOWNLOAD_DIR, 
+            "{sample}", "{sample}.processed"), 
+            sample = samples[samples.index.str.contains("SRR")].index.tolist())
+    output:
+        SAMPLES_OUT
+    run:
+        for sample in input:
+            files = os.listdir(os.path.dirname(sample))
+            sample_name = os.path.basename(sample).split(".")[0]
+            gzs = []
+            for f in files:
+                if f.endswith(".fastq.gz"):
+                    gzs.append(os.path.join(DOWNLOAD_DIR, f))
+            if len(gzs) == 1:
+                # single-end sample
+                samples_mod.loc[sample_name, "fq1"] = gzs[0]
+            if len(gzs) == 2:
+                gzs.sort()
+                samples_mod.loc[sample_name, "fq1"] = gzs[0]
+                samples_mod.loc[sample_name, "fq2"] = gzs[1]
+        samples_mod.to_csv(SAMPLES_OUT, index=True, sep = "\t")
