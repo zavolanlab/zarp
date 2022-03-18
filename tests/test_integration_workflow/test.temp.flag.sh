@@ -41,15 +41,15 @@ find results/ -type f -name \*\.zip -exec sh -c 'unzip -o {} -d $(dirname {})' \
 md5sum --check "expected_output_temp_flag.md5"
 
 # Checksum file generated with
-#find results/ \
+# find results/ \
 #    -type f \
 #    -name \*\.gz \
 #    -exec gunzip '{}' \;
-#find results/ \
+# find results/ \
 #    -type f \
 #    -name \*\.zip \
 #    -exec sh -c 'unzip -o {} -d $(dirname {})' \;
-#md5sum $(cat expected_output.files) > expected_output.md5
+# md5sum $(cat expected_output.files) > expected_output_temp_flag.md5
 
 # Check whether STAR produces expected alignments
 # STAR alignments need to be fully within ground truth alignments for tests to pass; not checking 

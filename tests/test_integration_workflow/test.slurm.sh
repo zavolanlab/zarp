@@ -82,5 +82,3 @@ diff \
 diff \
     <(cat results/samples/synthetic_10_reads_paired_synthetic_10_reads_paired/synthetic_10_reads_paired_synthetic_10_reads_paired.salmon.pe/quant.genes.sf | cut -f1,5 | tail -n +2 | sort -k1,1) \
     <(cat ../input_files/synthetic.mate_1.bed | cut -f7 | sort | uniq -c | sort -k2nr | awk '{printf($2"\t"$1"\n")}')
-
-
