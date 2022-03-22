@@ -36,7 +36,8 @@ rule fasterq_dump:
     output:
         os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.dumped")
     params:
-        outdir = lambda wildcards: os.path.join(DOWNLOAD_DIR, wildcards.sample)
+        outdir = lambda wildcards: os.path.join(DOWNLOAD_DIR, wildcards.sample),
+        cluster_log_path = config["cluster_log_dir"]
     resources:
         mem_mb = 2000
     threads: 4
@@ -69,7 +70,8 @@ rule compress_fastq:
     output:
          os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.processed")
     params:
-        files = get_fastq_files
+        files = get_fastq_files,
+        cluster_log_path = config["cluster_log_dir"]
     threads: 6
     conda:
         "../envs/pigz.yaml"
