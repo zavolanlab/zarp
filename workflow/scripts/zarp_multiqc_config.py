@@ -92,6 +92,8 @@ report_header_info:
 module_order:
 
   - fastqc:
+      name: "FastQC: raw reads"
+      anchor: "fastqc_raw"
       path_filters:
       - "*/*/fastqc/*/*"
 
@@ -104,6 +106,12 @@ module_order:
       name: "Cutadapt: polyA tails removal"
       path_filters:
       - "*/*/*remove_polya_cutadapt*.stdout.log"
+
+  - fastqc:
+      name: "FastQC: trimmed reads"
+      anchor: "fastqc_trimmed"
+      path_filters:
+      - "*/*/fastqc_trimmed/*/*"
 
   - star:
       path_filters:
@@ -147,6 +155,8 @@ module_order:
 
 fn_clean_exts:
   - '.fq1'
+  - '.se.remove_polya'
+  - '.pe.remove_polya'
   - '.gz'
   - '.stdout'
   - '.log'
