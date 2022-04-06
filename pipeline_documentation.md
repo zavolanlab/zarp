@@ -5,45 +5,47 @@ on installation and usage please see [here](README.md).
 
 ## Table of Contents
 
-- [**Third-party software used**](#third-party-software-used)
-- [**Description of workflow steps**](#description-of-workflow-steps)
-  - [**Rule graph**](#rule-graph)
-  - [**Preparatory**](#preparatory)
-    - [**Read samples table**](#read-samples-table)
-    - [**Create log directories**](#create-log-directories)
-  - [**Sequencing mode-independent**](#sequencing-mode-independent)
-    - [**start**](#start)
-    - [**create_index_star**](#create_index_star)
-    - [**extract_transcriptome**](#extract_transcriptome)
-    - [**concatenate_transcriptome_and_genome**](#concatenate_transcriptome_and_genome)
-    - [**create_index_salmon**](#create_index_salmon)
-    - [**create_index_kallisto**](#create_index_kallisto)
-    - [**extract_transcripts_as_bed12**](#extract_transcripts_as_bed12)
-    - [**fastqc**](#fastqc)
-    - [**sort_genomic_alignment_samtools**](#sort_genomic_alignment_samtools)
-    - [**index_genomic_alignment_samtools**](#index_genomic_alignment_samtools)
-    - [**star_rpm**](#star_rpm)
-    - [**rename_star_rpm_for_alfa**](#rename_star_rpm_for_alfa)
-    - [**sort_bed_4_big**](#sort_bed_4_big)
-    - [**prepare_bigWig**](#prepare_bigwig)
-    - [**calculate_TIN_scores**](#calculate_tin_scores)
-    - [**salmon_quantmerge_genes**](#salmon_quantmerge_genes)
-    - [**salmon_quantmerge_transcripts**](#salmon_quantmerge_transcripts)
-    - [**kallisto_merge_genes**](#kallisto_merge_genes)
-    - [**kallisto_merge_transcripts**](#kallisto_merge_transcripts)
-    - [**pca_kallisto**](#pca_kallisto)
-    - [**pca_salmon**](#pca_salmon)
-    - [**generate_alfa_index**](#generate_alfa_index)
-    - [**alfa_qc**](#alfa_qc)
-    - [**prepare_multiqc_config**](#prepare_multiqc_config)
-    - [**multiqc_report**](#multiqc_report)
-    - [**finish**](#finish)
-    - [**Sequencing mode-specific**](#sequencing-mode-specific)
-    - [**remove_adapters_cutadapt**](#remove_adapters_cutadapt)
-    - [**remove_polya_cutadapt**](#remove_polya_cutadapt)
-    - [**map_genome_star**](#map_genome_star)
-    - [**quantification_salmon**](#quantification_salmon)
-    - [**genome_quantification_kallisto**](#genome_quantification_kallisto)
+- [Table of Contents](#table-of-contents)
+- [Third-party software used](#third-party-software-used)
+- [Description of workflow steps](#description-of-workflow-steps)
+  - [Rule graph](#rule-graph)
+  - [Preparatory](#preparatory)
+    - [Read sample table](#read-sample-table)
+    - [Create log directories](#create-log-directories)
+  - [Sequencing mode-independent](#sequencing-mode-independent)
+    - [`start`](#start)
+    - [`create_index_star`](#create_index_star)
+    - [`extract_transcriptome`](#extract_transcriptome)
+    - [`concatenate_transcriptome_and_genome`](#concatenate_transcriptome_and_genome)
+    - [`create_index_salmon`](#create_index_salmon)
+    - [`create_index_kallisto`](#create_index_kallisto)
+    - [`extract_transcripts_as_bed12`](#extract_transcripts_as_bed12)
+    - [`fastqc`](#fastqc)
+    - [`fastqc_trimmed`](#fastqc_trimmed)
+    - [`sort_genomic_alignment_samtools`](#sort_genomic_alignment_samtools)
+    - [`index_genomic_alignment_samtools`](#index_genomic_alignment_samtools)
+    - [`star_rpm`](#star_rpm)
+    - [`rename_star_rpm_for_alfa`](#rename_star_rpm_for_alfa)
+    - [`sort_bed_4_big`](#sort_bed_4_big)
+    - [`prepare_bigWig`](#prepare_bigwig)
+    - [`calculate_TIN_scores`](#calculate_tin_scores)
+    - [`salmon_quantmerge_genes`](#salmon_quantmerge_genes)
+    - [`salmon_quantmerge_transcripts`](#salmon_quantmerge_transcripts)
+    - [`kallisto_merge_genes`](#kallisto_merge_genes)
+    - [`kallisto_merge_transcripts`](#kallisto_merge_transcripts)
+    - [`pca_kallisto`](#pca_kallisto)
+    - [`pca_salmon`](#pca_salmon)
+    - [`generate_alfa_index`](#generate_alfa_index)
+    - [`alfa_qc`](#alfa_qc)
+    - [`prepare_multiqc_config`](#prepare_multiqc_config)
+    - [`multiqc_report`](#multiqc_report)
+    - [`finish`](#finish)
+  - [Sequencing mode-specific](#sequencing-mode-specific)
+    - [`remove_adapters_cutadapt`](#remove_adapters_cutadapt)
+    - [`remove_polya_cutadapt`](#remove_polya_cutadapt)
+    - [`map_genome_star`](#map_genome_star)
+    - [`quantification_salmon`](#quantification_salmon)
+    - [`genome_quantification_kallisto`](#genome_quantification_kallisto)
 
 ## Third-party software used
 
@@ -247,6 +249,16 @@ Prepare quality control report for reads library with
 
 - **Input**
   - Reads file (`.fastq.gz`); from [**start**](#start)
+- **Output**
+  - FastQC output directory with report (`.txt`) and figures (`.png`); used in
+    [**multiqc_report**](#multiqc_report)
+
+#### `fastqc_trimmed`
+
+Prepare quality control report for trimmed reads (after adapter and poly(A)-tail removal) with [**FastQC**](#third-party-software-used).
+
+- **Input**
+  - Reads file (`.fastq.gz`); from [**remove_polya_cutadapt**](#remove_polya_cutadapt)
 - **Output**
   - FastQC output directory with report (`.txt`) and figures (`.png`); used in
     [**multiqc_report**](#multiqc_report)
