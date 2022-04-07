@@ -22,7 +22,7 @@ rule prefetch:
     params:
         outdir = DOWNLOAD_DIR
     conda:
-        "../envs/sra-tools.yaml"
+        os.path.join(workflow.basedir, "..", "envs", "sra-tools.yaml")
     singularity:
         "docker://ncbi/sra-tools"
     shell:
@@ -42,7 +42,7 @@ rule fasterq_dump:
         mem_mb = 2000
     threads: 4
     conda:
-        "../envs/sra-tools.yaml"
+        os.path.join(workflow.basedir, "..", "envs", "sra-tools.yaml")
     singularity:
         "docker://ncbi/sra-tools"
     shell:
@@ -74,7 +74,7 @@ rule compress_fastq:
         cluster_log_path = config["cluster_log_dir"]
     threads: 6
     conda:
-        "../envs/pigz.yaml"
+        os.path.join(workflow.basedir, "..", "envs", "pigz.yaml")
     singularity:
         "docker://bytesco/pigz"
     shell:
@@ -97,7 +97,7 @@ rule add_fq_file_path:
             gzs = []
             for f in files:
                 if f.endswith(".fastq.gz"):
-                    gzs.append(os.path.join(DOWNLOAD_DIR, f))
+                    gzs.append(os.path.join(DOWNLOAD_DIR, sample_name, f))
             if len(gzs) == 1:
                 # single-end sample
                 samples_mod.loc[sample_name, "fq1"] = gzs[0]
