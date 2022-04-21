@@ -238,13 +238,38 @@ your run.
     ```
 
 
+
+# Metadata completion with HTSinfer
+An independent Snakemake workflow `workflow/rules/htsinfer.smk` that populates the `samples.tsv` required by ZARP with the necessary sample specific parameters. Those parameters are inferred from the provided `fastq.gz` files by [HTSinfer][hts-infer].
+
+> Note: The workflow uses the implicit temporary directory 
+from snakemake, which is called with [resources.tmpdir].
+
+
+The workflow expects the following config:
+* `samples`, a sample table (tsv) with column *sample* containing *SRR* identifiers, as well as columns *fq1* and *fq2* containing the paths to the input fastq files
+see example [here](tests/input_files/sra_samples.tsv).
+* `outdir`, an output directory
+* `samples_out`, path to a modified sample table with inferred parameters
+* `cluster_log_dir`, the cluster log directory.
+For executing the example one can use the following
+(with activated *zarp* environment):
+```bash
+snakemake --snakefile workflow/rules/htsinfer.smk  --cores 1
+```
+After successful execution, `results/htsinfer/samples.tsv` should contain a populated table with parameters for all input samples as described in the [pipeline documentation][sample-doc].
+
+
+
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
+[hts-infer]: <>
 [profiles]: <https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles>
 [mamba]: <https://github.com/mamba-org/mamba>
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
 [rule-graph]: images/rule_graph.svg
 [zarp-logo]: images/zarp_logo.svg
 [zarp-schema]: images/zarp_schema.svg
+[sample-doc]: pipeline_documentation.md#read-sample-table
 [snakemake]: <https://snakemake.readthedocs.io/en/stable/>
 [singularity]: <https://sylabs.io/singularity/>
 [singularity-install]: <https://sylabs.io/guides/3.5/admin-guide/installation.html>
