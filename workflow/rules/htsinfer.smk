@@ -24,18 +24,20 @@ except KeyError:
 # global variables
 samples = pd.read_csv(config["samples"], header=0, index_col=0, sep = "\t")
 OUT_DIR = config["outdir"]
+LOG_DIR = os.path.join(OUT_DIR,"logs")
+CLUSTER_LOG = os.path.join(LOG_DIR,"cluster_logs")
 # Write inferred params into new sample table.
 SAMPLES_OUT = os.path.join(OUT_DIR,config["samples_out"])
 
 
 
-localrules: all, run_htsinfer, htsinfer_to_tsv
+localrules: all, htsinfer_to_tsv
 
 rule all:
     input:
         SAMPLES_OUT
 
-
+current_rule = "run_htsinfer"
 rule run_htsinfer:
     ''' Placeholder to test wiring.
     for real rule, remove input.mock and replace shell call with
@@ -61,15 +63,29 @@ rule run_htsinfer:
         fq2_path = lambda wildcards: 
                 (samples.loc[wildcards.sample,"fq2"] if samples.loc[wildcards.sample,"fq2"] else ""),
         records = config["records"],
-        outdir = OUT_DIR
+        outdir = OUT_DIR,
+        cluster_log_path = CLUSTER_LOG
     threads: 4
+    singularity: 
+        "docker://quay.io/biocontainers/htsinfer:0.1"
+    conda: 
+        os.path.join(workflow.basedir, "envs", "htsinfer.yaml")
+    log:
+        stderr = os.path.join(
+            LOG_DIR,
+            "{sample}",
+            current_rule + ".stderr.log"),
+        stdout = os.path.join(
+            LOG_DIR,
+            "{sample}",
+            current_rule + ".stdout.log")
     shell:
         '''
         cp {input.mock} {output.htsinfer_json}
         echo "fq2"; echo {params.fq2_path}
         '''
 
-
+current_rule = "htsinfer_to_tsv"
 rule htsinfer_to_tsv:
     '''Write inferred params for all samples to samples.tsv'''
     input:
@@ -81,6 +97,13 @@ rule htsinfer_to_tsv:
     output:
         SAMPLES_OUT
     threads: 4
+    log:
+        stderr = os.path.join(
+            LOG_DIR,
+            current_rule + ".stderr.log"),
+        stdout = os.path.join(
+            LOG_DIR,
+            current_rule + ".stdout.log")
     shell:
         '''
         python {input.script} \
