@@ -240,7 +240,7 @@ your run.
 
 
 # Metadata completion with HTSinfer
-An independent Snakemake workflow `workflow/rules/htsinfer.smk` that populates the `samples.tsv` required by ZARP with the necessary sample specific parameters. Those parameters are inferred from the provided `fastq.gz` files by [HTSinfer][hts-infer].
+An independent Snakemake workflow `workflow/rules/htsinfer.smk` that populates the `samples.tsv` required by ZARP with the sample specific parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype`. Those parameters are inferred from the provided `fastq.gz` files by [HTSinfer][hts-infer].
 
 > Note: The workflow uses the implicit temporary directory 
 from snakemake, which is called with [resources.tmpdir].
@@ -251,13 +251,15 @@ The workflow expects the following config:
 see example [here](tests/input_files/sra_samples.tsv).
 * `outdir`, an output directory
 * `samples_out`, path to a modified sample table with inferred parameters
-* `cluster_log_dir`, the cluster log directory.
+* `records`, set to 100000 per default
+  
 For executing the example one can use the following
 (with activated *zarp* environment):
 ```bash
 snakemake --snakefile workflow/rules/htsinfer.smk  --cores 1
 ```
-After successful execution, `results/htsinfer/samples.tsv` should contain a populated table with parameters for all input samples as described in the [pipeline documentation][sample-doc].
+
+After successful execution, `[OUTDIR]/[SAMPLES_OUT]` should contain a populated table with parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` for all input samples as described in the [pipeline documentation][sample-doc].
 
 
 
