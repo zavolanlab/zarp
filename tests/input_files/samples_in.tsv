@@ -1,3 +1,3 @@
-sample
-SRR1
-SRR2
+sample	fq1	fq2
+SRR1	tests/input_files/testpath1.1.fastq	tests/input_files/testpath1.2.fastq
+SRR2	tests/input_files/testpath2.1.fastq	 

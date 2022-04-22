@@ -1,5 +1,6 @@
 """Independent Snakefile for inferring sample specific parameters with HTSinfer."""
 
+import os
 import pandas as pd
 
 # set config defaults if not given
@@ -35,41 +36,51 @@ rule all:
         SAMPLES_OUT
 
 
-# rule run_htsinfer:
-#     ''' Infer sample specific parameters'''
-#     input:
-#         fq1_path = lambda wildcards:
-#                 samples.loc[wildcards.sample,"fq1"],
-#         fq2_path = lambda wildcards:
-#                 samples.loc[wildcards.sample,"fq2"]
-#     output:
-#         htsinfer_json = os.path.join(OUT_DIR, "htsinfer_{sample}.json")
-#     params:
-#         records = config["records"]
-#         outdir = config["outdir"]
-#     threads: 4
-#     shell:
-#         """
-#         htsinfer \
-#             --records={params.records} \
-#             --output-directory={params.outdir} \
-#             --temporary-directory={resources.tmpdir} \
-#             --cleanup-regime=KEEP_ALL \
-#             --threads={threads} \
-#             {input.fq1_path} {input.fq2_path} \
-#             > {output.htsinfer_json}
-#         """
+rule run_htsinfer:
+    ''' Placeholder to test wiring.
+    for real rule, remove input.mock and replace shell call with
+    
+    htsinfer \
+        --records={params.records} \
+        --output-directory={params.outdir} \
+        --temporary-directory={resources.tmpdir} \
+        --cleanup-regime=KEEP_ALL \
+        --threads={threads} \
+        {input.fq1_path} {params.fq2_path} \
+        > {output.htsinfer_json}
+    
+    
+    '''
+    input:
+        fq1_path = lambda wildcards:
+                samples.loc[wildcards.sample, "fq1"],
+        mock = os.path.join(OUT_DIR, "{sample}.json")
+    output:
+        htsinfer_json = os.path.join(OUT_DIR, "htsinfer_{sample}.json")
+    params:
+        fq2_path = lambda wildcards: 
+                (samples.loc[wildcards.sample,"fq2"] if samples.loc[wildcards.sample,"fq2"] else ""),
+        records = config["records"],
+        outdir = OUT_DIR
+    threads: 4
+    shell:
+        '''
+        cp {input.mock} {output.htsinfer_json}
+        echo "fq2"; echo {params.fq2_path}
+        '''
+
 
 rule htsinfer_to_tsv:
     '''Write inferred params for all samples to samples.tsv'''
     input:
         jlist = expand(os.path.join(OUT_DIR, 
             "htsinfer_{sample}.json"), 
-            sample = samples.index.values),
+            sample = samples.index.tolist()),
         samples_in = config["samples"],
         script = os.path.join("workflow","scripts","htsinfer_to_tsv.py")
     output:
         SAMPLES_OUT
+    threads: 4
     shell:
         '''
         python {input.script} \

@@ -1,8 +1,8 @@
 {
     "library_type":{
-       "file_1":"single",
-       "file_2": "",
-       "relationship":""
+       "file_1":"single", 
+       "file_2":"",
+       "relationship":"" 
     },
     "library_source":{
        "file_1":{

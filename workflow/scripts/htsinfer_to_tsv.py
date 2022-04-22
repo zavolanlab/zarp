@@ -77,7 +77,7 @@ def main():
 
 def htsinfer_to_zarp(sample,jparams):
     '''Translate htsinfer json output to zarp compatible row.'''  
-    tparams = pd.Series(name=sample)
+    tparams = pd.Series(name=sample, dtype="object")
 
     # seqmode
     f1 = jparams["library_type"]["file_1"]
