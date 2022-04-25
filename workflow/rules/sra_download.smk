@@ -26,9 +26,22 @@ rule prefetch:
         os.path.join(workflow.basedir, "..", "envs", "sra-tools.yaml")
     singularity:
         "docker://ncbi/sra-tools"
+    log:
+        stderr = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            "prefetch.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            "prefetch.stdout.log")
     shell:
         """
-        prefetch {wildcards.sample} --output-directory {params.outdir}
+        prefetch {wildcards.sample} \
+                 --output-directory {params.outdir} \
+                 1> {log.stdout} 2> {log.stderr}
         """
 
 rule fasterq_dump:
@@ -47,11 +60,23 @@ rule fasterq_dump:
         os.path.join(workflow.basedir, "..", "envs", "sra-tools.yaml")
     singularity:
         "docker://ncbi/sra-tools"
+    log:
+        stderr = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            "fasterq_dump.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            "fasterq_dump.stdout.log")
     shell:
         """
         fasterq-dump {params.outdir} --outdir {params.outdir} \
             --mem {resources.mem_mb}MB --threads {threads} \
-            --temp {resources.tmpdir}; \
+            --temp {resources.tmpdir} \
+            1> {log.stdout} 2> {log.stderr}; \
         touch {output}
         """
 
@@ -87,9 +112,21 @@ rule compress_fastq:
         os.path.join(workflow.basedir, "..", "envs", "pigz.yaml")
     singularity:
         "docker://bytesco/pigz"
+    log:
+        stderr = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            "compress_fastq.stderr.log"),
+        stdout = os.path.join(
+            config["log_dir"],
+            "samples",
+            "{sample}",
+            "compress_fastq.stdout.log")
     shell:
         """
-        pigz --best --processes {threads} {params.files}; \
+        pigz --best --processes {threads} {params.files} \
+            1> {log.stdout} 2> {log.stderr}; \
         touch {output}
         """
 

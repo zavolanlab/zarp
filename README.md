@@ -265,6 +265,7 @@ snakemake --snakefile="workflow/rules/sra_download.smk" \
           --config samples="tests/input_files/sra_samples.tsv" \
                    outdir="results/sra_downloads" \
                    samples_out="results/sra_downloads/sra_samples.out.tsv" \
+                   log_dir="logs" \
                    cluster_log_dir="logs/cluster_log"
 ```
 After successful execution, `results/sra_downloads/sra_samples.out.tsv` should contain:
