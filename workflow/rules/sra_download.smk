@@ -11,6 +11,7 @@ samples_mod = samples.copy()
 localrules: prefetch, add_fq_file_path, all
 
 rule all:
+    "Target rule."
     input:
         SAMPLES_OUT
 
@@ -31,6 +32,7 @@ rule prefetch:
         """
 
 rule fasterq_dump:
+    "Dump SRA entry as fastq file(s)."
     input:
         os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.sra")
     output:
@@ -55,6 +57,14 @@ rule fasterq_dump:
 
 
 def get_fastq_files(wildcards):
+    """Obtain paths to fastq files for given sample.
+
+    Args:
+        wildcards: Snakemake wildcards, contains name "sample".
+    
+    Returns:
+        list (str): paths to .fastq files.
+    """
     files = os.listdir(os.path.join(DOWNLOAD_DIR, wildcards.sample))
     to_zip = []
     for f in files:
@@ -84,6 +94,7 @@ rule compress_fastq:
         """
 
 rule add_fq_file_path:
+    "Add fastq paths to sample table."
     input:
         expand(os.path.join(DOWNLOAD_DIR, 
             "{sample}", "{sample}.processed"), 
