@@ -260,18 +260,18 @@ For executing the example one can use the following
 (with activated *zarp* environment):
 
 ```bash
-snakemake --snakefile workflow/rules/sra_download.smk \
-          --config samples=tests/input_files/sra_samples.tsv \
-                   outdir=sra_downloads \
-                   samples_out=sra_downloads/sra_samples.out.tsv \
-                   cluster_log_dir=logs/cluster_log \
-          --profile profiles/local-conda
+snakemake --snakefile="workflow/rules/sra_download.smk" \
+          --profile="profiles/local-conda" \
+          --config samples="tests/input_files/sra_samples.tsv" \
+                   outdir="results/sra_downloads" \
+                   samples_out="results/sra_downloads/sra_samples.out.tsv" \
+                   cluster_log_dir="logs/cluster_log"
 ```
-After successful execution, `sra_downloads/sra_samples.out.tsv` should contain:
+After successful execution, `results/sra_downloads/sra_samples.out.tsv` should contain:
 ```tsv
 sample	fq1	fq2
-SRR179707	sra_downloads/SRR179707.fastq.gz	
-SRR2969253	sra_downloads/SRR2969253_1.fastq.gz	sra_downloads/SRR2969253_2.fastq.gz
+SRR18552868	results/sra_downloads/SRR18552868/SRR18552868.fastq.gz	
+SRR18549672	results/sra_downloads/SRR18549672/SRR18549672_1.fastq.gz	results/sra_downloads/SRR18549672/SRR18549672_2.fastq.gz
 ```
 
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
