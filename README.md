@@ -237,6 +237,43 @@ your run.
     bash run.sh
     ```
 
+# Sample downloads from SRA
+
+An independent Snakemake workflow `workflow/rules/sra_download.smk` is included
+for the download of SRA samples with [sra-tools].
+
+> Note: as of Snakemake 7.3.1, only profile conda is supported. 
+> Singularity fails because the *sra-tools* Docker container only has `sh` 
+but `bash` is required.
+
+> Note: The workflow uses the implicit temporary directory 
+from snakemake, which is called with [resources.tmpdir].
+
+The workflow expects the following config:
+* `samples`, a sample table (tsv) with column *sample* containing *SRR* identifiers,
+see example [here](tests/input_files/sra_samples.tsv).
+* `outdir`, an output directory
+* `samples_out`, a pointer to a modified sample table with location of fastq files
+* `cluster_log_dir`, the cluster log directory.
+
+For executing the example one can use the following
+(with activated *zarp* environment):
+
+```bash
+snakemake --snakefile="workflow/rules/sra_download.smk" \
+          --profile="profiles/local-conda" \
+          --config samples="tests/input_files/sra_samples.tsv" \
+                   outdir="results/sra_downloads" \
+                   samples_out="results/sra_downloads/sra_samples.out.tsv" \
+                   log_dir="logs" \
+                   cluster_log_dir="logs/cluster_log"
+```
+After successful execution, `results/sra_downloads/sra_samples.out.tsv` should contain:
+```tsv
+sample	fq1	fq2
+SRR18552868	results/sra_downloads/SRR18552868/SRR18552868.fastq.gz	
+SRR18549672	results/sra_downloads/SRR18549672/SRR18549672_1.fastq.gz	results/sra_downloads/SRR18549672/SRR18549672_2.fastq.gz
+```
 
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
 [profiles]: <https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles>
@@ -251,3 +288,5 @@ your run.
 [slurm]: <https://slurm.schedmd.com/documentation.html>
 [zavolan-lab]: <https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/>
 [pipeline-documentation]: pipeline_documentation.md
+[sra-tools]: <https://github.com/ncbi/sra-tools>
+[resources.tmpdir]: <https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html?#standard-resources>
