@@ -83,7 +83,7 @@ def htsinfer_to_zarp(sample,jparams):
     f1 = jparams["library_type"]["file_1"]
     f2 = jparams["library_type"]["file_2"]
     rel = jparams["library_type"]["relationship"]
-    if  f1 == "single":
+    if  (f1 == "first_mate") and not f2:
         tparams["seqmode"] = "se"
     elif rel == "split_mates":     
         tparams["seqmode"] = "pe"
@@ -108,16 +108,22 @@ def htsinfer_to_zarp(sample,jparams):
 
         # info only necessary for pe mode
         if tparams["seqmode"] == "pe":
-            logging.info("No 3p adapter for fq2 identified.")
+            logging.info("No 3p adapter for fq2 identified, no adapters will be removed.")
 
     # organism
-    org1 = jparams["library_source"]["file_1"]["name"]
-    org2 = jparams["library_source"]["file_2"]["name"]
+    org1 = jparams["library_source"]["file_1"]["short_name"]
+    org2 = jparams["library_source"]["file_2"]["short_name"]
     if org1:
-        tparams["organism"] = org1
-    if org2 and (org1 != org2):  
+        if org2 and (org1 != org2):  
+            tparams["organism"] = None
+            logging.warning(f"The library source could not be determined, as file1 seems to be derived from {org1}, while file 2 seems to be derived from {org2}.")
+        else:
+            tparams["organism"] = org1
+    elif not org2:
         tparams["organism"] = None
-        logging.warning(f"The library source could not be determines, as file1 seems to be derived from {org1}, while file 2 seems to be derived from {org2}.")
+        logging.warning(f"The library source could not be determined, please specify an organism yourself")
+    else:
+        tparams["organism"] = org2
 
     # libtype
     f1_o = jparams["read_orientation"]["file_1"]
@@ -129,6 +135,16 @@ def htsinfer_to_zarp(sample,jparams):
     else:
         tparams["libtype"] = None
         logging.warning("The read orientation could not be determined; No values found.")
+
+    # index size
+    read_lengths = []
+    for i in ["file_1", "file_2"]:
+        read_lengths.extend(jparams["library_stats"][i]["read_length"].values())
+    
+    if read_lengths:
+        tparams["index_size"] = int(max([i for i in read_lengths if i]))
+    else:
+        logging.warning("Read lengths (=index_size) could not be determined")
 
     # return the pd.Series containing the inferred columns for the current sample
     logging.debug(f"Params: {tparams}")

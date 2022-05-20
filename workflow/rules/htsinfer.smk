@@ -8,18 +8,7 @@ try:
     config["records"]
 except KeyError:
     config["records"] = 100000
-try:
-    config["outdir"] 
-except KeyError:
-    config["outdir"] = os.path.join("tests","input_files")
-try:
-    config["samples"]
-except KeyError:
-    config["samples"] = os.path.join("tests","input_files", "samples_in.tsv")
-try: 
-    config["samples_out"]
-except KeyError:
-    config["samples_out"] = "samples_htsinfer.tsv"
+
 
 # global variables
 samples = pd.read_csv(config["samples"], header=0, index_col=0, sep = "\t")
@@ -39,24 +28,11 @@ rule all:
 
 current_rule = "run_htsinfer"
 rule run_htsinfer:
-    ''' Placeholder to test wiring.
-    for real rule, remove input.mock and replace shell call with
-    
-    htsinfer \
-        --records={params.records} \
-        --output-directory={params.outdir} \
-        --temporary-directory={resources.tmpdir} \
-        --cleanup-regime=KEEP_ALL \
-        --threads={threads} \
-        {input.fq1_path} {params.fq2_path} \
-        > {output.htsinfer_json}
-    
-    
+    ''' Run htsinfer on fastq samples    
     '''
     input:
         fq1_path = lambda wildcards:
-                samples.loc[wildcards.sample, "fq1"],
-        mock = os.path.join(OUT_DIR, "{sample}.json")
+                samples.loc[wildcards.sample, "fq1"]
     output:
         htsinfer_json = os.path.join(OUT_DIR, "htsinfer_{sample}.json")
     params:
@@ -67,7 +43,7 @@ rule run_htsinfer:
         cluster_log_path = CLUSTER_LOG
     threads: 4
     singularity: 
-        "docker://quay.io/biocontainers/htsinfer:0.1"
+        "docker://zavolab/htsinfer:0.9.0"
     conda: 
         os.path.join(workflow.basedir, "envs", "htsinfer.yaml")
     log:
@@ -81,8 +57,14 @@ rule run_htsinfer:
             current_rule + ".stdout.log")
     shell:
         '''
-        cp {input.mock} {output.htsinfer_json}
-        echo "fq2"; echo {params.fq2_path}
+        htsinfer \
+        --records={params.records} \
+        --output-directory={params.outdir} \
+        --temporary-directory={resources.tmpdir} \
+        --cleanup-regime=KEEP_ALL \
+        --threads={threads} \
+        {input.fq1_path} {params.fq2_path} \
+        > {output.htsinfer_json}
         '''
 
 current_rule = "htsinfer_to_tsv"
@@ -93,7 +75,7 @@ rule htsinfer_to_tsv:
             "htsinfer_{sample}.json"), 
             sample = samples.index.tolist()),
         samples_in = config["samples"],
-        script = os.path.join("workflow","scripts","htsinfer_to_tsv.py")
+        script = os.path.join(workflow.basedir,"..","scripts","htsinfer_to_tsv.py")
     output:
         SAMPLES_OUT
     threads: 4

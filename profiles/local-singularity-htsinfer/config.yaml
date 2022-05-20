@@ -1,0 +1,12 @@
+snakefile: "../../workflow/rules/htsinfer.smk"
+cores: 4
+printshellcmds: true
+rerun-incomplete: true
+use-singularity: true
+singularity-args: "--bind $PWD/../../../zarp"
+default-resources: mem_mb=1024
+restart-times: 3
+keep-going: true
+notemp: false
+no-hooks: true
+verbose: true
