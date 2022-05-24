@@ -8,6 +8,7 @@ max-status-checks-per-second: 10
 snakefile: "../../workflow/Snakefile"
 cores: 256
 jobs: 256
+latency-wait: 60
 printshellcmds: true
 rerun-incomplete: true
 use-conda: true
