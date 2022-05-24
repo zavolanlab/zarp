@@ -28,10 +28,7 @@ def _convert_units_to_mb(memory):
     m = regex.match(memory)
     if m is None:
         logger.error(
-            (
-                f"unsupported memory specification '{memory}';"
-                "  allowed suffixes: [K|M|G|T]"
-            )
+            (f"unsupported memory specification '{memory}';" "  allowed suffixes: [K|M|G|T]")
         )
         sys.exit(1)
     factor = siunits[m.group(2)]
@@ -113,21 +110,15 @@ def format_wildcards(string, job_properties):
     else:
         job._format_wildcards = None
     _variables = dict()
-    _variables.update(
-        dict(params=job._format_params, wildcards=job._format_wildcards)
-    )
+    _variables.update(dict(params=job._format_params, wildcards=job._format_wildcards))
     if hasattr(job, "rule"):
         _variables.update(dict(rule=job.rule))
     try:
         return format(string, **_variables)
     except NameError as ex:
-        raise WorkflowError(
-            "NameError with group job {}: {}".format(job.jobid, str(ex))
-        )
+        raise WorkflowError("NameError with group job {}: {}".format(job.jobid, str(ex)))
     except IndexError as ex:
-        raise WorkflowError(
-            "IndexError with group job {}: {}".format(job.jobid, str(ex))
-        )
+        raise WorkflowError("IndexError with group job {}: {}".format(job.jobid, str(ex)))
 
 
 # adapted from ClusterExecutor.cluster_params function in snakemake.executor
@@ -198,61 +189,6 @@ def submit_job(jobscript, **sbatch_options):
     return jobid
 
 
-def advanced_argument_conversion(arg_dict):
-    """Experimental adjustment of sbatch arguments to the given or default partition."""
-    # Currently not adjusting for multiple node jobs
-    nodes = int(arg_dict.get("nodes", 1))
-    if nodes > 1:
-        return arg_dict
-    partition = arg_dict.get("partition", None) or _get_default_partition()
-    constraint = arg_dict.get("constraint", None)
-    ncpus = int(arg_dict.get("cpus-per-task", 1))
-    runtime = arg_dict.get("time", None)
-    memory = _convert_units_to_mb(arg_dict.get("mem", 0))
-    config = _get_cluster_configuration(partition, constraint, memory)
-    mem = arg_dict.get("mem", ncpus * min(config["MEMORY_PER_CPU"]))
-    mem = _convert_units_to_mb(mem)
-    if mem > max(config["MEMORY"]):
-        logger.info(
-            f"requested memory ({mem}) > max memory ({max(config['MEMORY'])}); "
-            "adjusting memory settings"
-        )
-        mem = max(config["MEMORY"])
-
-    # Calculate available memory as defined by the number of requested
-    # cpus times memory per cpu
-    AVAILABLE_MEM = ncpus * min(config["MEMORY_PER_CPU"])
-    # Add additional cpus if memory is larger than AVAILABLE_MEM
-    if mem > AVAILABLE_MEM:
-        logger.info(
-            f"requested memory ({mem}) > "
-            f"ncpus x MEMORY_PER_CPU ({AVAILABLE_MEM}); "
-            "trying to adjust number of cpus up"
-        )
-        ncpus = int(math.ceil(mem / min(config["MEMORY_PER_CPU"])))
-    if ncpus > max(config["CPUS"]):
-        logger.info(
-            f"ncpus ({ncpus}) > available cpus ({max(config['CPUS'])}); "
-            "adjusting number of cpus down"
-        )
-        ncpus = min(int(max(config["CPUS"])), ncpus)
-    adjusted_args = {"mem": int(mem), "cpus-per-task": ncpus}
-
-    # Update time. If requested time is larger than maximum allowed time, reset
-    if runtime:
-        runtime = time_to_minutes(runtime)
-        time_limit = max(config["TIMELIMIT_MINUTES"])
-        if runtime > time_limit:
-            logger.info(
-                f"time (runtime) > time limit {time_limit}; " "adjusting time down"
-            )
-            adjusted_args["time"] = time_limit
-
-    # update and return
-    arg_dict.update(adjusted_args)
-    return arg_dict
-
-
 timeformats = [
     re.compile(r"^(?P<days>\d+)-(?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d+)$"),
     re.compile(r"^(?P<days>\d+)-(?P<hours>\d+):(?P<minutes>\d+)$"),
@@ -290,56 +226,3 @@ def time_to_minutes(time):
     )
     assert minutes > 0, "minutes has to be greater than 0"
     return minutes
-
-
-def _get_default_partition():
-    """Retrieve default partition for cluster"""
-    cluster = CookieCutter.get_cluster_option()
-    cmd = f"sinfo -O partition {cluster}"
-    res = sp.check_output(cmd.split())
-    m = re.search(r"(?P<partition>\S+)\*", res.decode(), re.M)
-    partition = m.group("partition")
-    return partition
-
-
-def _get_cluster_configuration(partition, constraints=None, memory=0):
-    """Retrieve cluster configuration.
-
-    Retrieve cluster configuration for a partition filtered by
-    constraints, memory and cpus
-
-    """
-    try:
-        import pandas as pd
-    except ImportError:
-        print(
-            "Error: currently advanced argument conversion "
-            "depends on 'pandas'.", file=sys.stderr
-        )
-        sys.exit(1)
-
-    if constraints:
-        constraint_set = set(constraints.split(","))
-    cluster = CookieCutter.get_cluster_option()
-    cmd = f"sinfo -e -o %all -p {partition} {cluster}".split()
-    try:
-        output = sp.Popen(" ".join(cmd), shell=True, stdout=sp.PIPE).communicate()
-    except Exception as e:
-        print(e)
-        raise
-    data = re.sub("^CLUSTER:.+\n", "", re.sub(" \\|", "|", output[0].decode()))
-    df = pd.read_csv(StringIO(data), sep="|")
-    try:
-        df["TIMELIMIT_MINUTES"] = df["TIMELIMIT"].apply(time_to_minutes)
-        df["MEMORY_PER_CPU"] = df["MEMORY"] / df["CPUS"]
-        df["FEATURE_SET"] = df["AVAIL_FEATURES"].str.split(",").apply(set)
-    except Exception as e:
-        print(e)
-        raise
-    if constraints:
-        constraint_set = set(constraints.split(","))
-        i = df["FEATURE_SET"].apply(lambda x: len(x.intersection(constraint_set)) > 0)
-        df = df.loc[i]
-    memory = min(_convert_units_to_mb(memory), max(df["MEMORY"]))
-    df = df.loc[df["MEMORY"] >= memory]
-    return df

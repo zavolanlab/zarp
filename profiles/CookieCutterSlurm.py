@@ -14,7 +14,6 @@ class CookieCutter:
     SBATCH_DEFAULTS = settings['SBATCH_DEFAULTS']
     CLUSTER_NAME = settings['CLUSTER_NAME']
     CLUSTER_CONFIG = settings['CLUSTER_CONFIG']
-    ADVANCED_ARGUMENT_CONVERSION = settings['ADVANCED_ARGUMENT_CONVERSION']
 
     @staticmethod
     def get_cluster_option() -> str:
@@ -22,10 +21,3 @@ class CookieCutter:
         if cluster != "":
             return f"--cluster={cluster}"
         return ""
-
-    @staticmethod
-    def get_advanced_argument_conversion() -> bool:
-        val = {"yes": True, "no": False}[
-            CookieCutter.ADVANCED_ARGUMENT_CONVERSION
-        ]
-        return val

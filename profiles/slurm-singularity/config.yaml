@@ -1,6 +1,10 @@
 jobscript: "../slurm-jobscript.sh"
 cluster: "../slurm-submit.py"
 cluster-status: "../slurm-status.py"
+cluster-sidecar: "../slurm-sidecar.py"
+cluster-cancel: "scancel"
+max-jobs-per-second: 1
+max-status-checks-per-second: 10
 snakefile: "../../workflow/Snakefile"
 cores: 256
 jobs: 256
