@@ -4,7 +4,7 @@ import json
 import logging
 import datetime
 from jsonschema import ValidationError
-from numpy import NAN
+import numpy as np
 import pandas as pd
 from argparse import ArgumentParser, RawTextHelpFormatter
 
@@ -67,8 +67,17 @@ def main():
         logging.debug(f"df: {params_df}")
 
 
-    # Add the new params columns to samples table
-    samples_df = pd.concat([samples_df,params_df], axis=1)
+    # Add the new params to samples table:
+    # If value is already present, do nothing (prioritize user spec)
+    # If value or col missing (missing values must be NaN), fill in from htsinfer.
+    
+    # replace empty strings
+    samples_df = samples_df.replace(r'^\s*$', np.nan, regex=True)
+    # replace None
+    samples_df =  samples_df.fillna(value=np.nan)
+    # combine samples table and inferred params
+    samples_df = samples_df.combine_first(params_df)
+
     # And write new samples table to file
     with open(outfile, mode='w', encoding='utf-8') as o:
         samples_df.to_csv(o,sep="\t",header=True)
