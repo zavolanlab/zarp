@@ -29,12 +29,12 @@ jobs:
           channels: bioconda,conda-forge,defaults
           channel-priority: true
           auto-update-conda: false
-          activate-environment: zarp
           environment-file: install/environment.root.yml
           auto-activate-base: false
 
       - name: Update zarp env with dev. packages
         run: mamba env update -f install/environment.dev.yml
+        activate-environment: zarp
 
       - name: Display all miniconda & env info
         run: |
