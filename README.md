@@ -90,7 +90,7 @@ to run the workflow on a high-performance computing (HPC) cluster.
 
 After installing Singularity, install the remaining dependencies with:
 ```bash
-conda env create -f install/environment.yml
+mamba env create -f install/environment.yml
 ```
 
 
@@ -101,7 +101,7 @@ run the workflow on your own computer), you can execute the following command
 to include Singularity in the Conda environment:
 
 ```bash
-conda env create -f install/environment.root.yml
+mamba env create -f install/environment.root.yml
 ```
 
 ## 4. Activate environment
