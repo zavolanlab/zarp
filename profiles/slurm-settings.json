@@ -1,6 +1,0 @@
-{
-    "SBATCH_DEFAULTS": "",
-    "CLUSTER_NAME": "",
-    "CLUSTER_CONFIG": "slurm-config.json",
-    "ADVANCED_ARGUMENT_CONVERSION": "no"
-}

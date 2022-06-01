@@ -1,6 +1,0 @@
-snakefile: "../../workflow/Snakefile"
-printshellcmds: true
-dryrun: true
-verbose: true
-notemp: false
-no-hooks: true

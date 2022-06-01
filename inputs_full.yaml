@@ -1,0 +1,18 @@
+# inputs
+samples: "sample_table_full.tsv"
+rule_config: "rule_config.yaml"
+# outputs
+log_dir: "logs"
+cluster_log_dir: "logs/cluster"
+output_dir: "results"
+alfa_indexes: "results/alfa_indexes"
+kallisto_indexes: "results/kallisto_indexes"
+salmon_indexes: "results/salmon_indexes"
+star_indexes: "results/star_indexes"
+# report
+report_description: "results"
+report_logo: "images/logo.128px.png"
+report_url: "https://github.com/elixir-cloud-aai/elixir-cloud-aai/"
+# author info
+author_name: "Zavolab, University of Basel, Switzerland"
+author_email: "alexander.kanitz@unibas.ch"
