@@ -34,7 +34,7 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with dev. packages
-        run: mamba env update -f install/environment.dev.yml
+        run: conda env update -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
         run: |
