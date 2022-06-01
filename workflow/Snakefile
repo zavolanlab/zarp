@@ -181,48 +181,50 @@ rule finish:
             "summary_kallisto",
             "genes_tpm.tsv")
 
+if config["implementation"]== 'amazon':
+    include: os.path.join("rules", "amazon.smk")
+else:
+    current_rule = 'start'
+    rule start:
+        '''
+        Get samples
+        '''
+        input:
+            reads = lambda wildcards:
+                expand(
+                    pd.Series(
+                        samples_table.loc[wildcards.sample, wildcards.mate]
+                    ).values)
 
-current_rule = 'start'
-rule start:
-    '''
-       Get samples
-    '''
-    input:
-        reads = lambda wildcards:
-            expand(
-                pd.Series(
-                    samples_table.loc[wildcards.sample, wildcards.mate]
-                ).values)
+        output:
+            reads = os.path.join(
+                config["output_dir"],
+                "samples",
+                "{sample}",
+                "start",
+                "{sample}.{mate}.fastq.gz")
+        
+        params:
+            cluster_log_path = config["cluster_log_dir"]
 
-    output:
-        reads = os.path.join(
-            config["output_dir"],
-            "samples",
-            "{sample}",
-            "start",
-            "{sample}.{mate}.fastq.gz")
-    
-    params:
-        cluster_log_path = config["cluster_log_dir"]
+        log:
+            stderr = os.path.join(
+                config["log_dir"],
+                "samples",
+                "{sample}",
+                current_rule + "_{sample}.{mate}.stderr.log"),
+            stdout = os.path.join(
+                config["log_dir"],
+                "samples",
+                "{sample}",
+                current_rule + "_{sample}.{mate}.stdout.log")
 
-    log:
-        stderr = os.path.join(
-            config["log_dir"],
-            "samples",
-            "{sample}",
-            current_rule + "_{sample}.{mate}.stderr.log"),
-        stdout = os.path.join(
-            config["log_dir"],
-            "samples",
-            "{sample}",
-            current_rule + "_{sample}.{mate}.stdout.log")
+        singularity:
+            "docker://ubuntu:focal-20210416"
 
-    singularity:
-        "docker://ubuntu:focal-20210416"
-
-    shell:
-        "(cat {input.reads} > {output.reads}) \
-        1> {log.stdout} 2> {log.stderr} "
+        shell:
+            "(cat {input.reads} > {output.reads}) \
+            1> {log.stdout} 2> {log.stderr} "
 
 
 current_rule = 'fastqc'

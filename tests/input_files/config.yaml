@@ -3,6 +3,7 @@
   samples: "../input_files/samples.tsv"
   output_dir: "results"
   log_dir: "logs"
+  implementation: "standard"
   cluster_log_dir: "logs/cluster"
   kallisto_indexes: "results/kallisto_indexes"
   salmon_indexes: "results/salmon_indexes"
