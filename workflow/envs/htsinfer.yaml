@@ -1,7 +1,6 @@
 ---
 channels:
-  - conda-forge
   - bioconda
 dependencies:
-  - htsinfer=0.1
+  - htsinfer=0.9.0
 ...

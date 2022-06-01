@@ -4,10 +4,7 @@ import os
 import pandas as pd
 
 # set config defaults if not given
-try:
-    config["records"]
-except KeyError:
-    config["records"] = 100000
+config.get("records", 100000)
 
 
 # global variables

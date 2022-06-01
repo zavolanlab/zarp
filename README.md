@@ -277,15 +277,15 @@ SRR18549672	results/sra_downloads/SRR18549672/SRR18549672_1.fastq.gz	results/sra
 
 
 # Metadata completion with HTSinfer
-An independent Snakemake workflow `workflow/rules/htsinfer.smk` that populates the `samples.tsv` required by ZARP with the sample specific parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype`. Those parameters are inferred from the provided `fastq.gz` files by [HTSinfer][hts-infer].
+An independent Snakemake workflow `workflow/rules/htsinfer.smk` that populates the `samples.tsv` required by ZARP with the sample specific parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size`. Those parameters are inferred from the provided `fastq.gz` files by [HTSinfer][hts-infer].
 
 > Note: The workflow uses the implicit temporary directory 
 from snakemake, which is called with [resources.tmpdir].
 
 
 The workflow expects the following config:
-* `samples`, a sample table (tsv) with column *sample* containing *SRR* identifiers, as well as columns *fq1* and *fq2* containing the paths to the input fastq files
-see example [here](tests/input_files/sra_samples.tsv).
+* `samples`, a sample table (tsv) with column *sample* containing sample identifiers, as well as columns *fq1* and *fq2* containing the paths to the input fastq files
+see example [here](tests/input_files/sra_samples.tsv). If the table contains further ZARP compatible columns (see [pipeline documentation][sample-doc]), the values specified there by the user are given priority over htsinfer's results. 
 * `outdir`, an output directory
 * `samples_out`, path to a modified sample table with inferred parameters
 * `records`, set to 100000 per default
@@ -296,12 +296,12 @@ For executing the example one can use the following
 snakemake --snakefile workflow/rules/htsinfer.smk  --cores 1
 ```
 
-After successful execution, `[OUTDIR]/[SAMPLES_OUT]` should contain a populated table with parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` for all input samples as described in the [pipeline documentation][sample-doc].
+After successful execution - if all parameters could be either inferred or were specified by the user - `[OUTDIR]/[SAMPLES_OUT]` should contain a populated table with parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size` for all input samples as described in the [pipeline documentation][sample-doc].
 
 
 
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
-[hts-infer]: <>
+[hts-infer]: <https://github.com/zavolanlab/htsinfer>
 [profiles]: <https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles>
 [mamba]: <https://github.com/mamba-org/mamba>
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
