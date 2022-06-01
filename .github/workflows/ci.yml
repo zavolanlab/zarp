@@ -11,13 +11,12 @@ on:
 
 jobs:
 
-  snakemake-graphs:
+  snakemake-tests:
     runs-on: ubuntu-20.04
     defaults:
       run:
         shell: bash -l {0}
     steps:
-
       - name: Checkout zarp repository
         uses: actions/checkout@v2
 
