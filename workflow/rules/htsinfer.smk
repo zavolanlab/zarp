@@ -4,7 +4,7 @@ import os
 import pandas as pd
 
 # set config defaults if not given
-config.get("records", 100000)
+config.setdefault("records", 100000)
 
 
 # global variables
@@ -76,6 +76,10 @@ rule htsinfer_to_tsv:
     output:
         SAMPLES_OUT
     threads: 4
+    singularity: 
+        "docker://zavolab/htsinfer:0.9.0"
+    conda: 
+        os.path.join(workflow.basedir, "envs", "htsinfer.yaml")
     log:
         stderr = os.path.join(
             LOG_DIR,

@@ -293,8 +293,15 @@ see example [here](tests/input_files/sra_samples.tsv). If the table contains fur
 For executing the example one can use the following
 (with activated *zarp* environment):
 ```bash
-snakemake --snakefile workflow/rules/htsinfer.smk  --cores 1
+cd tests/test_htsinfer_workflow
+snakemake \
+    --profile="../../profiles/local-singularity-htsinfer" \
+    --config outdir="results" samples="../input_files/htsinfer_samples.tsv" samples_out="samples_htsinfer.tsv" \
+    --notemp \
+    --keep-incomplete
 ```
+
+However, this call will exit with an error, as not all parameters can be inferred from the example files. The argument `--keep-incomplete` makes sure the `samples_htsinfer.tsv` file can nevertheless be inspected. 
 
 After successful execution - if all parameters could be either inferred or were specified by the user - `[OUTDIR]/[SAMPLES_OUT]` should contain a populated table with parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size` for all input samples as described in the [pipeline documentation][sample-doc].
 

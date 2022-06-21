@@ -1,16 +1,17 @@
-from encodings import utf_8
-import os
-import sys
+from argparse import ArgumentParser, RawTextHelpFormatter
 import json
 import logging
-from jsonschema import ValidationError
+import os
+import sys
+
+from htsinfer.models import Results
 import numpy as np
 import pandas as pd
-from argparse import ArgumentParser, RawTextHelpFormatter
 
-LOGGER = logging.getLogger(__name__)
-LOGGER.basicConfig(level=logging.INFO, 
+logging.basicConfig(level=logging.DEBUG, 
             format='%(asctime)s %(levelname)s:%(message)s', datefmt='%Y-%m-%d %H:%M:%S ')
+LOGGER = logging.getLogger(__name__)
+
 
 
 def parse_arguments():
@@ -62,7 +63,11 @@ def main():
         LOGGER.debug(f"Filename: {f}")
 
         with open(f, mode='r', encoding="utf-8") as f:
-                jparams = json.load(f)
+            try:
+                jparams = Results(**json.load(f))
+            except Exception as exc:
+                LOGGER.error(f"Results are not valid htsinfer format.")
+                raise ValueError from exc
 
         # Call function to convert the json values into a pd.Series
         tparams, e_flag, swap_paths = htsinfer_to_zarp(sample,jparams, samples_df)
@@ -116,9 +121,22 @@ def htsinfer_to_zarp(sample,jparams, samples_df):
     tparams = pd.Series(name=sample, dtype="object")
 
     # seqmode
-    f1 = jparams["library_type"]["file_1"]
-    f2 = jparams["library_type"]["file_2"]
-    rel = jparams["library_type"]["relationship"]
+    # NOTE: library_type contents have to be checked explicitly, as the corresponding objects in htsinfer model are optional. (so if they are not present, '.value' will cause an error) 
+    if jparams.library_type.file_1 is not None:
+        f1 = jparams.library_type.file_1.value
+    else:
+        f1 = None
+
+    if jparams.library_type.file_2 is not None:
+        f2 = jparams.library_type.file_2.value
+    else:
+        f2 = None
+
+    if jparams.library_type.relationship is not None:
+        rel = jparams.library_type.relationship.value
+    else:
+        rel = None
+        
     if f1 is not None and f2 is None:
         tparams["seqmode"] = "se"
     elif rel == "split_mates":     
@@ -133,13 +151,13 @@ def htsinfer_to_zarp(sample,jparams, samples_df):
         
 
     # fq1_3p (same for se and pe)
-    f1_3p = jparams["read_layout"]["file_1"]["adapt_3"]
+    f1_3p = jparams.read_layout.file_1.adapt_3
     tparams["fq1_3p"] = "X" * 15 if f1_3p is None else f1_3p    
     if f1_3p is None:
         LOGGER.warning("No 3p adapter for fq1 identified.")
             
     # fq2_3p
-    f2_3p = jparams["read_layout"]["file_2"]["adapt_3"]
+    f2_3p = jparams.read_layout.file_2.adapt_3
     tparams["fq2_3p"] = "X" * 15 if f2_3p is None else f2_3p
     if f2_3p is None:
         # info only necessary for pe mode
@@ -147,8 +165,8 @@ def htsinfer_to_zarp(sample,jparams, samples_df):
             LOGGER.warning("No 3p adapter for fq2 identified, no adapters will be removed.")
 
     # organism
-    org1 = jparams["library_source"]["file_1"]["short_name"]
-    org2 = jparams["library_source"]["file_2"]["short_name"]
+    org1 = jparams.library_source.file_1.short_name
+    org2 = jparams.library_source.file_2.short_name
     tparams["organism"] = None
 
     # source could not be inferred
@@ -172,8 +190,17 @@ def htsinfer_to_zarp(sample,jparams, samples_df):
         e_flag = should_i_flag(samples_df, sample, "organism")
 
     # libtype
-    f1_o = jparams["read_orientation"]["file_1"]
-    rel_o = jparams["read_orientation"]["relationship"]
+    # NOTE: read_orientation contents have to be checked explicitly, as the corresponding objects in htsinfer model are optional. (so if None, .value will cause an error) 
+    if jparams.read_orientation.file_1 is not None:
+        f1_o = jparams.read_orientation.file_1.value
+    else:
+        f1_o = None
+
+    if jparams.read_orientation.relationship is not None:
+        rel_o = jparams.read_orientation.relationship.value
+    else:
+        rel_o = None
+
     if rel_o is not None:
         tparams["libtype"] = rel_o
     elif f1_o is not None:
@@ -186,8 +213,8 @@ def htsinfer_to_zarp(sample,jparams, samples_df):
 
     # index size
     read_lengths = []
-    for i in ["file_1", "file_2"]:
-        read_lengths.append(jparams["library_stats"][i]["read_length"]["max"])
+    read_lengths.append(jparams.library_stats.file_1.read_length.max)
+    read_lengths.append(jparams.library_stats.file_2.read_length.max)
     if read_lengths is not None:
         tparams["index_size"] = max([int(i) for i in read_lengths if i is not None])
     else:
