@@ -53,16 +53,15 @@ rule run_htsinfer:
             "{sample}",
             current_rule + ".stdout.log")
     shell:
-        '''
-        htsinfer \
-        --records={params.records} \
-        --output-directory={params.outdir} \
-        --temporary-directory={resources.tmpdir} \
-        --cleanup-regime=KEEP_ALL \
-        --threads={threads} \
-        {input.fq1_path} {params.fq2_path} \
-        > {output.htsinfer_json}
-        '''
+        """
+        set +e 
+        htsinfer --records={params.records} --output-directory={params.outdir} --temporary-directory={resources.tmpdir} --cleanup-regime=KEEP_ALL --threads={threads} {input.fq1_path} {params.fq2_path} > {output.htsinfer_json} 
+        exitcode=$?
+        if [ $exitcode -eq 1]
+        then
+            exit 0
+        fi
+        """
 
 current_rule = "htsinfer_to_tsv"
 rule htsinfer_to_tsv:
