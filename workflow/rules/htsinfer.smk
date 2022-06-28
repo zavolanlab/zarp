@@ -47,15 +47,11 @@ rule run_htsinfer:
         stderr = os.path.join(
             LOG_DIR,
             "{sample}",
-            current_rule + ".stderr.log"),
-        stdout = os.path.join(
-            LOG_DIR,
-            "{sample}",
-            current_rule + ".stdout.log")
+            current_rule + ".stderr.log")
     shell:
         """
         set +e 
-        htsinfer --records={params.records} --output-directory={params.outdir} --temporary-directory={resources.tmpdir} --cleanup-regime=KEEP_ALL --threads={threads} {input.fq1_path} {params.fq2_path} > {output.htsinfer_json} 
+        htsinfer --records={params.records} --output-directory={params.outdir} --temporary-directory={resources.tmpdir} --cleanup-regime=KEEP_ALL --threads={threads} {input.fq1_path} {params.fq2_path} > {output.htsinfer_json} 2> {log.stderr}
         exitcode=$?
         if [ $exitcode -eq 1]
         then
@@ -82,16 +78,14 @@ rule htsinfer_to_tsv:
     log:
         stderr = os.path.join(
             LOG_DIR,
-            current_rule + ".stderr.log"),
-        stdout = os.path.join(
-            LOG_DIR,
-            current_rule + ".stdout.log")
+            current_rule + ".stderr.log")
     shell:
         '''
         python {input.script} \
             -f {input.jlist} \
             -s {input.samples_in} \
-            -o {output}
+            -o {output} \
+            2> {log.stderr}
         '''
         
 onsuccess:
