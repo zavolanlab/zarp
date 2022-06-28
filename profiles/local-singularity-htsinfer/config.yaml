@@ -5,7 +5,7 @@ rerun-incomplete: true
 use-singularity: true
 singularity-args: "--bind $PWD/../../../zarp"
 default-resources: mem_mb=1024
-restart-times: 3
+restart-times: 0
 keep-going: true
 notemp: false
 no-hooks: true

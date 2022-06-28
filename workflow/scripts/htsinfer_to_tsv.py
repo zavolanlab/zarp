@@ -8,7 +8,8 @@ from htsinfer.models import Results
 import numpy as np
 import pandas as pd
 
-logging.basicConfig(level=logging.DEBUG, 
+logging.basicConfig(
+            level=logging.INFO, 
             format='%(asctime)s %(levelname)s:%(message)s', datefmt='%Y-%m-%d %H:%M:%S ')
 LOGGER = logging.getLogger(__name__)
 
@@ -51,7 +52,14 @@ def main():
 
     outfile = options.output
 
-    params_df = pd.DataFrame()
+    params_df = pd.DataFrame(columns=[
+        "fq1_3p",
+        "fq2_3p",
+        "index_size",
+        "libtype",
+        "organism",
+        "seqmode"
+        ])
 
     # for each sample, load htsinfer json and get params
     for sample in samples_df.index:
@@ -73,7 +81,7 @@ def main():
         tparams, e_flag, swap_paths = htsinfer_to_zarp(sample,jparams, samples_df)
         
         # Add to the DataFrame for all samples
-        params_df = params_df.append(tparams)
+        params_df.loc[sample] = tparams
 
         # Need to swap filepaths?
         if swap_paths is True:
@@ -239,5 +247,5 @@ if __name__ == '__main__':
     if e_flag is False:
         LOGGER.info("Finished script successfully.")
     else:
-        LOGGER.error("One or more required parameters could not be inferred, please check logs.")
+        LOGGER.error("Finished script BUT one or more required parameters could not be inferred, please check logs.")
         sys.exit(1)
