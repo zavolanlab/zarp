@@ -30,8 +30,12 @@ cd $script_dir
 
 # Run tests
 snakemake \
-    --profile="../../profiles/local-singularity-htsinfer" \
-    --config outdir="results" samples="../input_files/htsinfer_samples.tsv" samples_out="samples_htsinfer.tsv" \
+    --snakefile="../../workflow/rules/htsinfer.smk" \
+    --restart-times=0 \
+    --profile="../../profiles/local-singularity" \
+    --config outdir="results" \
+             samples="../input_files/htsinfer_samples.tsv" \
+             samples_out="samples_htsinfer.tsv" \
     --notemp \
     --keep-incomplete
 
