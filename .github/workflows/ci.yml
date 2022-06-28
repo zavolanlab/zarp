@@ -77,9 +77,6 @@ jobs:
       - name: Run test script
         run: bash tests/test_integration_workflow/test.local.sh
 
-      - name: Run htsinfer test
-        run: bash tests/test_htsinfer_workflow/test.local.sh
-
   integration-singularity-tempflag:
     needs:
       - snakemake-graphs
