@@ -42,7 +42,7 @@ rule run_htsinfer:
     singularity: 
         "docker://zavolab/htsinfer:0.9.0"
     conda: 
-        os.path.join(workflow.basedir, "envs", "htsinfer.yaml")
+        os.path.join(workflow.basedir, "..", "envs", "htsinfer.yaml")
     log:
         stderr = os.path.join(
             LOG_DIR,
@@ -78,7 +78,7 @@ rule htsinfer_to_tsv:
     singularity: 
         "docker://zavolab/htsinfer:0.9.0"
     conda: 
-        os.path.join(workflow.basedir, "envs", "htsinfer.yaml")
+        os.path.join(workflow.basedir, "..", "envs", "htsinfer.yaml")
     log:
         stderr = os.path.join(
             LOG_DIR,
