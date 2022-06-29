@@ -1,0 +1,6 @@
+---
+channels:
+  - bioconda
+dependencies:
+  - htsinfer=0.9.0
+...

@@ -275,13 +275,51 @@ SRR18552868	results/sra_downloads/SRR18552868/SRR18552868.fastq.gz
 SRR18549672	results/sra_downloads/SRR18549672/SRR18549672_1.fastq.gz	results/sra_downloads/SRR18549672/SRR18549672_2.fastq.gz
 ```
 
+
+# Metadata completion with HTSinfer
+An independent Snakemake workflow `workflow/rules/htsinfer.smk` that populates the `samples.tsv` required by ZARP with the sample specific parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size`. Those parameters are inferred from the provided `fastq.gz` files by [HTSinfer][hts-infer].
+
+> Note: The workflow uses the implicit temporary directory 
+from snakemake, which is called with [resources.tmpdir].
+
+
+The workflow expects the following config:
+* `samples`, a sample table (tsv) with column *sample* containing sample identifiers, as well as columns *fq1* and *fq2* containing the paths to the input fastq files
+see example [here](tests/input_files/sra_samples.tsv). If the table contains further ZARP compatible columns (see [pipeline documentation][sample-doc]), the values specified there by the user are given priority over htsinfer's results. 
+* `outdir`, an output directory
+* `samples_out`, path to a modified sample table with inferred parameters
+* `records`, set to 100000 per default
+  
+For executing the example one can use the following
+(with activated *zarp* environment):
+```bash
+cd tests/test_htsinfer_workflow
+snakemake \
+    --snakefile="../../workflow/rules/htsinfer.smk" \
+    --restart-times=0 \
+    --profile="../../profiles/local-singularity" \
+    --config outdir="results" \
+             samples="../input_files/htsinfer_samples.tsv" \
+             samples_out="samples_htsinfer.tsv" \
+    --notemp \
+    --keep-incomplete
+```
+
+However, this call will exit with an error, as not all parameters can be inferred from the example files. The argument `--keep-incomplete` makes sure the `samples_htsinfer.tsv` file can nevertheless be inspected. 
+
+After successful execution - if all parameters could be either inferred or were specified by the user - `[OUTDIR]/[SAMPLES_OUT]` should contain a populated table with parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size` for all input samples as described in the [pipeline documentation][sample-doc].
+
+
+
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
+[hts-infer]: <https://github.com/zavolanlab/htsinfer>
 [profiles]: <https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles>
 [mamba]: <https://github.com/mamba-org/mamba>
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
 [rule-graph]: images/rule_graph.svg
 [zarp-logo]: images/zarp_logo.svg
 [zarp-schema]: images/zarp_schema.svg
+[sample-doc]: pipeline_documentation.md#read-sample-table
 [snakemake]: <https://snakemake.readthedocs.io/en/stable/>
 [singularity]: <https://sylabs.io/singularity/>
 [singularity-install]: <https://sylabs.io/guides/3.5/admin-guide/installation.html>
