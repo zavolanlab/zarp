@@ -12,7 +12,7 @@ logging.basicConfig(
             level=logging.INFO, 
             format='%(asctime)s %(levelname)s:%(message)s', datefmt='%Y-%m-%d %H:%M:%S ')
 LOGGER = logging.getLogger(__name__)
-
+e_flag = False
 
 
 def parse_arguments():
@@ -120,8 +120,6 @@ def should_i_flag(df, sample, param):
 def htsinfer_to_zarp(sample,jparams, samples_df):
     '''Translate htsinfer json output to zarp compatible row.'''  
 
-    # Flag errors
-    e_flag = False
     # need to swap filepaths?
     swap_paths = False
 
