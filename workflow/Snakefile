@@ -1815,9 +1815,9 @@ rule prepare_multiqc_config:
 
     params:
         cluster_log_path = config["cluster_log_dir"],
-        logo_path = config['report_logo'],
+        logo_path = config['report_logo'] if 'report_logo' in config else '',
         multiqc_intro_text = config['report_description'],
-        url = config['report_url'],
+        url = config['report_url'] if 'report_url' in config else '',
         author_name = config['author_name'],
         author_email = config['author_email'],
         additional_params = parse_rule_config(
