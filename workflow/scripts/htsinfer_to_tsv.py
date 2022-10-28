@@ -223,7 +223,7 @@ def htsinfer_to_zarp(sample,jparams, samples_df):
     read_lengths = []
     read_lengths.append(jparams.library_stats.file_1.read_length.max)
     read_lengths.append(jparams.library_stats.file_2.read_length.max)
-    if read_lengths is not None:
+    if (read_lengths is not None) and (len(read_lengths) != 0):
         tparams["index_size"] = max([int(i) for i in read_lengths if i is not None])
     else:
         LOGGER.error("Read lengths (=index_size) could not be determined")
