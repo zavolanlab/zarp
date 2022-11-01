@@ -109,7 +109,7 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with root. packages
-        run: mamba env -n zarp -f install/environment.root.yml
+        run: mamba env update -n zarp -f install/environment.root.yml
 
       - name: Update zarp env with dev. packages
         run: mamba env update -n zarp -f install/environment.dev.yml
