@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: 3.7.4
           mamba-version: "0.16.0"
-          channels: bioconda,conda-forge
+          channels: conda-forge
           channel-priority: true
           auto-update-conda: false
           activate-environment: zarp
@@ -34,7 +34,7 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with root. packages
-        run: mamba env update -f install/environment.root.yml
+        run: mamba env update -n zarp -f install/environment.root.yml
 
       - name: Display all miniconda & env info
         run: |
@@ -64,7 +64,7 @@ jobs:
         with:
           python-version: 3.7.4
           mamba-version: "0.16.0"
-          channels: bioconda,conda-forge
+          channels: conda-forge
           channel-priority: true
           auto-update-conda: false
           activate-environment: zarp
@@ -72,10 +72,10 @@ jobs:
           auto-activate-base: false
       
       - name: Update zarp env with root. packages
-        run: mamba env update -f install/environment.root.yml
+        run: mamba env update -n zarp -f install/environment.root.yml
       
       - name: Update zarp env with dev. packages
-        run: mamba env update -f install/environment.dev.yml
+        run: mamba env update -n zarp -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
         run: |
@@ -101,7 +101,7 @@ jobs:
         with:
           python-version: 3.7.4
           mamba-version: "0.16.0"
-          channels: bioconda,conda-forge
+          channels: conda-forge
           channel-priority: true
           auto-update-conda: false
           activate-environment: zarp
@@ -109,10 +109,10 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with root. packages
-        run: mamba env update -f install/environment.root.yml
+        run: mamba env -n zarp -f install/environment.root.yml
 
       - name: Update zarp env with dev. packages
-        run: mamba env update -f install/environment.dev.yml
+        run: mamba env update -n zarp -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
         run: |
@@ -138,7 +138,7 @@ jobs:
         with:
           python-version: 3.7.4
           mamba-version: "0.16.0"
-          channels: bioconda,conda-forge
+          channels: conda-forge
           channel-priority: true
           auto-update-conda: false
           activate-environment: zarp
@@ -146,10 +146,10 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with root. packages
-        run: mamba env update -f install/environment.root.yml
+        run: mamba env update -n zarp -f install/environment.root.yml
 
       - name: Update zarp env with dev. packages
-        run: mamba env update -f install/environment.dev.yml
+        run: mamba env update -n zarp -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
         run: |
@@ -175,7 +175,7 @@ jobs:
         with:
           python-version: 3.7.4
           mamba-version: "0.16.0"
-          channels: bioconda,conda-forge
+          channels: conda-forge
           channel-priority: true
           auto-update-conda: false
           activate-environment: zarp
@@ -183,10 +183,10 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with root. packages
-        run: mamba env update -f install/environment.root.yml
+        run: mamba env update -n zarp -f install/environment.root.yml
 
       - name: Update zarp env with dev. packages
-        run: mamba env update -f install/environment.dev.yml
+        run: mamba env update -n zarp -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
         run: |
