@@ -2,9 +2,9 @@ name: zarp
 channels:
   - bioconda
   - conda-forge
-  - defaults
 dependencies:
   - bedtools=2.29.2
-  - unzip=6.0
   - biopython=1.76
+  - unzip=6.0
+
 

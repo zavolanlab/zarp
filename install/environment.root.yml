@@ -1,10 +1,5 @@
 name: zarp
 channels:
-  - bioconda
   - conda-forge
-  - defaults
 dependencies:
-  - mamba=0.16.0
-  - python=3.7.4
   - singularity=3.5.2
-  - snakemake=7.2.1

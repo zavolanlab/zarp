@@ -101,7 +101,7 @@ run the workflow on your own computer), you can execute the following command
 to include Singularity in the Conda environment:
 
 ```bash
-mamba env create -f install/environment.root.yml
+mamba env update -f install/environment.root.yml
 ```
 
 ## 4. Activate environment
