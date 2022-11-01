@@ -69,18 +69,26 @@ def main():
     analysis_type = "RNA-seq"
 
     intro_text = options.intro_text
-    custom_logo = options.custom_logo
-    url = options.url
     author_name = options.author_name
     author_email = options.author_email
+
+    if options.custom_logo == "":
+        custom_logo_line = ""
+        custom_logo_url_line = ""
+    else:
+        custom_logo_line = "custom_logo: \"" + options.custom_logo + "\""
+        if options.url == "":
+            custom_logo_url_line = ""
+        else:
+            custom_logo_url_line = "custom_logo_url: \"" + options.url + "\""
 
     config_string = f"""---
 
 title: "{title}"
 subtitle: "{subtitle}"
 intro_text: "{intro_text}"
-custom_logo: "{custom_logo}"
-custom_logo_url: "{url}"
+{custom_logo_line}
+{custom_logo_url_line}
 custom_logo_title: "{logo_title}"
 
 report_header_info:

@@ -49,12 +49,10 @@
       "report_logo": {
         "type": "string",
         "description": "Relative path to image to display as logo in multiqc report.",
-        "default": "../../images/logo.128px.png"
       },
       "report_url": {
         "type": "string",
         "description": "URL to appear in multiqc report.",
-        "default": "https://zavolan.biozentrum.unibas.ch/"
       },
       "author_name": {
         "type": "string",
