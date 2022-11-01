@@ -19,9 +19,9 @@ jobs:
     steps:
 
       - name: Checkout zarp repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Setup miniconda & zarp root env
+      - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: 3.7.4
@@ -57,9 +57,9 @@ jobs:
     steps:
 
       - name: Checkout zarp repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Setup miniconda & zarp root env
+      - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: 3.7.4
@@ -94,9 +94,9 @@ jobs:
     steps:
 
       - name: Checkout zarp repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Setup miniconda & zarp root env
+      - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: 3.7.4
@@ -131,9 +131,9 @@ jobs:
     steps:
 
       - name: Checkout zarp repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Setup miniconda & zarp root env
+      - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: 3.7.4
@@ -168,9 +168,9 @@ jobs:
     steps:
 
       - name: Checkout zarp repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Setup miniconda & zarp root env
+      - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: 3.7.4
