@@ -4,4 +4,5 @@ channels:
   - bioconda
 dependencies:
   - alfa=1.1.1
+  - matplotlib=3.4.1
 ...
