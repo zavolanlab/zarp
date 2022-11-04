@@ -9,17 +9,9 @@ changelog:
     - title: Breaking Changes 🛠
       labels:
         - BREAKING CHANGE
-        - breaking-change
     - title: Exciting New Features 🎉
       labels:
         - feat
-        - enhancement
     - title: Other Changes
       labels:
-        - fix
-        - chore
-        - build
-        - docs
-        - ci
-        - refactor
-  
+        - "*"
