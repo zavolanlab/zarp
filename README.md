@@ -205,7 +205,7 @@ your run.
     #!/bin/bash
 
     snakemake \
-        --profile="../profiles/local-singularity" \
+        --profile="../../profiles/local-singularity" \
         --configfile="config.yaml"
 
     EOF
