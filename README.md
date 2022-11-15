@@ -1,6 +1,7 @@
 [![ci](https://github.com/zavolanlab/zarp/workflows/CI/badge.svg?branch=dev)](https://github.com/zavolanlab/zarp/actions?query=workflow%3Aci)
 [![GitHub license](https://img.shields.io/github/license/zavolanlab/zarp?color=orange)](https://github.com/zavolanlab/zarp/blob/dev/LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3891135.svg)](https://doi.org/10.5281/zenodo.3891135)
+[![DOI:10.1101/2021.11.18.469017](http://img.shields.io/badge/DOI-10.1101/2021.11.18.469017-B31B1B.svg)](https://doi.org/10.1101/2021.11.18.469017)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5703358.svg)](https://doi.org/10.5281/zenodo.5703358)
 
 <div align="left">
     <img width="20%" align="left" src=images/zarp_logo.svg>
@@ -122,7 +123,7 @@ Conda environment_:
 ```bash
 mamba env update -f install/environment.dev.yml
 ```
- 
+
 ## 6. Successful installation tests
 
 We have prepared several tests to check the integrity of the workflow and its
@@ -281,6 +282,7 @@ An independent Snakemake workflow `workflow/rules/htsinfer.smk` that populates t
 > Note: The workflow uses the implicit temporary directory 
 from snakemake, which is called with [resources.tmpdir].
 
+
 The workflow expects the following config:
 * `samples`, a sample table (tsv) with column *sample* containing sample identifiers, as well as columns *fq1* and *fq2* containing the paths to the input fastq files
 see example [here](tests/input_files/sra_samples.tsv). If the table contains further ZARP compatible columns (see [pipeline documentation][sample-doc]), the values specified there by the user are given priority over htsinfer's results. 
@@ -307,13 +309,17 @@ However, this call will exit with an error, as not all parameters can be inferre
 
 After successful execution - if all parameters could be either inferred or were specified by the user - `[OUTDIR]/[SAMPLES_OUT]` should contain a populated table with parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size` for all input samples as described in the [pipeline documentation][sample-doc].
 
+
+
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
+[hts-infer]: <https://github.com/zavolanlab/htsinfer>
 [profiles]: <https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles>
 [mamba]: <https://github.com/mamba-org/mamba>
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
 [rule-graph]: images/rule_graph.svg
 [zarp-logo]: images/zarp_logo.svg
 [zarp-schema]: images/zarp_schema.svg
+[sample-doc]: pipeline_documentation.md#read-sample-table
 [snakemake]: <https://snakemake.readthedocs.io/en/stable/>
 [singularity]: <https://sylabs.io/singularity/>
 [singularity-install]: <https://sylabs.io/guides/3.5/admin-guide/installation.html>
