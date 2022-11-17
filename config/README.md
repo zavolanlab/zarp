@@ -2,7 +2,6 @@
 
 Running this workflow has very few individual dependencies. 
 
-Install these remaining dependencies with:
 ```bash
 mamba env create -f install/environment.yml
 ```
