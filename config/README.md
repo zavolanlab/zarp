@@ -1,6 +1,6 @@
 # Dependencies installation
 
-Running this workflow has very few individual dependencies. 
+Install dependencies with:
 
 ```bash
 mamba env create -f install/environment.yml
@@ -16,8 +16,8 @@ conda activate zarp
 
 # Run the workflow on your own samples
 
-1. Assuming that your current directory is the repository's root directory,
-create a directory for your workflow run and move into it with:
+1. Assuming that your current directory is the repository's root directory, 
+create [...] and enter it, with:
 
     ```bash
     mkdir config/my_run
@@ -40,6 +40,4 @@ files should look like, specifically:
 
 
 # More execution options
-For more execution options, like sample fetching from SRA, sample features inferense, 
-, cluster execution and many more, visit ZARP [../README.md] and [../pipeline-documentation]
-
+For more execution options, like sample fetching from SRA, inferring sample metadata from the data itself, cluster execution, and many more, visit ZARP [general](../README.md) and [in-depth pipeline docmentation](../pipeline-documentation).
