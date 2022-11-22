@@ -22,12 +22,12 @@ samples_table = pd.read_csv(
 directionality_dict = {
     "SF": 
         {"kallisto":"--fr-stranded", 
-        "alfa": "fr-secondstrand", 
+        "alfa": "fr-firststrand", 
         "alfa_plus": "str1", 
         "alfa_minus": "str2"},
     "SR":
         {"kallisto":"--rf-stranded", 
-        "alfa": "fr-firststrand", 
+        "alfa": "fr-secondstrand", 
         "alfa_plus": "str2", 
         "alfa_minus": "str1"},
 }
@@ -655,7 +655,7 @@ rule create_index_kallisto:
         os.path.join(workflow.basedir, "envs", "kallisto.yaml")
 
     resources:
-        mem_mb=lambda wildcards, attempt: 5000 * attempt
+        mem_mb=lambda wildcards, attempt: 8192 * attempt
 
     log:
         stderr = os.path.join(
@@ -913,7 +913,7 @@ rule calculate_TIN_scores:
     threads: 8
 
     resources:
-        mem_mb=lambda wildcards, attempt: 32000 * attempt
+        mem_mb=lambda wildcards, attempt, input: len(input.bam) * 1024 * attempt
 
     log:
         stderr = os.path.join(
@@ -1001,7 +1001,7 @@ rule salmon_quantmerge_genes:
     threads: 1
 
     resources:
-        mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1000 * attempt
+        mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1024 * attempt
 
     log:
         stderr = os.path.join(
@@ -1267,7 +1267,7 @@ rule kallisto_merge_transcripts:
     threads: 1
 
     resources:
-        mem_mb=lambda wildcards, attempt, input: len(input.pseudoalignment) * 1000 * attempt
+        mem_mb=lambda wildcards, attempt, input: len(input.pseudoalignment) * 1024 * attempt
     
     log:
         stderr = os.path.join(
@@ -1480,7 +1480,7 @@ rule star_rpm:
     threads: 4
 
     resources:
-        mem_mb=lambda wildcards, attempt: 4096 * attempt
+        mem_mb=lambda wildcards, attempt: 8192 * attempt
 
     log:
         stderr = os.path.join(
@@ -2040,7 +2040,7 @@ rule sort_bed_4_big:
         os.path.join(workflow.basedir, "envs", "bedtools.yaml")
     
     resources:
-        mem_mb=lambda wildcards, attempt: 4096 * attempt
+        mem_mb=lambda wildcards, attempt: 1024 * attempt
 
     log:
         stderr = os.path.join(
@@ -2107,7 +2107,7 @@ rule prepare_bigWig:
         os.path.join(workflow.basedir, "envs", "ucsc-bedgraphtobigwig.yaml")
     
     resources:
-        mem_mb=lambda wildcards, attempt: 4096 * attempt
+        mem_mb=lambda wildcards, attempt: 1024 * attempt
 
     log:
         stderr = os.path.join(
