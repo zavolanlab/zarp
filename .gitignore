@@ -328,6 +328,7 @@ pip-selfcheck.json
 .DS_Store
 config/*
 !config/PUT_YOUR_WORKFLOW_RUN_CONFIGS_HERE
+!config/README.md
 ._*
 ._.DS_Store
 .snakemake/
