@@ -22,12 +22,12 @@ samples_table = pd.read_csv(
 directionality_dict = {
     "SF": 
         {"kallisto":"--fr-stranded", 
-        "alfa": "fr-firststrand", 
+        "alfa": "fr-secondstrand", 
         "alfa_plus": "str1", 
         "alfa_minus": "str2"},
     "SR":
         {"kallisto":"--rf-stranded", 
-        "alfa": "fr-secondstrand", 
+        "alfa": "fr-firststrand", 
         "alfa_plus": "str2", 
         "alfa_minus": "str1"},
 }
