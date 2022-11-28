@@ -329,6 +329,7 @@ pip-selfcheck.json
 config/*
 !config/PUT_YOUR_WORKFLOW_RUN_CONFIGS_HERE
 !config/README.md
+!.snakemake-workflow-catalog.yml
 ._*
 ._.DS_Store
 .snakemake/
