@@ -59,7 +59,7 @@ rule pe_remove_adapters_cutadapt:
     conda:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
 
-    threads: 8
+    threads: 4
 
     resources:
         mem_mb=lambda wildcards, attempt: 5000 * attempt
@@ -162,7 +162,7 @@ rule pe_remove_polya_cutadapt:
     conda:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
 
-    threads: 8
+    threads: 4
 
     resources:
         mem_mb=lambda wildcards, attempt: 5000 * attempt

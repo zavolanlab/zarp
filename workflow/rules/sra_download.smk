@@ -54,7 +54,7 @@ rule fasterq_dump:
         outdir = lambda wildcards: os.path.join(DOWNLOAD_DIR, wildcards.sample),
         cluster_log_path = config["cluster_log_dir"]
     resources:
-        mem_mb = lambda wildcards, attempt: 2000 * attempt
+        mem_mb = lambda wildcards, attempt: 2048 * attempt
     threads: 4
     conda:
         os.path.join(workflow.basedir, "..", "envs", "sra-tools.yaml")
