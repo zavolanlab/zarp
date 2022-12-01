@@ -13,7 +13,7 @@ cleanup () {
     rm -rf .java/
     rm -rf .snakemake/
     rm -rf logs/
-    #rm -rf results/
+    rm -rf results/
     rm -rf Log.out
     cd $user_dir
     echo "Exit status: $rc"
