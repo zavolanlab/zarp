@@ -60,42 +60,6 @@ except KeyError:
     logger.warning(f"No rule config specified: using default values for all tools.")
 
 
-## Function definitions
-
-
-def get_sample(column_id, search_id=None, search_value=None):
-    """Get relevant per sample information from samples table"""
-    if search_id:
-        if search_id == "index":
-            return str(samples_table[column_id][samples_table.index == search_value][0])
-        else:
-            return str(
-                samples_table[column_id][samples_table[search_id] == search_value][0]
-            )
-    else:
-        return str(samples_table[column_id][0])
-
-
-def get_directionality(libtype, tool):
-    """Get directionality value for different tools"""
-    directionality = ""
-
-    for key in directionality_dict.keys():
-        # Use the first of 'SF' or 'SR' that is found in libtype to look up directionality params for the current tool
-        if key in libtype:
-            directionality = directionality_dict[key][tool]
-            break
-
-    # If libtype contains neither 'SF', nor 'SR' we don't know what to do
-    if not directionality:
-        raise ValueError(
-            f"Unknown libtype {libtype}.\n"
-            "Provide one of 'SF', 'SR', 'ISF', 'ISR', 'OSF', 'OSR', 'MSF', 'MSR' in samples.tsv!"
-        )
-
-    return directionality
-
-
 def parse_rule_config(
     rule_config: dict, current_rule: str, immutable: Tuple[str, ...] = ()
 ):
@@ -154,6 +118,7 @@ localrules:
 
 
 # Include subworkflows
+include: os.path.join("rules", "common.smk")
 include: os.path.join("rules", "paired_end.snakefile.smk")
 include: os.path.join("rules", "single_end.snakefile.smk")
 
@@ -229,15 +194,15 @@ rule start:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{sample}.{mate}.stderr.log",
+            f"{current_rule}_{{sample}}.{{mate}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{sample}.{mate}.stdout.log",
+            f"{current_rule}_{{sample}}.{{mate}}.stdout.log",
         ),
-    singularity:
+    container:
         "docker://ubuntu:focal-20210416"
     shell:
         "(cat {input.reads} > {output.reads}) \
@@ -273,7 +238,7 @@ rule fastqc:
     threads: 1
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
-    singularity:
+    container:
         "docker://quay.io/biocontainers/fastqc:0.11.9--hdfd78af_1"
     conda:
         os.path.join(workflow.basedir, "envs", "fastqc.yaml")
@@ -282,13 +247,13 @@ rule fastqc:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{mate}.stderr.log",
+            f"{current_rule}_{{mate}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{mate}.stdout.log",
+            f"{current_rule}_{{mate}}.stdout.log",
         ),
     shell:
         "(mkdir -p {output.outdir}; \
@@ -329,7 +294,7 @@ rule fastqc_trimmed:
             rule_config, current_rule=current_rule, immutable=("--outdir",)
         ),
     threads: 1
-    singularity:
+    container:
         "docker://quay.io/biocontainers/fastqc:0.11.9--hdfd78af_1"
     conda:
         os.path.join(workflow.basedir, "envs", "fastqc.yaml")
@@ -338,13 +303,13 @@ rule fastqc_trimmed:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{seqmode}_{mate}.stderr.log",
+            f"{current_rule}_{{seqmode}}_{{mate}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{seqmode}_{mate}.stdout.log",
+            f"{current_rule}_{{seqmode}}_{{mate}}.stdout.log",
         ),
     shell:
         "(mkdir -p {output.outdir}; \
@@ -386,9 +351,7 @@ rule create_index_star:
         ),
     params:
         cluster_log_path=config["cluster_log_dir"],
-        output_dir=os.path.join(
-            config["star_indexes"], "{organism}", "{index_size}", "STAR_index"
-        ),
+        output_dir=lambda wildcards, output: os.path.dirname(output.chromosome_info),
         outFileNamePrefix=os.path.join(
             config["star_indexes"], "{organism}", "{index_size}", "STAR_index/STAR_"
         ),
@@ -405,7 +368,7 @@ rule create_index_star:
                 "--sjdbGTFfile",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
     conda:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
@@ -414,10 +377,10 @@ rule create_index_star:
         mem_mb=lambda wildcards, attempt: 32000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], current_rule + "_{organism}_{index_size}.stderr.log"
+            config["log_dir"], f"{current_rule}_{{organism}}_{{index_size}}.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], current_rule + "_{organism}_{index_size}.stdout.log"
+            config["log_dir"], f"{current_rule}_{{organism}}_{{index_size}}.stdout.log"
         ),
     shell:
         "(mkdir -p {params.output_dir}; \
@@ -464,15 +427,15 @@ rule extract_transcriptome:
                 "-g",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/gffread:0.12.1--h2e03b76_1"
     conda:
         os.path.join(workflow.basedir, "envs", "gffread.yaml")
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
-        stderr=os.path.join(config["log_dir"], current_rule + "_{organism}.log"),
-        stdout=os.path.join(config["log_dir"], current_rule + "_{organism}.log"),
+        stderr=os.path.join(config["log_dir"], f"{current_rule}_{{organism}}.log"),
+        stdout=os.path.join(config["log_dir"], f"{current_rule}_{{organism}}.log"),
     shell:
         "(gffread \
         -w {output.transcriptome} \
@@ -507,12 +470,14 @@ rule concatenate_transcriptome_and_genome:
         ),
     params:
         cluster_log_path=config["cluster_log_dir"],
-    singularity:
+    container:
         "docker://ubuntu:focal-20210416"
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
-        stderr=os.path.join(config["log_dir"], current_rule + "_{organism}.stderr.log"),
+        stderr=os.path.join(
+            config["log_dir"], f"{current_rule}_{{organism}}.stderr.log"
+        ),
     shell:
         "(cat {input.transcriptome} {input.genome} \
         1> {output.genome_transcriptome}) \
@@ -559,7 +524,7 @@ rule create_index_salmon:
                 "--kmerLen",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
     conda:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
@@ -568,10 +533,10 @@ rule create_index_salmon:
         mem_mb=lambda wildcards, attempt: 32000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], current_rule + "_{organism}_{kmer}.stderr.log"
+            config["log_dir"], f"{current_rule}_{{organism}}_{{kmer}}.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], current_rule + "_{organism}_{kmer}.stdout.log"
+            config["log_dir"], f"{current_rule}_{{organism}}_{{kmer}}.stdout.log"
         ),
     shell:
         "(salmon index \
@@ -599,19 +564,23 @@ rule create_index_kallisto:
         index=os.path.join(config["kallisto_indexes"], "{organism}", "kallisto.idx"),
     params:
         cluster_log_path=config["cluster_log_dir"],
-        output_dir=os.path.join(config["kallisto_indexes"], "{organism}"),
+        output_dir=lambda wildcards, output: os.path.dirname(output.index),
         additional_params=parse_rule_config(
             rule_config, current_rule=current_rule, immutable=("-i",)
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
     conda:
         os.path.join(workflow.basedir, "envs", "kallisto.yaml")
     resources:
         mem_mb=lambda wildcards, attempt: 8192 * attempt,
     log:
-        stderr=os.path.join(config["log_dir"], current_rule + "_{organism}.stderr.log"),
-        stdout=os.path.join(config["log_dir"], current_rule + "_{organism}.stdout.log"),
+        stderr=os.path.join(
+            config["log_dir"], f"{current_rule}_{{organism}}.stderr.log"
+        ),
+        stdout=os.path.join(
+            config["log_dir"], f"{current_rule}_{{organism}}.stdout.log"
+        ),
     shell:
         "(mkdir -p {params.output_dir}; \
         chmod -R 777 {params.output_dir}; \
@@ -645,7 +614,7 @@ rule extract_transcripts_as_bed12:
                 "--bed12",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/zgtf:0.1.1--pyh5e36f6f_0"
     conda:
         os.path.join(workflow.basedir, "envs", "zgtf.yaml")
@@ -653,8 +622,8 @@ rule extract_transcripts_as_bed12:
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
-        stdout=os.path.join(config["log_dir"], current_rule + ".stdout.log"),
-        stderr=os.path.join(config["log_dir"], current_rule + ".stderr.log"),
+        stdout=os.path.join(config["log_dir"], f"{current_rule}.stdout.log"),
+        stderr=os.path.join(config["log_dir"], f"{current_rule}.stderr.log"),
     shell:
         "(gtf2bed12 \
         --gtf {input.gtf} \
@@ -691,7 +660,7 @@ rule sort_genomic_alignment_samtools:
         additional_params=parse_rule_config(
             rule_config, current_rule=current_rule, immutable=()
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/samtools:1.9--h10a08f8_12"
     conda:
         os.path.join(workflow.basedir, "envs", "samtools.yaml")
@@ -703,13 +672,13 @@ rule sort_genomic_alignment_samtools:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + ".{seqmode}.stderr.log",
+            f"{current_rule}.{{seqmode}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + ".{seqmode}.stdout.log",
+            f"{current_rule}.{{seqmode}}.stdout.log",
         ),
     shell:
         "(samtools sort \
@@ -748,7 +717,7 @@ rule index_genomic_alignment_samtools:
         additional_params=parse_rule_config(
             rule_config, current_rule=current_rule, immutable=()
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/samtools:1.3.1--h1b8c3c0_8"
     conda:
         os.path.join(workflow.basedir, "envs", "samtools.yaml")
@@ -760,13 +729,13 @@ rule index_genomic_alignment_samtools:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + ".{seqmode}.stderr.log",
+            f"{current_rule}.{{seqmode}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + ".{seqmode}.stdout.log",
+            f"{current_rule}.{{seqmode}}.stdout.log",
         ),
     shell:
         "(samtools index \
@@ -830,7 +799,7 @@ rule calculate_TIN_scores:
                 "--names",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/tin-score-calculation:0.6.3--pyh5e36f6f_0"
     conda:
         os.path.join(workflow.basedir, "envs", "tin-score-calculation.yaml")
@@ -839,7 +808,7 @@ rule calculate_TIN_scores:
         mem_mb=lambda wildcards, attempt, input: len(input.bam) * 1024 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], "samples", "{sample}", current_rule + ".log"
+            config["log_dir"], "samples", "{sample}", f"{current_rule}.log"
         ),
     shell:
         "(calculate-tin.py \
@@ -913,7 +882,7 @@ rule salmon_quantmerge_genes:
                 "--output",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
     conda:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
@@ -922,10 +891,10 @@ rule salmon_quantmerge_genes:
         mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1024 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], current_rule + "_{salmon_merge_on}.stderr.log"
+            config["log_dir"], f"{current_rule}_{{salmon_merge_on}}.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], current_rule + "_{salmon_merge_on}.stdout.log"
+            config["log_dir"], f"{current_rule}_{{salmon_merge_on}}.stdout.log"
         ),
     shell:
         "(salmon quantmerge \
@@ -1000,7 +969,7 @@ rule salmon_quantmerge_transcripts:
                 "--output",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
     conda:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
@@ -1009,10 +978,10 @@ rule salmon_quantmerge_transcripts:
         mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], current_rule + "_{salmon_merge_on}.stderr.log"
+            config["log_dir"], f"{current_rule}_{{salmon_merge_on}}.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], current_rule + "_{salmon_merge_on}.stdout.log"
+            config["log_dir"], f"{current_rule}_{{salmon_merge_on}}.stdout.log"
         ),
     shell:
         "(salmon quantmerge \
@@ -1055,7 +1024,7 @@ rule kallisto_merge_genes:
         ),
     params:
         cluster_log_path=config["cluster_log_dir"],
-        dir_out=os.path.join(config["output_dir"], "summary_kallisto"),
+        dir_out=lambda wildcards, output: os.path.dirname(output.gn_counts),
         tables=",".join(
             expand(
                 os.path.join(
@@ -1082,7 +1051,7 @@ rule kallisto_merge_genes:
                 "--output",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/r-merge-kallisto:0.6--hdfd78af_0"
     conda:
         os.path.join(workflow.basedir, "envs", "r-merge-kallisto.yaml")
@@ -1092,8 +1061,8 @@ rule kallisto_merge_genes:
         * 1000
         * attempt,
     log:
-        stderr=os.path.join(config["log_dir"], current_rule + ".stderr.log"),
-        stdout=os.path.join(config["log_dir"], current_rule + ".stdout.log"),
+        stderr=os.path.join(config["log_dir"], f"{current_rule}.stderr.log"),
+        stdout=os.path.join(config["log_dir"], f"{current_rule}.stdout.log"),
     shell:
         "(merge_kallisto.R \
         --input {params.tables} \
@@ -1137,7 +1106,7 @@ rule kallisto_merge_transcripts:
         ),
     params:
         cluster_log_path=config["cluster_log_dir"],
-        dir_out=os.path.join(config["output_dir"], "summary_kallisto"),
+        dir_out=lambda wildcards, output: os.path.dirname(output.tx_counts),
         tables=",".join(
             expand(
                 os.path.join(
@@ -1163,7 +1132,7 @@ rule kallisto_merge_transcripts:
                 "--output",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/r-merge-kallisto:0.6--hdfd78af_0"
     conda:
         os.path.join(workflow.basedir, "envs", "r-merge-kallisto.yaml")
@@ -1173,8 +1142,8 @@ rule kallisto_merge_transcripts:
         * 1024
         * attempt,
     log:
-        stderr=os.path.join(config["log_dir"], current_rule + ".stderr.log"),
-        stdout=os.path.join(config["log_dir"], current_rule + ".stdout.log"),
+        stderr=os.path.join(config["log_dir"], f"{current_rule}.stderr.log"),
+        stdout=os.path.join(config["log_dir"], f"{current_rule}.stdout.log"),
     shell:
         "(merge_kallisto.R \
         --input {params.tables} \
@@ -1206,7 +1175,7 @@ rule pca_salmon:
                 "--out",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/zpca:0.8.3.post1--pyh5e36f6f_0"
     conda:
         os.path.join(workflow.basedir, "envs", "zpca.yaml")
@@ -1214,8 +1183,12 @@ rule pca_salmon:
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
-        stderr=os.path.join(config["log_dir"], current_rule + "_{molecule}.stderr.log"),
-        stdout=os.path.join(config["log_dir"], current_rule + "_{molecule}.stdout.log"),
+        stderr=os.path.join(
+            config["log_dir"], f"{current_rule}_{{molecule}}.stderr.log"
+        ),
+        stdout=os.path.join(
+            config["log_dir"], f"{current_rule}_{{molecule}}.stdout.log"
+        ),
     shell:
         "(zpca-tpm  \
         --tpm {input.tpm} \
@@ -1244,7 +1217,7 @@ rule pca_kallisto:
                 "--out",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/zpca:0.8.3.post1--pyh5e36f6f_0"
     conda:
         os.path.join(workflow.basedir, "envs", "zpca.yaml")
@@ -1252,8 +1225,12 @@ rule pca_kallisto:
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
-        stderr=os.path.join(config["log_dir"], current_rule + "_{molecule}.stderr.log"),
-        stdout=os.path.join(config["log_dir"], current_rule + "_{molecule}.stdout.log"),
+        stderr=os.path.join(
+            config["log_dir"], f"{current_rule}_{{molecule}}.stderr.log"
+        ),
+        stdout=os.path.join(
+            config["log_dir"], f"{current_rule}_{{molecule}}.stdout.log"
+        ),
     shell:
         "(zpca-tpm  \
         --tpm {input.tpm} \
@@ -1339,7 +1316,7 @@ rule star_rpm:
         cluster_log_path=config["cluster_log_dir"],
         out_dir=lambda wildcards, output: os.path.dirname(output.str1),
         prefix=lambda wildcards, output: os.path.join(
-            os.path.dirname(output.str1), str(wildcards.sample) + "_"
+            os.path.dirname(output.str1), f"{str(wildcards.sample)}_"
         ),
         additional_params=parse_rule_config(
             rule_config,
@@ -1351,7 +1328,7 @@ rule star_rpm:
                 "--outFileNamePrefix",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
     conda:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
@@ -1360,10 +1337,10 @@ rule star_rpm:
         mem_mb=lambda wildcards, attempt: 8192 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], "samples", "{sample}", current_rule + ".stderr.log"
+            config["log_dir"], "samples", "{sample}", f"{current_rule}_.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], "samples", "{sample}", current_rule + ".stdout.log"
+            config["log_dir"], "samples", "{sample}", f"{current_rule}_.stdout.log"
         ),
     shell:
         "(mkdir -p {params.out_dir}; \
@@ -1440,20 +1417,20 @@ rule rename_star_rpm_for_alfa:
         ),
     params:
         cluster_log_path=config["cluster_log_dir"],
-    singularity:
+    container:
         "docker://ubuntu:focal-20210416"
     log:
         stderr=os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{renamed_unique}.stderr.log",
+            f"{current_rule}_{{renamed_unique}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{renamed_unique}.stdout.log",
+            f"{current_rule}_{{renamed_unique}}.stdout.log",
         ),
     shell:
         "(cp {input.plus} {output.plus}; \
@@ -1516,7 +1493,7 @@ rule generate_alfa_index:
                 "-o",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/alfa:1.1.1--pyh5e36f6f_0"
     conda:
         os.path.join(workflow.basedir, "envs", "alfa.yaml")
@@ -1524,7 +1501,9 @@ rule generate_alfa_index:
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
-        os.path.join(config["log_dir"], current_rule + "_{organism}_{index_size}.log"),
+        os.path.join(
+            config["log_dir"], f"{current_rule}_{{organism}}_{{index_size}}.log"
+        ),
     shell:
         "(mkdir -p {output.temp_dir}; \
         alfa -a {input.gtf} \
@@ -1551,7 +1530,7 @@ rule alfa_qc:
             wildcards.sample,
             "ALFA",
             wildcards.renamed_unique,
-            wildcards.sample + "." + wildcards.renamed_unique + ".plus.bg",
+            f"{wildcards.sample}.{wildcards.renamed_unique}.plus.bg",
         ),
         minus=lambda wildcards: os.path.join(
             config["output_dir"],
@@ -1559,7 +1538,7 @@ rule alfa_qc:
             wildcards.sample,
             "ALFA",
             wildcards.renamed_unique,
-            wildcards.sample + "." + wildcards.renamed_unique + ".minus.bg",
+            f"{wildcards.sample}.{wildcards.renamed_unique}.minus.bg",
         ),
         gtf=lambda wildcards: os.path.join(
             config["alfa_indexes"],
@@ -1634,7 +1613,7 @@ rule alfa_qc:
                 "-s",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/alfa:1.1.1--pyh5e36f6f_0"
     conda:
         os.path.join(workflow.basedir, "envs", "alfa.yaml")
@@ -1645,7 +1624,7 @@ rule alfa_qc:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + ".{renamed_unique}.log",
+            f"{current_rule}.{{renamed_unique}}.log",
         ),
     shell:
         "(mkdir -p {output.temp_dir};\
@@ -1688,8 +1667,12 @@ rule prepare_multiqc_config:
             ),
         ),
     log:
-        stderr=os.path.join(config["log_dir"], current_rule + ".stderr.log"),
-        stdout=os.path.join(config["log_dir"], current_rule + ".stdout.log"),
+        stderr=os.path.join(config["log_dir"], f"{current_rule}.stderr.log"),
+        stdout=os.path.join(config["log_dir"], f"{current_rule}.stdout.log"),
+    container:
+        "docker://quay.io/biocontainers/zavolan-multiqc-plugins:1.3--pyh5e36f6f_0"
+    conda:
+        os.path.join(workflow.basedir, "envs", "zavolan-multiqc-plugins.yaml")
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     shell:
@@ -1808,7 +1791,7 @@ rule multiqc_report:
         multiqc_report=directory(os.path.join(config["output_dir"], "multiqc_summary")),
     params:
         cluster_log_path=config["cluster_log_dir"],
-        results_dir=os.path.join(config["output_dir"]),
+        results_dir=lambda wildcards, output: os.path.split(output.multiqc_report)[0],
         log_dir=config["log_dir"],
         additional_params=parse_rule_config(
             rule_config,
@@ -1818,15 +1801,15 @@ rule multiqc_report:
                 "--config",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/zavolan-multiqc-plugins:1.3--pyh5e36f6f_0"
     conda:
         os.path.join(workflow.basedir, "envs", "zavolan-multiqc-plugins.yaml")
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
-        stderr=os.path.join(config["log_dir"], current_rule + ".stderr.log"),
-        stdout=os.path.join(config["log_dir"], current_rule + ".stdout.log"),
+        stderr=os.path.join(config["log_dir"], f"{current_rule}.stderr.log"),
+        stdout=os.path.join(config["log_dir"], f"{current_rule}.stdout.log"),
     shell:
         "(multiqc \
         --outdir {output.multiqc_report} \
@@ -1869,7 +1852,7 @@ rule sort_bed_4_big:
         additional_params=parse_rule_config(
             rule_config, current_rule=current_rule, immutable=("-i",)
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/bedtools:2.27.1--h9a82719_5"
     conda:
         os.path.join(workflow.basedir, "envs", "bedtools.yaml")
@@ -1880,7 +1863,7 @@ rule sort_bed_4_big:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{renamed_unique}_{strand}.stderr.log",
+            f"{current_rule}_{{renamed_unique}}_{{strand}}.stderr.log",
         ),
     shell:
         "(sortBed \
@@ -1926,7 +1909,7 @@ rule prepare_bigWig:
         additional_params=parse_rule_config(
             rule_config, current_rule=current_rule, immutable=()
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/ucsc-bedgraphtobigwig:377--h0b8a92a_2"
     conda:
         os.path.join(workflow.basedir, "envs", "ucsc-bedgraphtobigwig.yaml")
@@ -1937,13 +1920,13 @@ rule prepare_bigWig:
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{renamed_unique}_{strand}.stderr.log",
+            f"{current_rule}_{{renamed_unique}}_{{strand}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
             "samples",
             "{sample}",
-            current_rule + "_{renamed_unique}_{strand}.stdout.log",
+            f"{current_rule}_{{renamed_unique}}_{{strand}}.stdout.log",
         ),
     shell:
         "(bedGraphToBigWig \

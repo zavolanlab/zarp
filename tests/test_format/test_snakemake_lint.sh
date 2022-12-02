@@ -20,4 +20,8 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 cd $script_dir
 
 # Run tests
-snakefmt  --check ../../workflow
+snakemake \
+    --snakefile="../../workflow/Snakefile" \
+    --profile="../../profiles/local-singularity" \
+    --configfile="../input_files/config.yaml" \
+    --lint

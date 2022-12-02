@@ -63,7 +63,7 @@ rule pe_remove_adapters_cutadapt:
                 "-p",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
     conda:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
@@ -156,7 +156,7 @@ rule pe_remove_polya_cutadapt:
                 "-p",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
     conda:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
@@ -245,8 +245,8 @@ rule pe_map_genome_star:
                 "STAR_index",
             )
         ),
-        outFileNamePrefix=os.path.join(
-            config["output_dir"], "samples", "{sample}", "map_genome", "{sample}.pe."
+        outFileNamePrefix=lambda wildcards, output: output.bam.replace(
+            "Aligned.out.bam", ""
         ),
         additional_params=parse_rule_config(
             rule_config,
@@ -262,7 +262,7 @@ rule pe_map_genome_star:
                 "--outSAMattrRGline",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
     conda:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
@@ -353,9 +353,7 @@ rule pe_quantification_salmon:
         "minimal"
     params:
         cluster_log_path=config["cluster_log_dir"],
-        output_dir=os.path.join(
-            config["output_dir"], "samples", "{sample}", "{sample}.salmon.pe"
-        ),
+        output_dir=lambda wildcards, output: os.path.dirname(output.tr_estimates),
         libType=lambda wildcards: get_sample(
             "libtype", search_id="index", search_value=wildcards.sample
         ),
@@ -373,7 +371,7 @@ rule pe_quantification_salmon:
                 "-o",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
     conda:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
@@ -444,9 +442,7 @@ rule pe_genome_quantification_kallisto:
         "minimal"
     params:
         cluster_log_path=config["cluster_log_dir"],
-        output_dir=os.path.join(
-            config["output_dir"], "samples", "{sample}", "quant_kallisto"
-        ),
+        output_dir=lambda wildcards, output: os.path.dirname(output.pseudoalignment),
         directionality=lambda wildcards: get_directionality(
             get_sample("libtype", search_id="index", search_value=wildcards.sample),
             "kallisto",
@@ -465,7 +461,7 @@ rule pe_genome_quantification_kallisto:
                 "--rf-stranded",
             ),
         ),
-    singularity:
+    container:
         "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
     conda:
         os.path.join(workflow.basedir, "envs", "kallisto.yaml")
