@@ -59,7 +59,7 @@ jobs:
 
   integration-singularity:
     needs:
-      - snakemake-graphs
+      - snakemake-graphs-format
     runs-on: ubuntu-20.04
     defaults:
       run:
@@ -96,7 +96,7 @@ jobs:
 
   integration-singularity-tempflag:
     needs:
-      - snakemake-graphs
+      - snakemake-graphs-format
     runs-on: ubuntu-20.04
     defaults:
       run:
@@ -133,7 +133,7 @@ jobs:
 
   integration-singularity-MultipleLanes:
     needs:
-      - snakemake-graphs
+      - snakemake-graphs-format
     runs-on: ubuntu-20.04
     defaults:
       run:
@@ -170,7 +170,7 @@ jobs:
 
   integration-conda:
     needs:
-      - snakemake-graphs
+      - snakemake-graphs-format
     runs-on: ubuntu-20.04
     defaults:
       run:
