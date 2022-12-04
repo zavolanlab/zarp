@@ -5,6 +5,8 @@ channels:
 dependencies:
   - bedtools=2.29.2
   - biopython=1.76
+  - snakefmt
   - unzip=6.0
+
 
 
