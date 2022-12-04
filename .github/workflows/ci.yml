@@ -11,7 +11,7 @@ on:
 
 jobs:
 
-  snakemake-graphs:
+  snakemake-graphs-format:
     runs-on: ubuntu-20.04
     defaults:
       run:
@@ -36,10 +36,19 @@ jobs:
       - name: Update zarp env with root. packages
         run: mamba env update -n zarp -f install/environment.root.yml
 
+      - name: Update zarp env with dev. packages
+        run: mamba env update -n zarp -f install/environment.dev.yml
+
       - name: Display all miniconda & env info
         run: |
           conda info -a
           conda list
+
+      - name: Run test script for snakemake format
+        run: bash tests/test_format/test_snakefmt.sh
+      
+      - name: Run test script for snakemake lint
+        run: bash tests/test_format/test_snakemake_lint.sh
 
       - name: Run test script for snakemake rulegraph
         run: bash tests/test_create_rule_graph/test.sh
@@ -47,9 +56,10 @@ jobs:
       - name: Run test script for snakemake DAG
         run: bash tests/test_create_dag_image/test.sh
 
+
   integration-singularity:
     needs:
-      - snakemake-graphs
+      - snakemake-graphs-format
     runs-on: ubuntu-20.04
     defaults:
       run:
@@ -86,7 +96,7 @@ jobs:
 
   integration-singularity-tempflag:
     needs:
-      - snakemake-graphs
+      - snakemake-graphs-format
     runs-on: ubuntu-20.04
     defaults:
       run:
@@ -123,7 +133,7 @@ jobs:
 
   integration-singularity-MultipleLanes:
     needs:
-      - snakemake-graphs
+      - snakemake-graphs-format
     runs-on: ubuntu-20.04
     defaults:
       run:
@@ -160,7 +170,7 @@ jobs:
 
   integration-conda:
     needs:
-      - snakemake-graphs
+      - snakemake-graphs-format
     runs-on: ubuntu-20.04
     defaults:
       run:
