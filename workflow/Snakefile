@@ -7,6 +7,8 @@ from shlex import quote
 from typing import Tuple
 from snakemake.utils import validate
 
+configfile: os.path.join(workflow.basedir, "..", "config", "config.yaml")
+        
 ## Preparations
 # Get sample table
 samples_table = pd.read_csv(
