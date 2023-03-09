@@ -24,8 +24,8 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: "3.7"
-          mamba-version: "0.16.0"
+          python-version: "3.7.4"
+          mamba-version: "*"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -72,8 +72,8 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: "3.7"
-          mamba-version: "0.16.0"
+          python-version: "3.7.4"
+          mamba-version: "*"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -109,8 +109,8 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: "3.7"
-          mamba-version: "0.16.0"
+          python-version: "3.7.4"
+          mamba-version: "*"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -146,8 +146,8 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: "3.7"
-          mamba-version: "0.16.0"
+          python-version: "3.7.4"
+          mamba-version: "*"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -183,8 +183,8 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: "3.7"
-          mamba-version: "0.16.0"
+          python-version: "3.7.4"
+          mamba-version: "*"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
