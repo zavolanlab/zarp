@@ -228,8 +228,10 @@ your run.
     EOF
     ```
 
-    When running the pipeline with *conda* you should use `local-conda` and
+    > Note: When running the pipeline with *conda* you should use `local-conda` and
     `slurm-conda` profiles instead.
+
+    > Note: The slurm profiles are adapted to a cluster that uses the quality-of-service (QOS) keyword. If QOS is not supported, remove all the lines with "qos" in `profiles/slurm-config.json`.
 
 5. Start your workflow run:
 
