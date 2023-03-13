@@ -400,6 +400,43 @@ rule create_index_star:
         1> {log.stdout} 2> {log.stderr}"
 
 
+current_rule = "sort_gtf"
+
+
+rule sort_gtf:
+    """
+        Sort gtf
+    """
+    input:
+        gtf=lambda wildcards: os.path.abspath(
+            get_sample("gtf", search_id="organism", search_value=wildcards.organism)
+        ),
+    output:
+        gtf=os.path.join(
+            config["star_indexes"],
+            "{organism}",
+            "sorted_genome.gtf",
+        ),
+    params:
+        cluster_log_path=config["cluster_log_dir"],
+    container:
+        "docker://ubuntu:focal-20210416"
+    threads: 1
+    resources:
+        mem_mb=lambda wildcards, attempt: 32000 * attempt,
+    log:
+        stderr=os.path.join(
+            config["log_dir"], f"{current_rule}_{{organism}}.stderr.log"
+        ),
+        stdout=os.path.join(
+            config["log_dir"], f"{current_rule}_{{organism}}.stdout.log"
+        ),
+    shell:
+        "(sort \
+        -k1,1 -k4,4n -k5,5nr {input.gtf} > {output.gtf} \
+        ) 1> {log.stdout} 2> {log.stderr}"
+
+
 current_rule = "extract_transcriptome"
 
 
@@ -411,8 +448,10 @@ rule extract_transcriptome:
         genome=lambda wildcards: get_sample(
             "genome", search_id="organism", search_value=wildcards.organism
         ),
-        gtf=lambda wildcards: get_sample(
-            "gtf", search_id="organism", search_value=wildcards.organism
+        gtf=lambda wildcards: os.path.join(
+            config["star_indexes"],
+            wildcards.organism,
+            "sorted_genome.gtf",
         ),
     output:
         transcriptome=temp(
@@ -602,7 +641,11 @@ rule extract_transcripts_as_bed12:
         Convert transcripts to BED12 format
     """
     input:
-        gtf=lambda wildcards: get_sample("gtf"),
+        gtf=lambda wildcards: os.path.join(
+            config["star_indexes"],
+            get_sample("organism"),
+            "sorted_genome.gtf",
+        ),
     output:
         bed12=temp(
             os.path.join(config["output_dir"], "full_transcripts_protein_coding.bed")
@@ -1019,7 +1062,11 @@ rule kallisto_merge_genes:
                 for i in pd.unique(samples_table.index.values)
             ],
         ),
-        gtf=get_sample("gtf"),
+        gtf=lambda wildcards: os.path.join(
+            config["star_indexes"],
+            get_sample("organism"),
+            "sorted_genome.gtf",
+        ),
     output:
         gn_tpm=os.path.join(config["output_dir"], "summary_kallisto", "genes_tpm.tsv"),
         gn_counts=os.path.join(
@@ -1447,9 +1494,7 @@ current_rule = "generate_alfa_index"
 rule generate_alfa_index:
     """ Generate ALFA index files from sorted GTF file """
     input:
-        gtf=lambda wildcards: os.path.abspath(
-            get_sample("gtf", search_id="organism", search_value=wildcards.organism)
-        ),
+        gtf=os.path.join(config["star_indexes"], "{organism}", "sorted_genome.gtf"),
         chr_len=os.path.join(
             config["star_indexes"],
             "{organism}",

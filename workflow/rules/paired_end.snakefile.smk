@@ -309,8 +309,10 @@ rule pe_quantification_salmon:
             "{sample}",
             "{sample}.fq2.pe.remove_polya.fastq.gz",
         ),
-        gtf=lambda wildcards: os.path.abspath(
-            get_sample("gtf", search_id="index", search_value=wildcards.sample)
+        gtf=lambda wildcards: os.path.join(
+            config["star_indexes"],
+            get_sample("organism", search_id="index", search_value=wildcards.sample),
+            "sorted_genome.gtf",
         ),
         index=lambda wildcards: os.path.join(
             config["salmon_indexes"],
