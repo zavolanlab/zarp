@@ -15,6 +15,7 @@ on installation and usage please see [here](README.md).
   - [Sequencing mode-independent](#sequencing-mode-independent)
     - [`start`](#start)
     - [`create_index_star`](#create_index_star)
+    - [`sort_gtf`](#sort_gtf)
     - [`extract_transcriptome`](#extract_transcriptome)
     - [`concatenate_transcriptome_and_genome`](#concatenate_transcriptome_and_genome)
     - [`create_index_salmon`](#create_index_salmon)
@@ -164,6 +165,20 @@ Create index for [**STAR**](#third-party-software-used) short read aligner.
       [**prepare_bigWig**](#prepare_bigwig)
     - Chromosome name list `chrName.txt`; used in
       [**create_index_salmon**](#create_index_salmon)
+
+#### `sort_gtf`
+
+Sort provided gtf by chromosome, start and end coordinates. 
+
+> This process is executed once for the provided gtf annotation file.
+
+- **Input**
+  - Gene annotation file (`.gtf`)
+- **Output**
+  - Sorted Gene annotation file (`.gtf`); used in
+      [**extract_transcriptome**](#extract_transcriptome),
+      [**extract_transcripts_as_bed12**](#extract_transcripts_as_bed12), [**generate_alfa_index**](#generate_alfa_index),
+      [**quantification_salmon**](#quantification_salmon) and [**pe_quantification_salmon**](#pe_quantification_salmon)
 
 #### `extract_transcriptome`
 
