@@ -177,8 +177,9 @@ Sort provided gtf by chromosome, start and end coordinates.
 - **Output**
   - Sorted Gene annotation file (`.gtf`); used in
       [**extract_transcriptome**](#extract_transcriptome),
-      [**extract_transcripts_as_bed12**](#extract_transcripts_as_bed12), [**generate_alfa_index**](#generate_alfa_index),
-      [**quantification_salmon**](#quantification_salmon) and [**pe_quantification_salmon**](#pe_quantification_salmon)
+      [**extract_transcripts_as_bed12**](#extract_transcripts_as_bed12), [**kallisto_merge_genes**](#kallisto_merge_genes),
+      [**generate_alfa_index**](#generate_alfa_index) and [**quantification_salmon**](#quantification_salmon)
+      
 
 #### `extract_transcriptome`
 
