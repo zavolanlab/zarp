@@ -15,6 +15,7 @@ on installation and usage please see [here](README.md).
   - [Sequencing mode-independent](#sequencing-mode-independent)
     - [`start`](#start)
     - [`create_index_star`](#create_index_star)
+    - [`sort_gtf`](#sort_gtf)
     - [`extract_transcriptome`](#extract_transcriptome)
     - [`concatenate_transcriptome_and_genome`](#concatenate_transcriptome_and_genome)
     - [`create_index_salmon`](#create_index_salmon)
@@ -165,6 +166,21 @@ Create index for [**STAR**](#third-party-software-used) short read aligner.
     - Chromosome name list `chrName.txt`; used in
       [**create_index_salmon**](#create_index_salmon)
 
+#### `sort_gtf`
+
+Sort provided gtf by chromosome, start and end coordinates. 
+
+> This process is executed once for the provided gtf annotation file.
+
+- **Input**
+  - Gene annotation file (`.gtf`)
+- **Output**
+  - Sorted Gene annotation file (`.gtf`); used in
+      [**extract_transcriptome**](#extract_transcriptome),
+      [**extract_transcripts_as_bed12**](#extract_transcripts_as_bed12), [**kallisto_merge_genes**](#kallisto_merge_genes),
+      [**generate_alfa_index**](#generate_alfa_index) and [**quantification_salmon**](#quantification_salmon)
+      
+
 #### `extract_transcriptome`
 
 Create transcriptome from genome and gene annotations with
@@ -172,7 +188,7 @@ Create transcriptome from genome and gene annotations with
 
 - **Input**
   - Genome sequence file (`.fasta`)
-  - Gene annotation file (`.gtf`)
+  - Sorted Gene annotation file (`.gtf`); from [**sort_gtf**](#sort_gtf)
 - **Output**
   - Transcriptome sequence file (`.fasta`); used in
     [**concatenate_transcriptome_and_genome**](#concatenate_transcriptome_and_genome)
@@ -237,7 +253,7 @@ Convert transcripts from `.gtf` to extended 12-column `.bed` format with
 [custom-script][custom-script-gtf-to-bed12]. Note that the default transcript type setting is used, which is "protein_coding".
 
 - **Input**
-  - Gene annotation file (`.gtf`)
+  - Sorted Gene annotation file (`.gtf`); from [**sort_gtf**](#sort_gtf)
 - **Output**
   - Transcript annotations file (12-column `.bed`); used in
     [**calculate_TIN_scores**](#calculate_tin_scores)
@@ -423,7 +439,7 @@ Merge gene-level expression estimates for all samples with
 - **Input**
   - Transcript expression tables (custom `.h5`) for samples of same sequencing
     mode; from [**genome_quantification_kallisto**](#genome_quantification_kallisto) 
-  - Gene annotation file (custom `.gtf`)
+  - Sorted Gene annotation file (`.gtf`); from [**sort_gtf**](#sort_gtf)
 - **Output**
   - Gene TPM table (custom `.tsv`)
   - Gene read count table (custom `.tsv`)
@@ -473,7 +489,7 @@ Run PCA analysis on salmon genes and transcripts with [custom script][custom-scr
 Create index for [**ALFA**](#third-party-software-used).
 
 - **Input**
-  - Gene annotation file (`.gtf`)
+  - Sorted Gene annotation file (`.gtf`); from [**sort_gtf**](#sort_gtf)
   - Chromosome length table `chrNameLength.txt`; from
     [**create_index_star**](#create_index_star)
 - **Output**
@@ -656,7 +672,7 @@ Estimate transcript- and gene-level expression with
 - **Input**
   - Reads file (`.fastq.gz`); from
     [**remove_polya_cutadapt**](#remove_polya_cutadapt)
-  - Filtered annotation file (`.gtf`)
+  - Sorted Gene annotation file (`.gtf`); from [**sort_gtf**](#sort_gtf)
   - Index; from [**create_index_salmon**](#create_index_salmon)
 - **Parameters**
   - **samples.tsv**

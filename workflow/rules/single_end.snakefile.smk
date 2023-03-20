@@ -254,8 +254,10 @@ rule quantification_salmon:
             get_sample("kmer", search_id="index", search_value=wildcards.sample),
             "salmon.idx",
         ),
-        gtf=lambda wildcards: os.path.abspath(
-            get_sample("gtf", search_id="index", search_value=wildcards.sample)
+        gtf=lambda wildcards: os.path.join(
+            config["star_indexes"],
+            get_sample("organism", search_id="index", search_value=wildcards.sample),
+            "sorted_genome.gtf",
         ),
     output:
         gn_estimates=os.path.join(
