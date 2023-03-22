@@ -3,9 +3,9 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - bedtools=2.29.2
-  - biopython=1.76
-  - snakefmt
+  - bedtools=2.30
+  - biopython=1.81
+  - snakefmt>=0.8.1
   - unzip=6.0
 
 
