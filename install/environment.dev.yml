@@ -1,7 +1,7 @@
 name: zarp
 channels:
-  - bioconda
   - conda-forge
+  - bioconda
 dependencies:
   - bedtools=2.30
   - biopython=1.81

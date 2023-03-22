@@ -24,7 +24,7 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: "3.7.4"
+          python-version: "3.10.1"
           mamba-version: "*"
           channels: conda-forge
           channel-priority: true
@@ -72,7 +72,7 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: "3.7.4"
+          python-version: "3.10.1"
           mamba-version: "*"
           channels: conda-forge
           channel-priority: true
@@ -109,7 +109,7 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: "3.7.4"
+          python-version: "3.10.1"
           mamba-version: "*"
           channels: conda-forge
           channel-priority: true
@@ -146,7 +146,7 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: "3.7.4"
+          python-version: "3.10.1"
           mamba-version: "*"
           channels: conda-forge
           channel-priority: true
@@ -183,7 +183,7 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: "3.7.4"
+          python-version: "3.10.1"
           mamba-version: "*"
           channels: conda-forge
           channel-priority: true
