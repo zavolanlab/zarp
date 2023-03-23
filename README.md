@@ -104,6 +104,17 @@ to include Singularity in the Conda environment:
 mamba env update -f install/environment.root.yml
 ```
 
+### Command-line interface dependencies
+> A command-line interface, [ZARP-cli](https://github.com/zavolanlab/zarp-cli) is now availble and all you have to do to make use of it is update your environment:
+
+```bash
+mamba env update -f install/environment.cli.yml
+```
+
+More info at: [NEW: Running ZARP gets even easier!](#new-running-zarp-gets-even-easier)
+
+
+
 ## 4. Activate environment
 
 Activate the Conda environment with:
@@ -164,6 +175,21 @@ bash tests/test_integration_workflow_with_conda/test.slurm.sh
 > Snakemake manual dealing with [profiles].
 
 # Running the workflow on your own samples
+
+## NEW: Running ZARP gets even easier!
+>  You can now run your ZARP workflow using its' new command-line interface, [ZARP-cli](https://github.com/zavolanlab/zarp-cli). To enable ZARP-cli, simply install the additional dependencies by executing the following command _in your active Conda environment_:
+
+```bash
+mamba env update -f install/environment.cli.yml
+```
+Run:
+```
+zarp --help
+```
+to see the useful options available, or take a look at [ZARP-cli documentation](https://github.com/zavolanlab/zarp-cli)
+
+
+## Running ZARP without ZARP-cli
 
 1. Assuming that your current directory is the repository's root directory,
 create a directory for your workflow run and move into it with:
