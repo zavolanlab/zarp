@@ -7,6 +7,4 @@ dependencies:
   - biopython=1.81
   - snakefmt>=0.8.1
   - unzip=6.0
-
-
-
+  
