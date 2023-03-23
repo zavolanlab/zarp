@@ -122,8 +122,8 @@ rule compress_fastq:
     shell:
         """
         pigz --best --processes {threads} {input.files}; \
+        1> {log.stdout} 2> {log.stderr}; \
         touch {output}; \
-        1> {log.stdout} 2> {log.stderr};
         """
 
 

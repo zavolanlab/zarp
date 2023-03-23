@@ -3,4 +3,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - zarp=0.1.1
+  - zarp>=0.1
