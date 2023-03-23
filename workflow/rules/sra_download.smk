@@ -20,7 +20,6 @@ rule all:
     input:
         SAMPLES_OUT,
 
-
 rule prefetch:
     "Prefetch SRA entry. Requires internet access."
     output:
@@ -46,14 +45,14 @@ rule prefetch:
         """
 
 
-rule fasterq_dump:
+checkpoint fasterq_dump:
     "Dump SRA entry as fastq file(s)."
     input:
         os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.sra"),
     output:
-        os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.dumped"),
+        flag=os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.dumped")
     params:
-        outdir=lambda wildcards: os.path.join(DOWNLOAD_DIR, wildcards.sample),
+        outdir=os.path.join(DOWNLOAD_DIR, "{sample}"),
         cluster_log_path=config["cluster_log_dir"],
     resources:
         mem_mb=lambda wildcards, attempt: 2048 * attempt,
@@ -75,7 +74,7 @@ rule fasterq_dump:
             --mem {resources.mem_mb}MB --threads {threads} \
             --temp {resources.tmpdir} \
             1> {log.stdout} 2> {log.stderr}; \
-        touch {output}
+        touch {output.flag}
         """
 
 
@@ -88,22 +87,23 @@ def get_fastq_files(wildcards):
     Returns:
         list (str): paths to .fastq files.
     """
-    files = os.listdir(os.path.join(DOWNLOAD_DIR, wildcards.sample))
+    files = os.listdir(os.path.dirname(checkpoints.fasterq_dump.get(**wildcards).output[0]))  
     to_zip = []
     for f in files:
         if f.endswith(".fastq"):
-            to_zip.append(os.path.join(DOWNLOAD_DIR, wildcards.sample, f))
+            to_zip.append(os.path.join(DOWNLOAD_DIR, "{sample}", f))
+    print(to_zip)
     return to_zip
 
 
 rule compress_fastq:
     "Compress fastq inplace with pigz at best (9) compression level."
     input:
+        files=get_fastq_files,
         tmpf=os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.dumped"),
     output:
         os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.processed"),
     params:
-        files=get_fastq_files,
         cluster_log_path=config["cluster_log_dir"],
     threads: 6
     conda:
@@ -119,9 +119,9 @@ rule compress_fastq:
         ),
     shell:
         """
-        pigz --best --processes {threads} {params.files} \
-            1> {log.stdout} 2> {log.stderr}; \
-        touch {output}
+        pigz --best --processes {threads} {input.files}; \
+        touch {output}; \
+        1> {log.stdout} 2> {log.stderr};
         """
 
 
