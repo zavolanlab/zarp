@@ -92,7 +92,6 @@ def get_fastq_files(wildcards):
     for f in files:
         if f.endswith(".fastq"):
             to_zip.append(os.path.join(DOWNLOAD_DIR, "{sample}", f))
-    print(to_zip)
     return to_zip
 
 
