@@ -20,6 +20,7 @@ rule all:
     input:
         SAMPLES_OUT,
 
+
 rule prefetch:
     "Prefetch SRA entry. Requires internet access."
     output:
@@ -50,7 +51,7 @@ checkpoint fasterq_dump:
     input:
         os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.sra"),
     output:
-        flag=os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.dumped")
+        flag=os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.dumped"),
     params:
         outdir=os.path.join(DOWNLOAD_DIR, "{sample}"),
         cluster_log_path=config["cluster_log_dir"],
@@ -87,7 +88,9 @@ def get_fastq_files(wildcards):
     Returns:
         list (str): paths to .fastq files.
     """
-    files = os.listdir(os.path.dirname(checkpoints.fasterq_dump.get(**wildcards).output[0]))  
+    files = os.listdir(
+        os.path.dirname(checkpoints.fasterq_dump.get(**wildcards).output[0])
+    )
     to_zip = []
     for f in files:
         if f.endswith(".fastq"):
