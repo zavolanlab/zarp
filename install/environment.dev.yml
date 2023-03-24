@@ -1,12 +1,10 @@
 name: zarp
 channels:
-  - bioconda
   - conda-forge
+  - bioconda
 dependencies:
-  - bedtools=2.29.2
-  - biopython=1.76
+  - bedtools
+  - biopython
   - snakefmt
-  - unzip=6.0
-
-
-
+  - unzip
+  
