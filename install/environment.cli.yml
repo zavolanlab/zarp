@@ -3,8 +3,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bedtools
-  - biopython
-  - snakefmt
-  - unzip
-  
+  - zarp>=0.1
