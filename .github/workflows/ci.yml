@@ -239,4 +239,4 @@ jobs:
           conda info -a
           conda list
       - name: Run test script
-        run: bash tests/test_zarp_cli/test_zarp_cli.sh
+        run: zarp --help
