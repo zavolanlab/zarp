@@ -1,6 +1,6 @@
 version: 1
 labels:
-- label: "enhancement"
+- label: "breaking-change"
   title: "BREAKING CHANGE:.*"
 - label: "enhancement"
   title: "^feat:.*"
