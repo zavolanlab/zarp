@@ -1,11 +1,6 @@
 # .github/release.yml
 
 changelog:
-  # exclude:
-  #   labels:
-  #     - ignore-for-release
-  #   authors:
-  #     - 
   categories:
     - title: Breaking Changes 🛠
       labels:
