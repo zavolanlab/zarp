@@ -7,7 +7,7 @@ changelog:
         - BREAKING CHANGE
     - title: Exciting New Features 🎉
       labels:
-        - feat
+        - "feat*"
     - title: Other Changes
       labels:
         - "*"
