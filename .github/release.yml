@@ -4,10 +4,12 @@ changelog:
   categories:
     - title: Breaking Changes 🛠
       labels:
+        - Semver-Major
         - BREAKING CHANGE
     - title: Exciting New Features 🎉
       labels:
-        - "feat*"
+        - Semver-Minor
+        - feat
     - title: Other Changes
       labels:
         - "*"
