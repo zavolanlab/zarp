@@ -1,7 +1,0 @@
-version: 1
-labels:
-- label: "enhancement"
-  title: "BREAKING CHANGE:.*"
-- label: "enhancement"
-  title: "^feat:.*"
-  
