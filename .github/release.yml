@@ -1,4 +1,5 @@
 # .github/release.yml
+
 changelog:
   # exclude:
   #   labels:
@@ -8,10 +9,10 @@ changelog:
   categories:
     - title: Breaking Changes 🛠
       labels:
-        - BREAKING CHANGE
+        - breaking-change
     - title: Exciting New Features 🎉
       labels:
-        - feat
+        - enhancement
     - title: Other Changes
       labels:
         - "*"
