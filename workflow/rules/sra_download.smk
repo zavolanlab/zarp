@@ -132,7 +132,7 @@ rule add_fq_file_path:
     input:
         expand(
             os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.processed"),
-            sample=samples[samples.index.str.contains("SRR")].index.tolist(),
+            sample=samples[samples.index.str.contains(".RR")].index.tolist(),
         ),
     output:
         SAMPLES_OUT,
