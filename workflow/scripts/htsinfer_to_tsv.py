@@ -49,7 +49,7 @@ def main():
     samples_df = samples_df.replace(r'^\s*$', np.nan, regex=True)
     # replace None
     samples_df =  samples_df.fillna(value=np.nan)
-
+    LOGGER.debug(f"samples_df: {samples_df}")
     outfile = options.output
 
     params_df = pd.DataFrame(columns=[
@@ -106,14 +106,16 @@ def main():
 
 def should_i_flag(df, sample, param):
     '''Only RAISE error if user hasn't specified value either'''
-
+    global e_flag
+    LOGGER.debug(f"flag before: {e_flag}")
     try:
         user_param = df.loc[sample,param]
     except KeyError:
         user_param = np.nan
-    if user_param is np.nan:
+    if np.isnan(user_param):
         e_flag = True
 
+    LOGGER.debug(f"flag after: {e_flag}")
     return e_flag
 
 
