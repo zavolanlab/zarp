@@ -47,7 +47,7 @@ rule run_htsinfer:
         cluster_log_path=CLUSTER_LOG,
     threads: 4
     singularity:
-        "docker://zavolab/htsinfer:0.9.0"
+        "docker://zavolab/htsinfer:latest"
     conda:
         os.path.join(workflow.basedir, "..", "envs", "htsinfer.yaml")
     log:
@@ -80,7 +80,7 @@ rule htsinfer_to_tsv:
         SAMPLES_OUT,
     threads: 4
     singularity:
-        "docker://zavolab/htsinfer:0.9.0"
+        "docker://zavolab/htsinfer:latest"
     conda:
         os.path.join(workflow.basedir, "..", "envs", "htsinfer.yaml")
     log:
