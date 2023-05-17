@@ -41,6 +41,7 @@ def parse_arguments():
 
 
 def main():
+    global e_flag
     # input parameters
     file_list = options.file_list
 
@@ -121,7 +122,7 @@ def should_i_flag(df, sample, param):
 
 def htsinfer_to_zarp(sample,jparams, samples_df):
     '''Translate htsinfer json output to zarp compatible row.'''  
-
+    global e_flag
     # need to swap filepaths?
     swap_paths = False
 
