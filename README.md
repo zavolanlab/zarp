@@ -1,7 +1,8 @@
 [![ci](https://github.com/zavolanlab/zarp/workflows/CI/badge.svg?branch=dev)](https://github.com/zavolanlab/zarp/actions?query=workflow%3Aci)
 [![GitHub license](https://img.shields.io/github/license/zavolanlab/zarp?color=orange)](https://github.com/zavolanlab/zarp/blob/dev/LICENSE)
-[![DOI:10.1101/2021.11.18.469017](http://img.shields.io/badge/DOI-10.1101/2021.11.18.469017-B31B1B.svg)](https://doi.org/10.1101/2021.11.18.469017)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5703358.svg)](https://doi.org/10.5281/zenodo.5703358)
+[![DOI:biorxiv](https://img.shields.io/badge/bioRxiv-10.1101%2F2021.11.18.469017-informational)](https://doi.org/10.1101/2021.11.18.469017)
+[![DOI:zenodo](https://img.shields.io/badge/Zenodo-10.5281%2Fzenodo.5703358-informational)](https://doi.org/10.5281/zenodo.5703358)
+[![DOI:workflowhub](https://img.shields.io/badge/WorkflowHub-10.48546%2Fworkflowhub.workflow.447.1-informational)](https://doi.org/10.48546/workflowhub.workflow.447.1)
 
 <div align="left">
     <img width="20%" align="left" src=images/zarp_logo.svg>
