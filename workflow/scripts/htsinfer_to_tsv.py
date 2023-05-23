@@ -113,7 +113,7 @@ def should_i_flag(df, sample, param):
         user_param = df.loc[sample,param]
     except KeyError:
         user_param = np.nan
-    if np.isnan(user_param):
+    if pd.isna(user_param):
         e_flag = True
 
     LOGGER.debug(f"flag after: {e_flag}")
@@ -174,8 +174,8 @@ def htsinfer_to_zarp(sample,jparams, samples_df):
             LOGGER.warning("No 3p adapter for fq2 identified, no adapters will be removed.")
 
     # organism
-    org1 = jparams.library_source.file_1.short_name
-    org2 = jparams.library_source.file_2.short_name
+    org1 = jparams.library_source.file_1.taxon_id
+    org2 = jparams.library_source.file_2.taxon_id
     tparams["organism"] = None
 
     # source could not be inferred
@@ -225,7 +225,7 @@ def htsinfer_to_zarp(sample,jparams, samples_df):
     read_lengths.append(jparams.library_stats.file_1.read_length.max)
     read_lengths.append(jparams.library_stats.file_2.read_length.max)
     if (read_lengths is not None) and (len(read_lengths) != 0):
-        tparams["index_size"] = max([int(i) for i in read_lengths if i is not None])
+        tparams["index_size"] = max([int(i) for i in read_lengths if i is not None], default=0)
     else:
         LOGGER.error("Read lengths (=index_size) could not be determined")
         
