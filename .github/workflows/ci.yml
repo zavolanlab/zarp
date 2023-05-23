@@ -34,10 +34,10 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with root. packages
-        run: mamba env update -n zarp -f install/environment.root.yml
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
 
       - name: Update zarp env with dev. packages
-        run: mamba env update -n zarp -f install/environment.dev.yml
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
         run: |
@@ -82,10 +82,10 @@ jobs:
           auto-activate-base: false
       
       - name: Update zarp env with root. packages
-        run: mamba env update -n zarp -f install/environment.root.yml
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
       
       - name: Update zarp env with dev. packages
-        run: mamba env update -n zarp -f install/environment.dev.yml
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
         run: |
@@ -119,10 +119,10 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with root. packages
-        run: mamba env update -n zarp -f install/environment.root.yml
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
 
       - name: Update zarp env with dev. packages
-        run: mamba env update -n zarp -f install/environment.dev.yml
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
         run: |
@@ -156,10 +156,10 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with root. packages
-        run: mamba env update -n zarp -f install/environment.root.yml
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
 
       - name: Update zarp env with dev. packages
-        run: mamba env update -n zarp -f install/environment.dev.yml
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
         run: |
@@ -193,7 +193,7 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with dev. packages
-        run: mamba env update -n zarp -f install/environment.dev.yml
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
         run: |
@@ -230,9 +230,9 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with dev. packages
-        run: mamba env update -n zarp -f install/environment.dev.yml
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
       - name: Update zarp env with ZARP-cli
-        run: mamba env update -n zarp -f install/environment.cli.yml
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.cli.yml
 
       - name: Display all miniconda & env info
         run: |
