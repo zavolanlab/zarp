@@ -161,13 +161,13 @@ def htsinfer_to_zarp(sample,jparams, samples_df):
 
     # fq1_3p (same for se and pe)
     f1_3p = jparams.read_layout.file_1.adapt_3
-    tparams["fq1_3p"] = "X" * 15 if f1_3p is None else f1_3p    
+    tparams["fq1_3p"] = np.nan if f1_3p is None else f1_3p    
     if f1_3p is None:
         LOGGER.warning("No 3p adapter for fq1 identified.")
             
     # fq2_3p
     f2_3p = jparams.read_layout.file_2.adapt_3
-    tparams["fq2_3p"] = "X" * 15 if f2_3p is None else f2_3p
+    tparams["fq2_3p"] = np.nan if f2_3p is None else f2_3p
     if f2_3p is None:
         # info only necessary for pe mode
         if tparams["seqmode"] == "pe":
@@ -249,4 +249,4 @@ if __name__ == '__main__':
         LOGGER.info("Finished script successfully.")
     else:
         LOGGER.error("Finished script BUT one or more required parameters could not be inferred, please check logs.")
-        sys.exit(1)
+        sys.exit(0)
