@@ -20,6 +20,7 @@ cd $script_dir
 
 # Run tests
 snakemake \
+    --snakefile="../../workflow/Snakefile" \
     --profile="../../profiles/graphs" \
     --configfile="../input_files/config.yaml" \
     --rulegraph \
