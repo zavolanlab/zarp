@@ -12,8 +12,8 @@ samples = pd.read_csv(
     config["samples"], header=0, index_col=0, sep="\t", keep_default_na=False
 )
 OUT_DIR = config["outdir"]
-LOG_DIR = os.path.join(OUT_DIR, "logs")
-CLUSTER_LOG = os.path.join(LOG_DIR, "cluster_logs")
+LOG_DIR = config["log_dir"]
+CLUSTER_LOG = config["cluster_log_dir"]
 # Write inferred params into new sample table.
 SAMPLES_OUT = os.path.join(OUT_DIR, config["samples_out"])
 

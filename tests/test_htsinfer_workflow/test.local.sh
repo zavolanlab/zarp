@@ -36,6 +36,8 @@ snakemake \
     --config outdir="results" \
              samples="../input_files/htsinfer_samples.tsv" \
              samples_out="samples_htsinfer.tsv" \
+             log_dir="logs" \
+             cluster_log_dir="logs/cluster_log" \
     --notemp \
     --keep-incomplete
 
