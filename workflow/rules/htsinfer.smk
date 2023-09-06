@@ -59,7 +59,7 @@ rule run_htsinfer:
         set +e 
         htsinfer --records={params.records} --output-directory={params.outdir} --temporary-directory={resources.tmpdir} --cleanup-regime=KEEP_ALL --threads={threads} {input.fq1_path} {params.fq2_path} > {output.htsinfer_json} 2> {log.stderr}
         exitcode=$?
-        if [ $exitcode -eq 1]
+        if [ $exitcode -eq 1 ]
         then
             exit 0
         fi
