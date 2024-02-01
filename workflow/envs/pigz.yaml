@@ -3,5 +3,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - pigz=2.6
+  - pigz=2.8
 ...

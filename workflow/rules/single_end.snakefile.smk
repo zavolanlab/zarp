@@ -43,7 +43,7 @@ rule remove_adapters_cutadapt:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
+        "docker://quay.io/biocontainers/cutadapt:4.6--py310h4b81fae_1"
     conda:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
     threads: 4
@@ -112,7 +112,7 @@ rule remove_polya_cutadapt:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
+        "docker://quay.io/biocontainers/cutadapt:4.6--py310h4b81fae_1"
     conda:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
     threads: 4
@@ -208,7 +208,7 @@ rule map_genome_star:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
+        "docker://quay.io/biocontainers/star:2.7.11b--h43eeafb_0"
     conda:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
     threads: 12
@@ -318,7 +318,7 @@ rule quantification_salmon:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
+        "docker://quay.io/biocontainers/salmon:1.10.2--hecfa306_0"
     conda:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
     threads: 6
@@ -409,7 +409,7 @@ rule genome_quantification_kallisto:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
+        "docker://quay.io/biocontainers/kallisto:0.50.1--hc877fd6_0"
     conda:
         os.path.join(workflow.basedir, "envs", "kallisto.yaml")
     threads: 8
