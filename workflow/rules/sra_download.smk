@@ -63,7 +63,7 @@ rule prefetch:
     conda:
         os.path.join(workflow.basedir, "..", "envs", "sra-tools.yaml")
     singularity:
-        "docker://ncbi/sra-tools"
+        "docker://quay.io/biocontainers/sra-tools:3.0.10--h9f5acd7_0"
     log:
         stderr=os.path.join(
             config["log_dir"], "samples", "{sample}", "prefetch.stderr.log"
@@ -84,7 +84,7 @@ def get_layouts(wildcards):
     ivals = []
     for i in samples[
         samples.index.str.contains("^.RR", regex=True, case=True)
-    ].index.tolist():
+            ].index.tolist():
         checkpoint_output = checkpoints.get_layout.get(
             sample=i, **wildcards
         ).output.outdir
@@ -97,6 +97,7 @@ def get_layouts(wildcards):
             ivals2.append("pe")
         elif ival == "SINGLE":
             ivals2.append("se")
+
     layouts = expand(
         os.path.join(
             config["outdir"], "compress", "{sample}", "{sample}.{seqmode}.tsv"

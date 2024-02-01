@@ -97,6 +97,8 @@ jobs:
       - name: Run htsinfer test script
         run: bash tests/test_htsinfer_workflow/test.local.sh
 
+      - name: Run SRA downloads workflow
+        run: bash tests/test_sra_download_with_singularity/test.local.sh
 
   integration-singularity-tempflag:
     needs:
