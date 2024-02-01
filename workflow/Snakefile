@@ -1,4 +1,5 @@
 """General purpose RNA-Seq analysis pipeline developed by the Zavolan Lab"""
+
 import os
 import pandas as pd
 import shutil
