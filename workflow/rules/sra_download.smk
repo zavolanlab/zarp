@@ -103,7 +103,6 @@ rule add_fq_file_path:
     "Add fastq paths to sample table."
     input:
         files = get_layouts
-
     output:
         outfile=config["samples_out"]
     params:

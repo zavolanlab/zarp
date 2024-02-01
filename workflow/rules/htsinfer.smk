@@ -8,10 +8,12 @@ config.setdefault("records", 100000)
 
 
 # global variables
-samples = pd.read_csv(config["samples"], header=0, index_col=0, sep="\t")
+samples = pd.read_csv(
+    config["samples"], header=0, index_col=0, sep="\t", keep_default_na=False
+)
 OUT_DIR = config["outdir"]
-LOG_DIR = os.path.join(OUT_DIR, "logs")
-CLUSTER_LOG = os.path.join(LOG_DIR, "cluster_logs")
+LOG_DIR = config["log_dir"]
+CLUSTER_LOG = config["cluster_log_dir"]
 # Write inferred params into new sample table.
 SAMPLES_OUT = os.path.join(OUT_DIR, config["samples_out"])
 
@@ -47,7 +49,7 @@ rule run_htsinfer:
         cluster_log_path=CLUSTER_LOG,
     threads: 4
     singularity:
-        "docker://zavolab/htsinfer:0.9.0"
+        "docker://zavolab/htsinfer:latest"
     conda:
         os.path.join(workflow.basedir, "..", "envs", "htsinfer.yaml")
     log:
@@ -57,7 +59,7 @@ rule run_htsinfer:
         set +e 
         htsinfer --records={params.records} --output-directory={params.outdir} --temporary-directory={resources.tmpdir} --cleanup-regime=KEEP_ALL --threads={threads} {input.fq1_path} {params.fq2_path} > {output.htsinfer_json} 2> {log.stderr}
         exitcode=$?
-        if [ $exitcode -eq 1]
+        if [ $exitcode -eq 1 ]
         then
             exit 0
         fi
@@ -80,7 +82,7 @@ rule htsinfer_to_tsv:
         SAMPLES_OUT,
     threads: 4
     singularity:
-        "docker://zavolab/htsinfer:0.9.0"
+        "docker://zavolab/htsinfer:latest"
     conda:
         os.path.join(workflow.basedir, "..", "envs", "htsinfer.yaml")
     log:

@@ -26,6 +26,7 @@ cd $script_dir
 
 # Run tests
 snakemake \
+    --snakefile="../../workflow/Snakefile" \
     --profile="../../profiles/local-conda" \
     --configfile="../input_files/config.yaml" \
     --notemp
