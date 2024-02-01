@@ -1,5 +1,5 @@
-current_rule = "pe_remove_adapters_cutadapt"
 
+current_rule = "pe_remove_adapters_cutadapt"
 
 rule pe_remove_adapters_cutadapt:
     """
