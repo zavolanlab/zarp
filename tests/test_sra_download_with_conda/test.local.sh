@@ -13,7 +13,7 @@ cleanup () {
     cd $user_dir
     echo "Exit status: $rc"
 }
-trap cleanup EXIT
+# trap cleanup EXIT
 
 # Set up test environment
 set -eo pipefail  # ensures that script exits at first command that exits with non-zero status
@@ -31,6 +31,7 @@ snakemake --snakefile="../../workflow/rules/sra_download.smk" \
                    samples_out="results/sra_downloads/sra_samples.out.tsv" \
                    log_dir="logs" \
                    cluster_log_dir="logs/cluster_log"
+
           
 
 # Check md5 sum of some output files

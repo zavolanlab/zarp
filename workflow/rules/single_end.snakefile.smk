@@ -1,6 +1,6 @@
-
-
 current_rule = "remove_adapters_cutadapt"
+
+
 rule remove_adapters_cutadapt:
     """
         Remove adapters

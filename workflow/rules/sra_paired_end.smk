@@ -1,19 +1,27 @@
 rule fasterq_dump_pe:
     "Dump SRA entry as fastq file(s)."
     input:
-        infile = os.path.join(config["outdir"], "prefetch", "{sample}"),
+        infile=os.path.join(config["outdir"], "prefetch", "{sample}"),
     output:
-        outfile1 = temp(os.path.join(config["outdir"], "fasterq_dump", "{sample}", "{sample}_1.fastq")),
-        outfile2 = temp(os.path.join(config["outdir"], "fasterq_dump", "{sample}", "{sample}_2.fastq")),
+        outfile1=temp(
+            os.path.join(
+                config["outdir"], "fasterq_dump", "{sample}", "{sample}_1.fastq"
+            )
+        ),
+        outfile2=temp(
+            os.path.join(
+                config["outdir"], "fasterq_dump", "{sample}", "{sample}_2.fastq"
+            )
+        ),
     params:
         cluster_log_path=config["cluster_log_dir"],
-        results = os.path.join(config["outdir"], "fasterq_dump"),
-        outdir = "{sample}",
-        sample_dir = os.path.join(config["outdir"], "fasterq_dump", "{sample}"),
-        sample = os.path.abspath(os.path.join(config["outdir"], "prefetch", "{sample}")),
+        results=os.path.join(config["outdir"], "fasterq_dump"),
+        outdir="{sample}",
+        sample_dir=os.path.join(config["outdir"], "fasterq_dump", "{sample}"),
+        sample=os.path.abspath(os.path.join(config["outdir"], "prefetch", "{sample}")),
     resources:
         mem_mb=lambda wildcards, attempt: 3048 * attempt,
-        tmpdir=os.path.join("tmpdir")
+        tmpdir=os.path.join("tmpdir"),
     threads: 4
     conda:
         os.path.join(workflow.basedir, "..", "envs", "sra-tools.yaml")
@@ -37,17 +45,26 @@ rule fasterq_dump_pe:
         --temp {resources.tmpdir};) 1> {log.stdout} 2> {log.stderr}
         """
 
+
 rule compress_fastq_pe:
     "Compress fastq inplace with pigz at best (9) compression level."
     input:
-        file1=os.path.join(config["outdir"], "fasterq_dump", "{sample}", "{sample}_1.fastq"),
-        file2=os.path.join(config["outdir"], "fasterq_dump", "{sample}", "{sample}_2.fastq"),
+        file1=os.path.join(
+            config["outdir"], "fasterq_dump", "{sample}", "{sample}_1.fastq"
+        ),
+        file2=os.path.join(
+            config["outdir"], "fasterq_dump", "{sample}", "{sample}_2.fastq"
+        ),
     output:
-        file1=os.path.join(config["outdir"], "compress", "{sample}", "{sample}_1.fastq.gz"),
-        file2=os.path.join(config["outdir"], "compress", "{sample}", "{sample}_2.fastq.gz"),
+        file1=os.path.join(
+            config["outdir"], "compress", "{sample}", "{sample}_1.fastq.gz"
+        ),
+        file2=os.path.join(
+            config["outdir"], "compress", "{sample}", "{sample}_2.fastq.gz"
+        ),
     params:
         cluster_log_path=config["cluster_log_dir"],
-        outdir = os.path.join(config["outdir"], "compress", "{sample}"),
+        outdir=os.path.join(config["outdir"], "compress", "{sample}"),
     threads: 6
     conda:
         os.path.join(workflow.basedir, "..", "envs", "pigz.yaml")
@@ -67,16 +84,23 @@ rule compress_fastq_pe:
             1> {log.stdout} 2> {log.stderr};
         """
 
+
 rule process_fastq_pe:
     "Aggregate names of samples"
     input:
-        file1=os.path.join(config["outdir"], "compress", "{sample}", "{sample}_1.fastq.gz"),
-        file2=os.path.join(config["outdir"], "compress", "{sample}", "{sample}_2.fastq.gz")
+        file1=os.path.join(
+            config["outdir"], "compress", "{sample}", "{sample}_1.fastq.gz"
+        ),
+        file2=os.path.join(
+            config["outdir"], "compress", "{sample}", "{sample}_2.fastq.gz"
+        ),
     output:
-        outfile=os.path.join(config["outdir"], "compress", "{sample}", "{sample}.pe.tsv"),     
+        outfile=os.path.join(
+            config["outdir"], "compress", "{sample}", "{sample}.pe.tsv"
+        ),
     params:
         cluster_log_path=config["cluster_log_dir"],
-        filename="{sample}"
+        filename="{sample}",
     threads: 1
     log:
         stderr=os.path.join(
@@ -87,11 +111,9 @@ rule process_fastq_pe:
         ),
     run:
         samples_mod = pd.DataFrame()
-        samples_mod.index.name = 'sample'
-        samples_mod["fq1"] = ''
-        samples_mod["fq2"] = ''
+        samples_mod.index.name = "sample"
+        samples_mod["fq1"] = ""
+        samples_mod["fq2"] = ""
         samples_mod.loc[params.filename, "fq1"] = input.file1
         samples_mod.loc[params.filename, "fq2"] = input.file2
         samples_mod.to_csv(output.outfile, index=True, sep="\t")
-
-       
