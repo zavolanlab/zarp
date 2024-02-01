@@ -64,7 +64,7 @@ rule pe_remove_adapters_cutadapt:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/cutadapt:3.4--py37h73a75cf_1"
+        "docker://quay.io/biocontainers/cutadapt:4.6--py310h4b81fae_1"
     conda:
         os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
     threads: 4
