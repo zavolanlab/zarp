@@ -49,7 +49,7 @@ rule run_htsinfer:
         cluster_log_path=CLUSTER_LOG,
     threads: 4
     singularity:
-        "docker://quay.io/biocontainers/htsinfer:0.9.0--pyhdfd78af_0"
+        "docker://quay.io/biocontainers/htsinfer:0.10.0--pyhdfd78af_0"
     conda:
         os.path.join(workflow.basedir, "..", "envs", "htsinfer.yaml")
     log:
@@ -82,7 +82,7 @@ rule htsinfer_to_tsv:
         SAMPLES_OUT,
     threads: 4
     singularity:
-        "docker://quay.io/biocontainers/htsinfer:0.9.0--pyhdfd78af_0"
+        "docker://quay.io/biocontainers/htsinfer:0.10.0--pyhdfd78af_0"
     conda:
         os.path.join(workflow.basedir, "..", "envs", "htsinfer.yaml")
     log:
