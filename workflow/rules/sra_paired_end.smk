@@ -85,7 +85,7 @@ rule compress_fastq_pe:
 
 
 rule process_fastq_pe:
-    "Aggregate names of samples"
+    "Keep the fastq.gz file paths in a table"
     input:
         file1=os.path.join(
             config["outdir"], "compress", "{sample}", "{sample}_1.fastq.gz"

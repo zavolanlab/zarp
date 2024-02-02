@@ -73,7 +73,7 @@ rule compress_fastq_se:
 
 
 rule process_fastq_se:
-    "Compress fastq inplace with pigz at best (9) compression level."
+    "Keep the fastq.gz file path in a table"
     input:
         file=os.path.join(config["outdir"], "compress", "{sample}", "{sample}.fastq.gz"),
     output:

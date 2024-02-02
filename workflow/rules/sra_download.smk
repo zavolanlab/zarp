@@ -24,7 +24,7 @@ rule all:
 
 
 checkpoint get_layout:
-    "Get the layout of each sample."
+    "Get the library type of each sample (paired or single-end)."
     output:
         outdir=directory(os.path.join(config["outdir"], "get_layout", "{sample}")),
     params:
