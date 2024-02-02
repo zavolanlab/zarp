@@ -84,7 +84,7 @@ def get_layouts(wildcards):
     ivals = []
     for i in samples[
         samples.index.str.contains("^.RR", regex=True, case=True)
-            ].index.tolist():
+    ].index.tolist():
         checkpoint_output = checkpoints.get_layout.get(
             sample=i, **wildcards
         ).output.outdir
