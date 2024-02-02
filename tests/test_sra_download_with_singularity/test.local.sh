@@ -13,7 +13,7 @@ cleanup () {
     cd $user_dir
     echo "Exit status: $rc"
 }
-# trap cleanup EXIT
+trap cleanup EXIT
 
 # Set up test environment
 set -eo pipefail  # ensures that script exits at first command that exits with non-zero status

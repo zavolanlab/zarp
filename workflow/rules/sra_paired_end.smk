@@ -21,7 +21,6 @@ rule fasterq_dump_pe:
         sample=os.path.abspath(os.path.join(config["outdir"], "prefetch", "{sample}")),
     resources:
         mem_mb=lambda wildcards, attempt: 3048 * attempt,
-        tmpdir=os.path.join("tmpdir"),
     threads: 4
     conda:
         os.path.join(workflow.basedir, "..", "envs", "sra-tools.yaml")
@@ -42,7 +41,7 @@ rule fasterq_dump_pe:
         --mem {resources.mem_mb}MB \
         --outdir {params.outdir} \
         --threads {threads} \
-        --temp {resources.tmpdir};) 1> {log.stdout} 2> {log.stderr}
+        --temp tmpdir;) 1> {log.stdout} 2> {log.stderr}
         """
 
 
