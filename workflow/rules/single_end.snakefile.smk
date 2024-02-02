@@ -409,7 +409,7 @@ rule genome_quantification_kallisto:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/kallisto:0.50.1--hc877fd6_0"
+        "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
     conda:
         os.path.join(workflow.basedir, "envs", "kallisto.yaml")
     threads: 8
