@@ -1,4 +1,5 @@
 """General purpose RNA-Seq analysis pipeline developed by the Zavolan Lab"""
+
 import os
 import pandas as pd
 import shutil
@@ -206,7 +207,7 @@ rule start:
             f"{current_rule}_{{sample}}.{{mate}}.stdout.log",
         ),
     container:
-        "docker://ubuntu:focal-20210416"
+        "docker://ubuntu:jammy-20240111"
     shell:
         "(cat {input.reads} > {output.reads}) \
         1> {log.stdout} 2> {log.stderr} "
@@ -242,7 +243,7 @@ rule fastqc:
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     container:
-        "docker://quay.io/biocontainers/fastqc:0.11.9--hdfd78af_1"
+        "docker://quay.io/biocontainers/fastqc:0.12.1--hdfd78af_0"
     conda:
         os.path.join(workflow.basedir, "envs", "fastqc.yaml")
     log:
@@ -298,7 +299,7 @@ rule fastqc_trimmed:
         ),
     threads: 1
     container:
-        "docker://quay.io/biocontainers/fastqc:0.11.9--hdfd78af_1"
+        "docker://quay.io/biocontainers/fastqc:0.12.1--hdfd78af_0"
     conda:
         os.path.join(workflow.basedir, "envs", "fastqc.yaml")
     log:
@@ -372,7 +373,7 @@ rule create_index_star:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
+        "docker://quay.io/biocontainers/star:2.7.11b--h43eeafb_0"
     conda:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
     threads: 12
@@ -420,7 +421,7 @@ rule sort_gtf:
     params:
         cluster_log_path=config["cluster_log_dir"],
     container:
-        "docker://ubuntu:focal-20210416"
+        "docker://ubuntu:jammy-20240111"
     threads: 1
     resources:
         mem_mb=lambda wildcards, attempt: 32000 * attempt,
@@ -470,7 +471,7 @@ rule extract_transcriptome:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/gffread:0.12.1--h2e03b76_1"
+        "docker://quay.io/biocontainers/gffread:0.12.7--hdcf5f25_3"
     conda:
         os.path.join(workflow.basedir, "envs", "gffread.yaml")
     resources:
@@ -513,7 +514,7 @@ rule concatenate_transcriptome_and_genome:
     params:
         cluster_log_path=config["cluster_log_dir"],
     container:
-        "docker://ubuntu:focal-20210416"
+        "docker://ubuntu:jammy-20240111"
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
@@ -567,7 +568,7 @@ rule create_index_salmon:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
+        "docker://quay.io/biocontainers/salmon:1.10.2--hecfa306_0"
     conda:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
     threads: 8
@@ -611,7 +612,7 @@ rule create_index_kallisto:
             rule_config, current_rule=current_rule, immutable=("-i",)
         ),
     container:
-        "docker://quay.io/biocontainers/kallisto:0.46.2--h60f4f9f_2"
+        "docker://quay.io/biocontainers/kallisto:0.48.0--h15996b6_2"
     conda:
         os.path.join(workflow.basedir, "envs", "kallisto.yaml")
     resources:
@@ -661,7 +662,7 @@ rule extract_transcripts_as_bed12:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/zgtf:0.1.1--pyh5e36f6f_0"
+        "docker://quay.io/biocontainers/zgtf:0.1.2--pyh5e36f6f_0"
     conda:
         os.path.join(workflow.basedir, "envs", "zgtf.yaml")
     threads: 1
@@ -707,7 +708,7 @@ rule sort_genomic_alignment_samtools:
             rule_config, current_rule=current_rule, immutable=()
         ),
     container:
-        "docker://quay.io/biocontainers/samtools:1.9--h10a08f8_12"
+        "docker://quay.io/biocontainers/samtools:1.19.2--h50ea8bc_0"
     conda:
         os.path.join(workflow.basedir, "envs", "samtools.yaml")
     threads: 8
@@ -764,7 +765,7 @@ rule index_genomic_alignment_samtools:
             rule_config, current_rule=current_rule, immutable=()
         ),
     container:
-        "docker://quay.io/biocontainers/samtools:1.3.1--h1b8c3c0_8"
+        "docker://quay.io/biocontainers/samtools:1.19.2--h50ea8bc_0"
     conda:
         os.path.join(workflow.basedir, "envs", "samtools.yaml")
     threads: 1
@@ -929,7 +930,7 @@ rule salmon_quantmerge_genes:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
+        "docker://quay.io/biocontainers/salmon:1.10.2--hecfa306_0"
     conda:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
     threads: 1
@@ -1016,7 +1017,7 @@ rule salmon_quantmerge_transcripts:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/salmon:1.4.0--h84f40af_1"
+        "docker://quay.io/biocontainers/salmon:1.10.2--hecfa306_0"
     conda:
         os.path.join(workflow.basedir, "envs", "salmon.yaml")
     threads: 1
@@ -1379,7 +1380,7 @@ rule star_rpm:
             ),
         ),
     container:
-        "docker://quay.io/biocontainers/star:2.7.8a--h9ee0642_1"
+        "docker://quay.io/biocontainers/star:2.7.11b--h43eeafb_0"
     conda:
         os.path.join(workflow.basedir, "envs", "STAR.yaml")
     threads: 4
@@ -1468,7 +1469,7 @@ rule rename_star_rpm_for_alfa:
     params:
         cluster_log_path=config["cluster_log_dir"],
     container:
-        "docker://ubuntu:focal-20210416"
+        "docker://ubuntu:jammy-20240111"
     log:
         stderr=os.path.join(
             config["log_dir"],
@@ -1901,7 +1902,7 @@ rule sort_bed_4_big:
             rule_config, current_rule=current_rule, immutable=("-i",)
         ),
     container:
-        "docker://quay.io/biocontainers/bedtools:2.27.1--h9a82719_5"
+        "docker://quay.io/biocontainers/bedtools:2.31.1--hf5e1c6e_0"
     conda:
         os.path.join(workflow.basedir, "envs", "bedtools.yaml")
     resources:
@@ -1958,7 +1959,7 @@ rule prepare_bigWig:
             rule_config, current_rule=current_rule, immutable=()
         ),
     container:
-        "docker://quay.io/biocontainers/ucsc-bedgraphtobigwig:377--h0b8a92a_2"
+        "docker://quay.io/biocontainers/ucsc-bedgraphtobigwig:455--h2a80c09_0"
     conda:
         os.path.join(workflow.basedir, "envs", "ucsc-bedgraphtobigwig.yaml")
     resources:

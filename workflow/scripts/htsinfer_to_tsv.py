@@ -41,6 +41,7 @@ def parse_arguments():
 
 
 def main():
+    global e_flag
     # input parameters
     file_list = options.file_list
 
@@ -49,7 +50,7 @@ def main():
     samples_df = samples_df.replace(r'^\s*$', np.nan, regex=True)
     # replace None
     samples_df =  samples_df.fillna(value=np.nan)
-
+    LOGGER.debug(f"samples_df: {samples_df}")
     outfile = options.output
 
     params_df = pd.DataFrame(columns=[
@@ -106,20 +107,22 @@ def main():
 
 def should_i_flag(df, sample, param):
     '''Only RAISE error if user hasn't specified value either'''
-
+    global e_flag
+    LOGGER.debug(f"flag before: {e_flag}")
     try:
         user_param = df.loc[sample,param]
     except KeyError:
         user_param = np.nan
-    if user_param is np.nan:
+    if pd.isna(user_param):
         e_flag = True
 
+    LOGGER.debug(f"flag after: {e_flag}")
     return e_flag
 
 
 def htsinfer_to_zarp(sample,jparams, samples_df):
     '''Translate htsinfer json output to zarp compatible row.'''  
-
+    global e_flag
     # need to swap filepaths?
     swap_paths = False
 
@@ -158,21 +161,21 @@ def htsinfer_to_zarp(sample,jparams, samples_df):
 
     # fq1_3p (same for se and pe)
     f1_3p = jparams.read_layout.file_1.adapt_3
-    tparams["fq1_3p"] = "X" * 15 if f1_3p is None else f1_3p    
+    tparams["fq1_3p"] = np.nan if f1_3p is None else f1_3p    
     if f1_3p is None:
         LOGGER.warning("No 3p adapter for fq1 identified.")
             
     # fq2_3p
     f2_3p = jparams.read_layout.file_2.adapt_3
-    tparams["fq2_3p"] = "X" * 15 if f2_3p is None else f2_3p
+    tparams["fq2_3p"] = np.nan if f2_3p is None else f2_3p
     if f2_3p is None:
         # info only necessary for pe mode
         if tparams["seqmode"] == "pe":
             LOGGER.warning("No 3p adapter for fq2 identified, no adapters will be removed.")
 
     # organism
-    org1 = jparams.library_source.file_1.short_name
-    org2 = jparams.library_source.file_2.short_name
+    org1 = jparams.library_source.file_1.taxon_id
+    org2 = jparams.library_source.file_2.taxon_id
     tparams["organism"] = None
 
     # source could not be inferred
@@ -222,7 +225,7 @@ def htsinfer_to_zarp(sample,jparams, samples_df):
     read_lengths.append(jparams.library_stats.file_1.read_length.max)
     read_lengths.append(jparams.library_stats.file_2.read_length.max)
     if (read_lengths is not None) and (len(read_lengths) != 0):
-        tparams["index_size"] = max([int(i) for i in read_lengths if i is not None])
+        tparams["index_size"] = max([int(i) for i in read_lengths if i is not None], default=0)
     else:
         LOGGER.error("Read lengths (=index_size) could not be determined")
         
@@ -246,4 +249,4 @@ if __name__ == '__main__':
         LOGGER.info("Finished script successfully.")
     else:
         LOGGER.error("Finished script BUT one or more required parameters could not be inferred, please check logs.")
-        sys.exit(1)
+        sys.exit(0)
