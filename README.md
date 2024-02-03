@@ -269,17 +269,20 @@ your run.
 # Sample downloads from SRA
 
 An independent Snakemake workflow `workflow/rules/sra_download.smk` is included
-for the download of SRA samples.
+for the download of sequencing libraries from the Sequence Read Archive and
+conversion into FASTQ.
 
-The workflow expects the following config:
-* `samples`, a sample table (tsv) with column *sample* containing *RR* identifiers,
-see example [here](tests/input_files/sra_samples.tsv).
+The workflow expects the following parameters in the configuration file:
+* `samples`, a sample table (tsv) with column *sample* containing *SRR*
+  identifiers (ERR and DRR are also supported), see
+  [example](tests/input_files/sra_samples.tsv).
 * `outdir`, an output directory
-* `samples_out`, a pointer to a modified sample table with location of fastq files
+* `samples_out`, a pointer to a modified sample table with the locations of
+  the corresponding FASTQ files
 * `cluster_log_dir`, the cluster log directory.
 
-For executing the example one can use the following conda execution
-(with activated *zarp* environment):
+For executing the example with Conda environments, one can use the following
+command (from within the activated `zarp` Conda environment):
 
 ```bash
 snakemake --snakefile="workflow/rules/sra_download.smk" \
@@ -290,10 +293,16 @@ snakemake --snakefile="workflow/rules/sra_download.smk" \
                    log_dir="logs" \
                    cluster_log_dir="logs/cluster_log"
 ```
-or the singularity one by replacing ```local-conda``` with ```local-singularity```
-After successful execution, `results/sra_downloads/sra_samples.out.tsv` should contain:
+
+Alternatively, change the argument to `--profile` from `local-conda` to
+`local-singularity` to execute the workflow steps within Singularity
+containers.
+
+After successful execution, `results/sra_downloads/sra_samples.out.tsv` should
+contain:
+
 ```tsv
-ssample  fq1     fq2
+sample  fq1     fq2
 SRR18552868     results/sra_downloads/compress/SRR18552868/SRR18552868.fastq.gz 
 SRR18549672     results/sra_downloads/compress/SRR18549672/SRR18549672_1.fastq.gz       results/sra_downloads/compress/SRR18549672/SRR18549672_2.fastq.gz
 ERR2248142      results/sra_downloads/compress/ERR2248142/ERR2248142.fastq.gz 

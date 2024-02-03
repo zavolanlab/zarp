@@ -31,7 +31,6 @@ snakemake --snakefile="../../workflow/rules/sra_download.smk" \
                    samples_out="results/sra_downloads/sra_samples.out.tsv" \
                    log_dir="logs" \
                    cluster_log_dir="logs/cluster_log"
-          
 
 # Check md5 sum of some output files
 find results/ -type f -name \*\.gz -exec gunzip '{}' \;

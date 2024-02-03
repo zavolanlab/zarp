@@ -42,17 +42,6 @@ find results/ -type f -name \*\.gz -exec gunzip '{}' \;
 find results/ -type f -name \*\.zip -exec sh -c 'unzip -o {} -d $(dirname {})' \;
 md5sum --check "expected_output.md5"
 
-# Checksum file generated with
-# find results/ \
-#     -type f \
-#     -name \*\.gz \
-#     -exec gunzip '{}' \;
-# find results/ \
-#     -type f \
-#     -name \*\.zip \
-#     -exec sh -c 'unzip -o {} -d $(dirname {})' \;
-# md5sum $(cat expected_output.files) > expected_output.md5
-
 # Check whether STAR produces expected alignments
 # STAR alignments need to be fully within ground truth alignments for tests to pass; not checking 
 # vice versa because processing might cut off parts of reads (if testing STAR directly, add '-f 1' 
@@ -83,5 +72,3 @@ diff \
 diff \
     <(cat results/samples/synthetic_10_reads_paired_synthetic_10_reads_paired/synthetic_10_reads_paired_synthetic_10_reads_paired.salmon.pe/quant.genes.sf | cut -f1,5 | tail -n +2 | sort -k1,1) \
     <(cat ../input_files/synthetic.mate_1.bed | cut -f7 | sort | uniq -c | sort -k2nr | awk '{printf($2"\t"$1"\n")}')
-
-
