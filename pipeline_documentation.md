@@ -47,6 +47,16 @@ on installation and usage please see [here](README.md).
     - [`map_genome_star`](#map_genome_star)
     - [`quantification_salmon`](#quantification_salmon)
     - [`genome_quantification_kallisto`](#genome_quantification_kallisto)
+- [Description of SRA download workflow steps](#description-of-sra-download-workflow-steps)
+  - [SRA Sequencing mode-independent ](#sra-sequencing-mode-independent)
+    - [`get_layout`](#get_layout)
+    - [`prefetch`](#prefetch)
+    - [`add_fq_file_path`](#add_fq_file_path)
+  - [SRA Sequencing mode-specific](#sra-sequencing-mode-specific)
+    - [`fasterq_dump`](#fasterq_dump)
+    - [`compress_fastq`](#remove_polya_cutadapt)
+    - [`process_fastq`](#process_fastq)
+
 
 ## Third-party software used
 
@@ -59,13 +69,16 @@ on installation and usage please see [here](README.md).
 | **bedtools** | [GPLv2][license-gpl2] | _"[...] intersect, merge, count, complement, and shuffle genomic intervals from multiple files in widely-used genomic file formats such as BAM, BED, GFF/GTF, VCF"_ | [code][code-bedtools] / [manual][code-bedtools] |
 | **cutadapt** | [MIT][license-mit] | _"[...] finds and removes adapter sequences, primers, poly-A tails and other types of unwanted sequence from your high-throughput sequencing reads"_ | [code][code-cutadapt] / [manual][docs-cutadapt] / [publication][pub-cutadapt] |
 | **gffread** | [MIT][license-mit] | _"[...] validate, filter, convert and perform various other operations on GFF files"_ | [code][code-gffread] / [manual][docs-gffread] |
+| **Entrez Direct** | [custom][license-entrez-direct] | _"[...] an advanced method for accessing the NCBI's set of interconnected databases from a UNIX terminal window"_ | [code][code-entrez-direct] / [manual][docs-entrez-direct] / [publication][pub-entrez-direct] |
 | **FastQC** | [GPLv3][license-gpl3] | _"A quality control analysis tool for high throughput sequencing data"_ | [code][code-fastqc] / [manual][docs-fastqc] |
 | **ImageMagick** | [custom][license-imagemagick]^ | _"[...] create, edit, compose, or convert bitmap images"_ | [code][code-imagemagick] / [manual][docs-imagemagick] |
 | **kallisto** | [BSD-2][license-bsd2] | _"[...] program for quantifying abundances of transcripts from RNA-Seq data, or more generally of target sequences using high-throughput sequencing reads"_ | [code][code-kallisto] / [manual][docs-kallisto] / [publication][pub-kallisto] |
 | **MultiQC** | [GPLv3][license-gpl3] | _"Aggregate results from bioinformatics analyses across many samples into a single report"_ | [code][code-multiqc] / [manual][docs-multiqc] / [publication][pub-multiqc] |
+| **pigz** | [custom][license-pigz] | _"[...] parallel implementation of gzip, is a fully functional replacement for gzip that exploits multiple processors and multiple cores to the hilt when compressing data"_ | [code][code-pigz] / [manual][docs-pigz]  |
 | **RSeqC** | [GPLv3][license-gpl3] | _"[...] comprehensively evaluate different aspects of RNA-seq experiments, such as sequence quality, GC bias, polymerase chain reaction bias, nucleotide composition bias, sequencing depth, strand specificity, coverage uniformity and read distribution over the genome structure."_ | [code][code-rseqc] / [manual][docs-rseqc] / [publication][pub-rseqc] |
 | **Salmon** | [GPLv3][license-gpl3] | _"Highly-accurate & wicked fast transcript-level quantification from RNA-seq reads using selective alignment"_ | [code][code-salmon] / [manual][docs-salmon] / [publication][pub-salmon] |
 | **SAMtools** | [MIT][license-mit] | _"[...] suite of programs for interacting with high-throughput sequencing data"_ | [code][code-samtools] / [manual][docs-samtools] / [publication][pub-samtools] |
+| **SRA Tools** | [custom][license-sra-tools] | _"[...] collection of tools and libraries for using data in the INSDC Sequence Read Archives"_ | [code][code-sra-tools] / [manual][docs-sra-tools] |
 | **STAR** | [MIT][license-mit] | _"**S**pliced **T**ranscripts **A**lignment to a **R**eference"_ - _"RNA-seq aligner"_ | [code][code-star] / [manual][docs-star] / [publication][pub-star] |
 
 ^ compatible with [GPLv3][license-gpl3]
@@ -715,18 +728,63 @@ Generate pseudoalignments of reads to transcripts with
   - `--single`: Quantify single-end reads **(single-end only)**
   - `--pseudobam`: Save pseudoalignments to transcriptome to BAM file
 
+
+## Description of SRA download workflow steps
+
+> This separate workflow consists of three Snakemake files: A main `sra_download.smk` and an
+> individual Snakemake file for each sequencing mode (single-end and
+> paired-end), as parameters for some tools differ between sequencing modes.
+> The main `sra_download.smk` contains general steps for downloading the samples
+> from the SRA repository and determining the sequencing mode in order to execute
+> the appropriate subsequent rules.Individual steps of the workflow are described 
+> briefly, and links to the respective software manuals are given. Parameters that 
+> can be modified by the user (via the samples table) are also described. Descriptions
+> for steps for which individual "rules" exist for single- and paired-end
+> sequencing libraries are combined, and only differences between the modes are
+> highlighted.
+
+
+### SRA Sequencing mode-independent
+
+#### `get_layout`
+Get the library type of each sample (paired or single-end) using efetch [**Entrez direct**](#third-party-software-used).
+- **Output**
+  - A file with a name either PAIRED or SINGLE which is used downstream to run the 
+  appropriate subworkflow.
+
+#### `prefetch`
+Download the SRA entry using [**SRA Tools**](#third-party-software-used)
+
+#### `add_fq_file_path`
+Aggregate the fastq file(s) path(s) in a table for all samples.
+
+### SRA Sequencing mode-specific
+
+#### `fasterq_dump`
+Converts SRA entry to fastq file(s) using [**SRA Tools**](#third-party-software-used)
+
+### `compress_fastq`
+Compresses fastq file(s) to .gz format. [**pigz**](#third-party-software-used)
+
+### `process_fastq`
+Keep the fastq.gz file path in a table, later aggregated in one table in `add_fq_file_path`.
+
+
 [code-alfa]: <https://github.com/biocompibens/ALFA>
 [code-bedgraphtobigwig]: <https://github.com/ucscGenomeBrowser/kent>
 [code-bedtools]: <https://github.com/arq5x/bedtools2>
 [code-cutadapt]: <https://github.com/marcelm/cutadapt>
 [code-gffread]: <https://github.com/gpertea/gffread>
+[code-entrez-direct]: <https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/>
 [code-fastqc]: <https://github.com/s-andrews/FastQC>
 [code-imagemagick]: <https://github.com/ImageMagick/ImageMagick/>
 [code-kallisto]: <https://github.com/pachterlab/kallisto>
 [code-multiqc]: <https://github.com/ewels/MultiQC>
+[code-pigz]: <https://github.com/madler/pigz>
 [code-rseqc]: <http://rseqc.sourceforge.net/>
 [code-salmon]: <https://github.com/COMBINE-lab/salmon>
 [code-samtools]: <https://github.com/samtools/samtools>
+[code-sra-tools]: <https://github.com/ncbi/sra-tools>
 [code-star]: <https://github.com/alexdobin/STAR>
 [custom-script-gtf-to-bed12]: <https://github.com/zavolanlab/zgtf>
 [custom-script-tin]: <https://github.com/zavolanlab/tin-score-calculation>
@@ -738,25 +796,32 @@ Generate pseudoalignments of reads to transcripts with
 [docs-cutadapt]: <https://cutadapt.readthedocs.io/en/stable/>
 [docs-cutadapt-m]: <https://cutadapt.readthedocs.io/en/stable/guide.html#filtering-reads>
 [docs-gffread]: <http://ccb.jhu.edu/software/stringtie/gff.shtml#gffread>
+[docs-entrez-direct]: <https://ftp.ncbi.nlm.nih.gov/entrez/entrezdirect/README>
 [docs-fastqc]: <http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/>
 [docs-imagemagick]: <https://imagemagick.org/>
 [docs-kallisto]: <http://pachterlab.github.io/kallisto/manual.html>
 [docs-multiqc]: <https://multiqc.info/docs/>
+[docs-pigz]:<https://zlib.net/pigz/pigz.pdf>
 [docs-rseqc]: <http://rseqc.sourceforge.net/#usage-information>
 [docs-salmon]: <https://salmon.readthedocs.io/en/latest/>
 [docs-salmon-selective-alignment]: <https://combine-lab.github.io/alevin-tutorial/2019/selective-alignment/>
 [docs-samtools]: <http://www.htslib.org/doc/samtools.html>
 [docs-snakemake]: <https://snakemake.readthedocs.io/en/stable/>
 [docs-snakemake-target-rule]: <https://snakemake.readthedocs.io/en/stable/tutorial/basics.html#step-7-adding-a-target-rule>
+[docs-sra-tools]: <https://github.com/ncbi/sra-tools/wiki>
 [docs-star]: <https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf>
 [docs-star-rpm-norm]: <https://ycl6.gitbooks.io/rna-seq-data-analysis/visualization.html>
 [license-bsd2]: <https://opensource.org/licenses/BSD-2-Clause>
+[license-entrez-direct]: <https://www.ncbi.nlm.nih.gov/books/NBK179288/>
 [license-gpl2]: <https://opensource.org/licenses/GPL-2.0>
 [license-gpl3]: <https://opensource.org/licenses/GPL-3.0>
 [license-imagemagick]: <https://github.com/ImageMagick/ImageMagick/blob/master/LICENSE>
 [license-mit]: <https://opensource.org/licenses/MIT>
+[license-pigz]: <https://github.com/madler/pigz/blob/master/README>
+[license-sra-tools]: <https://github.com/ncbi/sra-tools/blob/master/LICENSE>
 [pub-alfa]: <https://doi.org/10.1186/s12864-019-5624-2>
 [pub-cutadapt]: <https://doi.org/10.14806/ej.17.1.200>
+[pub-entrez-direct]: <https://www.ncbi.nlm.nih.gov/books/NBK179288/>
 [pub-kallisto]: <https://doi.org/10.1038/nbt.3519>
 [pub-multiqc]: <https://doi.org/10.1093/bioinformatics/btw354>
 [pub-rseqc]: <https://doi.org/10.1093/bioinformatics/bts356>

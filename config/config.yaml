@@ -1,6 +1,6 @@
 ---
   # Required fields
-  samples: "tests/input_files/samples.tsv"
+  samples: "samples.tsv"
   output_dir: "results"
   log_dir: "logs"
   cluster_log_dir: "logs/cluster"

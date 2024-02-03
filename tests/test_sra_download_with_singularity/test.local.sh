@@ -25,12 +25,14 @@ cd $script_dir
 
 # Run tests
 snakemake --snakefile="../../workflow/rules/sra_download.smk" \
-          --profile="../../profiles/slurm-conda" \
+          --profile="../../profiles/local-singularity" \
           --config samples="../input_files/sra_samples.tsv" \
                    outdir="results/sra_downloads" \
                    samples_out="results/sra_downloads/sra_samples.out.tsv" \
                    log_dir="logs" \
                    cluster_log_dir="logs/cluster_log"
+
+          
 
 # Check md5 sum of some output files
 find results/ -type f -name \*\.gz -exec gunzip '{}' \;
