@@ -30,7 +30,7 @@ rule prefetch:
     conda:
         os.path.join(workflow.basedir, "..", "envs", "sra-tools.yaml")
     singularity:
-        "docker://ncbi/sra-tools"
+        "docker://quay.io/biocontainers/sra-tools:3.0.10--h9f5acd7_0"
     log:
         stderr=os.path.join(
             config["log_dir"], "samples", "{sample}", "prefetch.stderr.log"
@@ -61,7 +61,7 @@ checkpoint fasterq_dump:
     conda:
         os.path.join(workflow.basedir, "..", "envs", "sra-tools.yaml")
     singularity:
-        "docker://ncbi/sra-tools"
+        "docker://quay.io/biocontainers/sra-tools:3.0.10--h9f5acd7_0"
     log:
         stderr=os.path.join(
             config["log_dir"], "samples", "{sample}", "fasterq_dump.stderr.log"
@@ -111,7 +111,7 @@ rule compress_fastq:
     conda:
         os.path.join(workflow.basedir, "..", "envs", "pigz.yaml")
     singularity:
-        "docker://bytesco/pigz"
+        "docker://quay.io/biocontainers/pigz:2.8"
     log:
         stderr=os.path.join(
             config["log_dir"], "samples", "{sample}", "compress_fastq.stderr.log"
