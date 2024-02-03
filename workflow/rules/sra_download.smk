@@ -32,7 +32,11 @@ checkpoint get_layout:
     conda:
         os.path.join(workflow.basedir, "..", "envs", "entrez-direct.yaml")
     singularity:
+<<<<<<< HEAD
         "docker://quay.io/biocontainers/entrez-direct:16.2--he881be0_1"
+=======
+        "docker://quay.io/biocontainers/sra-tools:3.0.10--h9f5acd7_0"
+>>>>>>> dev
     log:
         stderr=os.path.join(
             config["log_dir"], "samples", "{sample}", "get_layout.stderr.log"
@@ -80,6 +84,7 @@ rule prefetch:
         """
 
 
+<<<<<<< HEAD
 def get_layouts(wildcards):
     ivals = []
     for i in samples[
@@ -101,6 +106,47 @@ def get_layouts(wildcards):
     layouts = expand(
         os.path.join(
             config["outdir"], "compress", "{sample}", "{sample}.{seqmode}.tsv"
+=======
+def get_fastq_files(wildcards):
+    """Obtain paths to fastq files for given sample.
+
+    Args:
+        wildcards: Snakemake wildcards, contains name "sample".
+
+    Returns:
+        list (str): paths to .fastq files.
+    """
+    files = os.listdir(
+        os.path.dirname(checkpoints.fasterq_dump.get(**wildcards).output[0])
+    )
+    to_zip = []
+    for f in files:
+        if f.endswith(".fastq"):
+            to_zip.append(os.path.join(DOWNLOAD_DIR, "{sample}", f))
+    return to_zip
+
+
+rule compress_fastq:
+    "Compress fastq inplace with pigz at best (9) compression level."
+    input:
+        files=get_fastq_files,
+        tmpf=os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.dumped"),
+    output:
+        os.path.join(DOWNLOAD_DIR, "{sample}", "{sample}.processed"),
+    params:
+        cluster_log_path=config["cluster_log_dir"],
+    threads: 6
+    conda:
+        os.path.join(workflow.basedir, "..", "envs", "pigz.yaml")
+    singularity:
+        "docker://quay.io/biocontainers/pigz:2.8"
+    log:
+        stderr=os.path.join(
+            config["log_dir"], "samples", "{sample}", "compress_fastq.stderr.log"
+        ),
+        stdout=os.path.join(
+            config["log_dir"], "samples", "{sample}", "compress_fastq.stdout.log"
+>>>>>>> dev
         ),
         zip,
         sample=[

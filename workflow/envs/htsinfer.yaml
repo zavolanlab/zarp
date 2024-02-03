@@ -2,5 +2,5 @@
 channels:
   - bioconda
 dependencies:
-  - htsinfer=0.9.0
+  - htsinfer=0.10.0
 ...
