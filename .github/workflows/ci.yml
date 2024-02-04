@@ -19,10 +19,10 @@ jobs:
     steps:
 
       - name: Checkout zarp repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup miniconda & zarp env
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.10"
           mamba-version: "*"
@@ -46,7 +46,7 @@ jobs:
 
       - name: Run test script for snakemake format
         run: bash tests/test_format/test_snakefmt.sh
-      
+
       - name: Run test script for snakemake lint
         run: bash tests/test_format/test_snakemake_lint.sh
 
@@ -67,10 +67,10 @@ jobs:
     steps:
 
       - name: Checkout zarp repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup miniconda & zarp env
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.10"
           mamba-version: "*"
@@ -80,10 +80,10 @@ jobs:
           activate-environment: zarp
           environment-file: install/environment.yml
           auto-activate-base: false
-      
+
       - name: Update zarp env with root. packages
         run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
-      
+
       - name: Update zarp env with dev. packages
         run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
 
@@ -110,10 +110,10 @@ jobs:
     steps:
 
       - name: Checkout zarp repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup miniconda & zarp env
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.10"
           mamba-version: "*"
@@ -147,10 +147,10 @@ jobs:
     steps:
 
       - name: Checkout zarp repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup miniconda & zarp env
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.10"
           mamba-version: "*"
@@ -184,10 +184,10 @@ jobs:
     steps:
 
       - name: Checkout zarp repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup miniconda & zarp env
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.10"
           mamba-version: "*"
@@ -210,4 +210,4 @@ jobs:
 
       - name: Run SRA downloads workflow
         run: bash tests/test_sra_download_with_conda/test.local.sh
-  
+
