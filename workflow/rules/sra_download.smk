@@ -42,13 +42,12 @@ checkpoint get_layout:
         ),
     shell:
         """
-        (mkdir -p {output.outdir}; \
+        (mkdir -p {output.outdir} && \
         layout=$(efetch -db sra \
         -id {wildcards.sample} \
         -format runinfo | \
-        csv2xml -set Set -rec Rec -header | \
-        xtract -pattern Rec -if Run -equals {wildcards.sample} -element LibraryLayout); \
-        touch {output.outdir}/$layout.info ; \
+        awk -F, 'BEGIN {{ exitval = 1 }} NR>1 && $1 == "{wildcards.sample}" {{ print $16; exitval=0 }} END {{ exit exitval }}') && \
+        touch {output.outdir}/$layout.info; \
         ) 1> {log.stdout} 2> {log.stderr}
         """
 
@@ -81,35 +80,43 @@ rule prefetch:
 
 
 def get_layouts(wildcards):
-    ivals = []
-    for i in samples[
+    """Get the layout of each sample."""
+
+    # populate layout dictionary
+    layouts = {}
+    for sample in samples[
         samples.index.str.contains("^.RR", regex=True, case=True)
     ].index.tolist():
+        layouts[sample] = []
         checkpoint_output = checkpoints.get_layout.get(
-            sample=i, **wildcards
+            sample=sample, **wildcards
         ).output.outdir
-        ivals.extend(
-            glob_wildcards(os.path.join(checkpoint_output, "{layout}.info")).layout
-        )
-    ivals2 = []
-    for ival in ivals:
-        if ival == "PAIRED":
-            ivals2.append("pe")
-        elif ival == "SINGLE":
-            ivals2.append("se")
+        _files = [
+            os.path.join(checkpoint_output, _file)
+            for _file in os.listdir(checkpoint_output)
+            if _file.endswith(".info")
+        ]
+        assert len(_files) == 1
+        layouts[sample] = os.path.splitext(os.path.basename(_files[0]))[0]
 
+    # convert layouts to short form
+    layouts_short = {}
+    for key, val in layouts.items():
+        if val == "PAIRED":
+            layouts_short[key] = "pe"
+        elif val == "SINGLE":
+            layouts_short[key] = "se"
+        else:
+            raise ValueError(f"Layout {val} for sample {key} not recognized.")
+
+    # return layouts
     layouts = expand(
         os.path.join(
             config["outdir"], "compress", "{sample}", "{sample}.{seqmode}.tsv"
         ),
         zip,
-        sample=[
-            i
-            for i in samples[
-                samples.index.str.contains("^.RR", regex=True, case=True)
-            ].index.tolist()
-        ],
-        seqmode=ivals2,
+        sample=layouts_short.keys(),
+        seqmode=layouts_short.values(),
     )
     return layouts
 
