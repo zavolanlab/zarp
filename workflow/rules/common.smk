@@ -1,7 +1,7 @@
 ## Function definitions
 def get_sample(column_id, search_id=None, search_value=None):
     """Get relevant per sample information from samples table"""
-    if search_id:
+    if search_id is not None:
         if search_id == "index":
             return str(
                 samples_table.loc[samples_table.index == search_value, column_id].iloc[
