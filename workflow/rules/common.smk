@@ -3,13 +3,19 @@ def get_sample(column_id, search_id=None, search_value=None):
     """Get relevant per sample information from samples table"""
     if search_id:
         if search_id == "index":
-            return str(samples_table[column_id][samples_table.index == search_value][0])
+            return str(
+                samples_table.loc[
+                    samples_table.index == search_value, column_id
+                ].iloc[0]
+            )
         else:
             return str(
-                samples_table[column_id][samples_table[search_id] == search_value][0]
+                samples_table.loc[
+                    samples_table[search_id] == search_value, column_id
+                ].iloc[0]
             )
     else:
-        return str(samples_table[column_id][0])
+        return str(samples_table.loc[0, column_id])
 
 
 def get_directionality(libtype, tool):
@@ -17,7 +23,8 @@ def get_directionality(libtype, tool):
     directionality = ""
 
     for key in directionality_dict.keys():
-        # Use the first of 'SF' or 'SR' that is found in libtype to look up directionality params for the current tool
+        # Use the first of 'SF' or 'SR' that is found in libtype to look up
+        # directionality params for the current tool
         if key in libtype:
             directionality = directionality_dict[key][tool]
             break
