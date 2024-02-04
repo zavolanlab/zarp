@@ -46,8 +46,7 @@ checkpoint get_layout:
         layout=$(efetch -db sra \
         -id {wildcards.sample} \
         -format runinfo | \
-        csv2xml -set Set -rec Rec -header | \
-        xtract -pattern Rec -if Run -equals {wildcards.sample} -element LibraryLayout); \
+        awk -F, 'x=1 NR>1 && $1 == {wildcards.sample} {print $16; x=0} END {exit x}'); \
         touch {output.outdir}/$layout.info ; \
         ) 1> {log.stdout} 2> {log.stderr}
         """
@@ -81,35 +80,38 @@ rule prefetch:
 
 
 def get_layouts(wildcards):
-    ivals = []
-    for i in samples[
+    """Get the layout of each sample."""
+
+    # populate layout dictionary
+    layouts = {}
+    for sample in samples[
         samples.index.str.contains("^.RR", regex=True, case=True)
     ].index.tolist():
         checkpoint_output = checkpoints.get_layout.get(
-            sample=i, **wildcards
+            sample=sample, **wildcards
         ).output.outdir
-        ivals.extend(
-            glob_wildcards(os.path.join(checkpoint_output, "{layout}.info")).layout
-        )
-    ivals2 = []
-    for ival in ivals:
-        if ival == "PAIRED":
-            ivals2.append("pe")
-        elif ival == "SINGLE":
-            ivals2.append("se")
+        layouts[sample] = glob_wildcards(
+            os.path.join(checkpoint_output, "{layout}.info")
+        ).layout
 
+    # convert layouts to short form
+    layouts_short = {}
+    for key, val in layouts.items():
+        if val == "PAIRED":
+            layouts_short[key] = "pe"
+        elif val == "SINGLE":
+            layouts_short[key] = "se"
+        else:
+            raise ValueError("Layout not recognized.")
+
+    # return layouts
     layouts = expand(
         os.path.join(
             config["outdir"], "compress", "{sample}", "{sample}.{seqmode}.tsv"
         ),
         zip,
-        sample=[
-            i
-            for i in samples[
-                samples.index.str.contains("^.RR", regex=True, case=True)
-            ].index.tolist()
-        ],
-        seqmode=ivals2,
+        sample=ivals2.keys(),
+        seqmode=ivals2.values(),
     )
     return layouts
 
