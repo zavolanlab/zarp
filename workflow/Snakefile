@@ -1906,7 +1906,7 @@ rule sort_bed_4_big:
     conda:
         os.path.join(workflow.basedir, "envs", "bedtools.yaml")
     resources:
-        mem_mb=lambda wildcards, attempt: 2048 * attempt,
+        mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
         stderr=os.path.join(
             config["log_dir"],
