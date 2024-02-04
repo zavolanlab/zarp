@@ -42,12 +42,12 @@ checkpoint get_layout:
         ),
     shell:
         """
-        (mkdir -p {output.outdir}; \
+        (mkdir -p {output.outdir} && \
         layout=$(efetch -db sra \
         -id {wildcards.sample} \
         -format runinfo | \
-        awk -F, 'x=1 NR>1 && $1 == {wildcards.sample} {print $16; x=0} END {exit x}'); \
-        touch {output.outdir}/$layout.info ; \
+        awk -F, 'BEGIN {{ exitval = 1 }} NR>1 && $1 == "{wildcards.sample}" {{ print $16; exitval=0 }} END {{ exit exitval }}') && \
+        touch {output.outdir}/$layout.info; \
         ) 1> {log.stdout} 2> {log.stderr}
         """
 
@@ -87,12 +87,17 @@ def get_layouts(wildcards):
     for sample in samples[
         samples.index.str.contains("^.RR", regex=True, case=True)
     ].index.tolist():
+        layouts[sample] = []
         checkpoint_output = checkpoints.get_layout.get(
             sample=sample, **wildcards
         ).output.outdir
-        layouts[sample] = glob_wildcards(
-            os.path.join(checkpoint_output, "{layout}.info")
-        ).layout
+        _files = [
+            os.path.join(checkpoint_output, _file)
+            for _file in os.listdir(checkpoint_output)
+            if _file.endswith(".info")
+        ]
+        assert len(_files) == 1
+        layouts[sample] = os.path.splitext(os.path.basename(_files[0]))[0]
 
     # convert layouts to short form
     layouts_short = {}
@@ -102,7 +107,7 @@ def get_layouts(wildcards):
         elif val == "SINGLE":
             layouts_short[key] = "se"
         else:
-            raise ValueError("Layout not recognized.")
+            raise ValueError(f"Layout {val} for sample {key} not recognized.")
 
     # return layouts
     layouts = expand(
@@ -110,8 +115,8 @@ def get_layouts(wildcards):
             config["outdir"], "compress", "{sample}", "{sample}.{seqmode}.tsv"
         ),
         zip,
-        sample=ivals2.keys(),
-        seqmode=ivals2.values(),
+        sample=layouts_short.keys(),
+        seqmode=layouts_short.values(),
     )
     return layouts
 
