@@ -15,7 +15,7 @@ def get_sample(column_id, search_id=None, search_value=None):
                 ].iloc[0]
             )
     else:
-        return str(samples_table.loc[0, column_id])
+        return str(samples_table[column_id].iloc[0])
 
 
 def get_directionality(libtype, tool):
