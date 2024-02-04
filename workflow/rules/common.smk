@@ -4,9 +4,9 @@ def get_sample(column_id, search_id=None, search_value=None):
     if search_id:
         if search_id == "index":
             return str(
-                samples_table.loc[
-                    samples_table.index == search_value, column_id
-                ].iloc[0]
+                samples_table.loc[samples_table.index == search_value, column_id].iloc[
+                    0
+                ]
             )
         else:
             return str(
