@@ -45,9 +45,11 @@ checkpoint get_layout:
         (mkdir -p {output.outdir}; \
         layout=$(efetch -db sra \
         -id {wildcards.sample} \
-        -format runinfo | \
-        csv2xml -set Set -rec Rec -header | \
-        xtract -pattern Rec -if Run -equals {wildcards.sample} -element LibraryLayout); \
+        -format runinfo \
+        -mode xml | \
+        xtract -pattern Row \
+        -if Run -equals {wildcards.sample} \
+        -element LibraryLayout); \
         touch {output.outdir}/$layout.info ; \
         ) 1> {log.stdout} 2> {log.stderr}
         """
@@ -81,36 +83,23 @@ rule prefetch:
 
 
 def get_layouts(wildcards):
-    ivals = []
-    for i in samples[
-        samples.index.str.contains("^.RR", regex=True, case=True)
-    ].index.tolist():
+    layouts = []
+    for each_sample in samples.index.tolist():
         checkpoint_output = checkpoints.get_layout.get(
-            sample=i, **wildcards
+            sample=each_sample, **wildcards
         ).output.outdir
-        ivals.extend(
-            glob_wildcards(os.path.join(checkpoint_output, "{layout}.info")).layout
-        )
-    ivals2 = []
-    for ival in ivals:
-        if ival == "PAIRED":
-            ivals2.append("pe")
-        elif ival == "SINGLE":
-            ivals2.append("se")
-
-    layouts = expand(
-        os.path.join(
-            config["outdir"], "compress", "{sample}", "{sample}.{seqmode}.tsv"
-        ),
-        zip,
-        sample=[
-            i
-            for i in samples[
-                samples.index.str.contains("^.RR", regex=True, case=True)
-            ].index.tolist()
-        ],
-        seqmode=ivals2,
-    )
+        layout = glob_wildcards(os.path.join(checkpoint_output, "{layout}.info")).layout
+        if ('PAIRED' in layout):
+            layouts.append(os.path.join(
+                config["outdir"], "compress", each_sample, each_sample +".pe.tsv")
+                )
+        elif ('SINGLE' in layout):
+            layouts.append(os.path.join(
+                config["outdir"], "compress", each_sample, each_sample +".se.tsv")
+                )
+        else:
+            pass
+        print(layouts)
     return layouts
 
 
