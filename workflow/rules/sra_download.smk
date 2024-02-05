@@ -89,14 +89,18 @@ def get_layouts(wildcards):
             sample=each_sample, **wildcards
         ).output.outdir
         layout = glob_wildcards(os.path.join(checkpoint_output, "{layout}.info")).layout
-        if ('PAIRED' in layout):
-            layouts.append(os.path.join(
-                config["outdir"], "compress", each_sample, each_sample +".pe.tsv")
+        if "PAIRED" in layout:
+            layouts.append(
+                os.path.join(
+                    config["outdir"], "compress", each_sample, each_sample + ".pe.tsv"
                 )
-        elif ('SINGLE' in layout):
-            layouts.append(os.path.join(
-                config["outdir"], "compress", each_sample, each_sample +".se.tsv")
+            )
+        elif "SINGLE" in layout:
+            layouts.append(
+                os.path.join(
+                    config["outdir"], "compress", each_sample, each_sample + ".se.tsv"
                 )
+            )
         else:
             pass
         print(layouts)
