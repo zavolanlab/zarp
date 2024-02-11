@@ -95,7 +95,7 @@ jobs:
         run: bash tests/test_integration_workflow/test.local.sh
 
       - name: Run htsinfer test script
-        run: bash tests/test_htsinfer_workflow/test.local.sh
+        run: bash tests/test_htsinfer_with_singularity/test.local.sh
 
       - name: Run SRA downloads workflow
         run: bash tests/test_sra_download_with_singularity/test.local.sh
@@ -207,6 +207,9 @@ jobs:
           conda list
       - name: Run test script
         run: bash tests/test_integration_workflow_with_conda/test.local.sh
+
+      - name: Run htsinfer test script
+        run: bash tests/test_htsinfer_with_conda/test.local.sh
 
       - name: Run SRA downloads workflow
         run: bash tests/test_sra_download_with_conda/test.local.sh
