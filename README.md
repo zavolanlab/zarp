@@ -8,23 +8,34 @@
     <img width="20%" align="left" src=images/zarp_logo.svg>
 </div> 
 
-**ZARP** ([Zavolan-Lab][zavolan-lab] Automated RNA-Seq Pipeline) is a generic RNA-Seq analysis workflow that allows 
-users to process and analyze Illumina short-read sequencing libraries with minimum effort. The workflow relies on 
-publicly available bioinformatics tools and currently handles single or paired-end stranded bulk RNA-seq data.
-The workflow is developed in [Snakemake][snakemake], a widely used workflow management system in the bioinformatics
-community.
+**ZARP** ([Zavolab][zavolan-lab] Automated RNA-seq Pipeline) is a generic
+RNA-Seq analysis workflow that allows users to process and analyze Illumina
+short-read sequencing libraries with minimum effort. Better yet: With our
+companion [**ZARP-cli**](https://github.com/zavolanlab/zarp-cli) command line
+interface, you can start ZARP runs with the simplest and most intuitive
+commands.
 
-According to the current ZARP implementation, reads are analyzed (pre-processed, aligned, quantified) with state-of-the-art
-tools to give meaningful initial insights into the quality and composition of an RNA-Seq library, reducing hands-on time for bioinformaticians and giving experimentalists the possibility to rapidly assess their data. Additional reports summarise the results of the individual steps and provide useful visualisations.
+_RNA-seq analysis doesn't get simpler than that!_
+
+ZARP relies on publicly available bioinformatics tools and currently handles
+single or paired-end stranded bulk RNA-seq data. The workflow is developed in
+[Snakemake][snakemake], a widely used workflow management system in the
+bioinformatics community.
+
+ZARP will pre-process, align and quantify your single- or paired-end stranded
+bulk RNA-seq sequencing libraries with publicly available state-of-the-art
+bioinformatics tools. ZARP's browser-based rich reports and visualitations will
+give you meaningful initial insights in the quality and composition of your
+sequencing experiments - fast and simple. Whether you are an experimentalist
+struggling with large scale data analysis or an experienced bioinformatician,
+when there's RNA-seq data to analyze, just _zarp 'em_!
 
 <div align="center">
     <img width="60%" src=images/zarp_schema.png>
 </div> 
 
-
 > **Note:** For a more detailed description of each step, please refer to the [workflow
 > documentation][pipeline-documentation].
-
 
 # Requirements
 
@@ -38,6 +49,12 @@ The workflow has been tested on:
 
 
 # Installation
+
+> **IMPORTANT: Rather than installing the ZARP workflow as described in this section, we
+> recommend installing [ZARP-cli](https://github.com/zavolanlab/zarp-cli) for most use
+> cases!** If you follow its [installation
+> instructions](https://zavolanlab.github.io/zarp-cli/guides/installation/), you can
+> skip the instructions below.
 
 ## 1. Clone the repository
 
@@ -105,17 +122,6 @@ to include Singularity in the Conda environment:
 mamba env update -f install/environment.root.yml
 ```
 
-### Command-line interface dependencies
-> A command-line interface, [ZARP-cli](https://github.com/zavolanlab/zarp-cli) is now availble and all you have to do to make use of it is update your environment:
-
-```bash
-mamba env update -f install/environment.cli.yml
-```
-
-More info at: [NEW: Running ZARP gets even easier!](#new-running-zarp-gets-even-easier)
-
-
-
 ## 4. Activate environment
 
 Activate the Conda environment with:
@@ -177,22 +183,18 @@ bash tests/test_integration_workflow_with_conda/test.slurm.sh
 
 # Running the workflow on your own samples
 
-## NEW: Running ZARP gets even easier!
->  You can now run your ZARP workflow using its' new command-line interface, [ZARP-cli](https://github.com/zavolanlab/zarp-cli). To enable ZARP-cli, simply install the additional dependencies by executing the following command _in your active Conda environment_:
+## Running ZARP with ZARP-cli (recommended)
 
-```bash
-mamba env update -f install/environment.cli.yml
-```
-Run:
-```
-zarp --help
-```
-to see the useful options available, or take a look at [ZARP-cli documentation](https://github.com/zavolanlab/zarp-cli)
+Head over to the [ZARP-cli](https://zavolanlab.github.io/zarp-cli/) to learn how to
+start ZARP runs with very simple commands, like:
 
+```sh
+zarp SRR23590181
+```
 
 ## Running ZARP without ZARP-cli
 
-1. Assuming that your current directory is the repository's root directory,
+1. Assuming that your current directory is the workflow repository's root directory,
 create a directory for your workflow run and move into it with:
 
     ```bash
