@@ -20,7 +20,7 @@ def get_sample(column_id, search_id=None, search_value=None):
 
 def get_all_samples(search_id=None, search_value=None):
     return list(
-        set(samples_table.index[samples_table[search_id] == search_value].values)
+        pd.unique(samples_table.index[samples_table[search_id] == search_value].values)
     )
 
 
