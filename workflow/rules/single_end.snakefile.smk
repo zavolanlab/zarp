@@ -8,6 +8,7 @@ rule remove_adapters_cutadapt:
     input:
         reads=os.path.join(
             config["output_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             "start",
@@ -17,6 +18,7 @@ rule remove_adapters_cutadapt:
         reads=temp(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "{sample}.fq1.se.remove_adapters.fastq.gz",
@@ -51,10 +53,10 @@ rule remove_adapters_cutadapt:
         mem_mb=lambda wildcards, attempt: 5000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], "samples", "{sample}", current_rule + ".se.stderr.log"
+            config["log_dir"], "{organism}", "samples", "{sample}", current_rule + ".se.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], "samples", "{sample}", current_rule + ".se.stdout.log"
+            config["log_dir"], "{organism}", "samples", "{sample}", current_rule + ".se.stdout.log"
         ),
     shell:
         "(cutadapt \
@@ -78,6 +80,7 @@ rule remove_polya_cutadapt:
     input:
         reads=os.path.join(
             config["output_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             "{sample}.fq1.se.remove_adapters.fastq.gz",
@@ -86,6 +89,7 @@ rule remove_polya_cutadapt:
         reads=temp(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "{sample}.fq1.se.remove_polya.fastq.gz",
@@ -120,10 +124,10 @@ rule remove_polya_cutadapt:
         mem_mb=lambda wildcards, attempt: 5000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], "samples", "{sample}", current_rule + ".se.stderr.log"
+            config["log_dir"], "{organism}", "samples", "{sample}", current_rule + ".se.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], "samples", "{sample}", current_rule + ".se.stdout.log"
+            config["log_dir"], "{organism}", "samples", "{sample}", current_rule + ".se.stdout.log"
         ),
     shell:
         "(cutadapt \
@@ -147,13 +151,14 @@ rule map_genome_star:
     input:
         index=lambda wildcards: os.path.join(
             config["star_indexes"],
-            get_sample("organism", search_id="index", search_value=wildcards.sample),
+            wildcards.organism,
             get_sample("index_size", search_id="index", search_value=wildcards.sample),
             "STAR_index",
             "chrNameLength.txt",
         ),
         reads=os.path.join(
             config["output_dir"],
+            "{organism}", 
             "samples",
             "{sample}",
             "{sample}.fq1.se.remove_polya.fastq.gz",
@@ -161,6 +166,7 @@ rule map_genome_star:
     output:
         bam=os.path.join(
             config["output_dir"],
+            "{organism}", 
             "samples",
             "{sample}",
             "map_genome",
@@ -168,6 +174,7 @@ rule map_genome_star:
         ),
         logfile=os.path.join(
             config["output_dir"],
+            "{organism}", 
             "samples",
             "{sample}",
             "map_genome",
@@ -181,9 +188,7 @@ rule map_genome_star:
         index=lambda wildcards: os.path.abspath(
             os.path.join(
                 config["star_indexes"],
-                get_sample(
-                    "organism", search_id="index", search_value=wildcards.sample
-                ),
+                wildcards.organism,
                 get_sample(
                     "index_size", search_id="index", search_value=wildcards.sample
                 ),
@@ -216,7 +221,7 @@ rule map_genome_star:
         mem_mb=lambda wildcards, attempt: 32000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], "samples", "{sample}", current_rule + ".se.stderr.log"
+            config["log_dir"], "{organism}",  "samples", "{sample}", current_rule + ".se.stderr.log"
         ),
     shell:
         "(STAR \
@@ -244,24 +249,26 @@ rule quantification_salmon:
     input:
         reads=os.path.join(
             config["output_dir"],
+            "{organism}", 
             "samples",
             "{sample}",
             "{sample}.fq1.se.remove_polya.fastq.gz",
         ),
         index=lambda wildcards: os.path.join(
             config["salmon_indexes"],
-            get_sample("organism", search_id="index", search_value=wildcards.sample),
+            wildcards.organism,
             get_sample("kmer", search_id="index", search_value=wildcards.sample),
             "salmon.idx",
         ),
         gtf=lambda wildcards: os.path.join(
             config["star_indexes"],
-            get_sample("organism", search_id="index", search_value=wildcards.sample),
+            wildcards.organism,
             "sorted_genome.gtf",
         ),
     output:
         gn_estimates=os.path.join(
             config["output_dir"],
+            "{organism}", 
             "samples",
             "{sample}",
             "{sample}.salmon.se",
@@ -269,6 +276,7 @@ rule quantification_salmon:
         ),
         tr_estimates=os.path.join(
             config["output_dir"],
+            "{organism}", 
             "samples",
             "{sample}",
             "{sample}.salmon.se",
@@ -276,6 +284,7 @@ rule quantification_salmon:
         ),
         meta_info=os.path.join(
             config["output_dir"],
+            "{organism}", 
             "samples",
             "{sample}",
             "{sample}.salmon.se",
@@ -284,6 +293,7 @@ rule quantification_salmon:
         ),
         flenDist=os.path.join(
             config["output_dir"],
+            "{organism}", 
             "samples",
             "{sample}",
             "{sample}.salmon.se",
@@ -326,10 +336,10 @@ rule quantification_salmon:
         mem_mb=lambda wildcards, attempt: 32000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], "samples", "{sample}", current_rule + ".se.stderr.log"
+            config["log_dir"], "{organism}", "samples", "{sample}", current_rule + ".se.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], "samples", "{sample}", current_rule + ".se.stdout.log"
+            config["log_dir"], "{organism}", "samples", "{sample}", current_rule + ".se.stdout.log"
         ),
     shell:
         "(salmon quant \
@@ -355,18 +365,20 @@ rule genome_quantification_kallisto:
     input:
         reads=os.path.join(
             config["output_dir"],
+            "{organism}", 
             "samples",
             "{sample}",
             "{sample}.fq1.se.remove_polya.fastq.gz",
         ),
         index=lambda wildcards: os.path.join(
             config["kallisto_indexes"],
-            get_sample("organism", search_id="index", search_value=wildcards.sample),
+            wildcards.organism,
             "kallisto.idx",
         ),
     output:
         pseudoalignment=os.path.join(
             config["output_dir"],
+            "{organism}", 
             "samples",
             "{sample}",
             "quant_kallisto",
@@ -374,6 +386,7 @@ rule genome_quantification_kallisto:
         ),
         abundances=os.path.join(
             config["output_dir"],
+            "{organism}", 
             "samples",
             "{sample}",
             "quant_kallisto",
@@ -417,7 +430,7 @@ rule genome_quantification_kallisto:
         mem_mb=lambda wildcards, attempt: 6000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], "samples", "{sample}", current_rule + ".se.stderr.log"
+            config["log_dir"], "{organism}", "samples", "{sample}", current_rule + ".se.stderr.log"
         ),
     shell:
         "(kallisto quant \

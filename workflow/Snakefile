@@ -127,50 +127,82 @@ include: os.path.join("rules", "paired_end.snakefile.smk")
 include: os.path.join("rules", "single_end.snakefile.smk")
 
 
+
+   
+
 rule finish:
     """
         Rule for collecting outputs
     """
     input:
-        multiqc_report=os.path.join(config["output_dir"], "multiqc_summary"),
-        bigWig=expand(
+        multiqc_report=expand(
             os.path.join(
                 config["output_dir"],
-                "samples",
-                "{sample}",
-                "bigWig",
-                "{renamed_unique}",
-                "{sample}_{renamed_unique}_{strand}.bw",
+                "{organism}",
+                "multiqc_summary"),
+            organism=pd.unique(samples_table["organism"].values),
+        ),    
+        bigWig= expand(
+            expand(
+                os.path.join(
+                    config["output_dir"],
+                    "{organism}", 
+                    "samples",
+                    "{sample}",
+                    "bigWig",
+                    "{{renamed_unique}}",
+                    "{sample}_{{renamed_unique}}_{{strand}}.bw",
+                ),
+                zip,
+                sample=pd.unique(samples_table.index.values),
+                organism=[
+                    get_sample("organism", search_id="index", search_value=j)
+                    for j in pd.unique(samples_table.index.values)
+                ],
             ),
-            sample=pd.unique(samples_table.index.values),
             strand=["plus", "minus"],
             renamed_unique=alfa_dict.keys(),
         ),
         salmon_merge_genes=expand(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "summary_salmon",
                 "quantmerge",
                 "genes_{salmon_merge_on}.tsv",
-            ),
+                ),
+            organism=pd.unique(samples_table["organism"].values),
             salmon_merge_on=["tpm", "numreads"],
         ),
         salmon_merge_transcripts=expand(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "summary_salmon",
                 "quantmerge",
                 "transcripts_{salmon_merge_on}.tsv",
-            ),
+                ),
+            organism=pd.unique(samples_table["organism"].values),
             salmon_merge_on=["tpm", "numreads"],
         ),
-        kallisto_merge_transcripts=os.path.join(
-            config["output_dir"], "summary_kallisto", "transcripts_tpm.tsv"
+        kallisto_merge_transcripts=expand(
+            os.path.join(
+                config["output_dir"],
+                "{organism}",
+                "summary_kallisto",
+                "transcripts_tpm.tsv"
+                ),
+            organism=pd.unique(samples_table["organism"].values),
         ),
-        kallisto_merge_genes=os.path.join(
-            config["output_dir"], "summary_kallisto", "genes_tpm.tsv"
+        kallisto_merge_genes=expand(
+            os.path.join(
+                config["output_dir"],
+                "{organism}",
+                "summary_kallisto",
+                "genes_tpm.tsv"
+                ),
+            organism=pd.unique(samples_table["organism"].values),
         ),
-
 
 current_rule = "start"
 
@@ -186,6 +218,7 @@ rule start:
     output:
         reads=os.path.join(
             config["output_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             "start",
@@ -196,12 +229,14 @@ rule start:
     log:
         stderr=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}_{{sample}}.{{mate}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}_{{sample}}.{{mate}}.stdout.log",
@@ -223,6 +258,7 @@ rule fastqc:
     input:
         reads=os.path.join(
             config["output_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             "start",
@@ -231,7 +267,7 @@ rule fastqc:
     output:
         outdir=directory(
             os.path.join(
-                config["output_dir"], "samples", "{sample}", "fastqc", "{mate}"
+                config["output_dir"], "{organism}", "samples", "{sample}", "fastqc", "{mate}"
             )
         ),
     params:
@@ -249,12 +285,14 @@ rule fastqc:
     log:
         stderr=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}_{{mate}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}_{{mate}}.stdout.log",
@@ -278,6 +316,7 @@ rule fastqc_trimmed:
     input:
         reads=os.path.join(
             config["output_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             "{sample}.{mate}.{seqmode}.remove_polya.fastq.gz",
@@ -286,6 +325,7 @@ rule fastqc_trimmed:
         outdir=directory(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "fastqc_trimmed",
@@ -305,12 +345,14 @@ rule fastqc_trimmed:
     log:
         stderr=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}_{{seqmode}}_{{mate}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}_{{seqmode}}_{{mate}}.stdout.log",
@@ -381,10 +423,10 @@ rule create_index_star:
         mem_mb=lambda wildcards, attempt: 32000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], f"{current_rule}_{{organism}}_{{index_size}}.stderr.log"
+            config["log_dir"], "{organism}", f"{current_rule}_{{index_size}}.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], f"{current_rule}_{{organism}}_{{index_size}}.stdout.log"
+            config["log_dir"], "{organism}", f"{current_rule}_{{index_size}}.stdout.log"
         ),
     shell:
         "(mkdir -p {params.output_dir}; \
@@ -427,10 +469,10 @@ rule sort_gtf:
         mem_mb=lambda wildcards, attempt: 32000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], f"{current_rule}_{{organism}}.stderr.log"
+            config["log_dir"], "{organism}", f"{current_rule}.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], f"{current_rule}_{{organism}}.stdout.log"
+            config["log_dir"], "{organism}", f"{current_rule}.stdout.log"
         ),
     shell:
         "(sort \
@@ -477,8 +519,8 @@ rule extract_transcriptome:
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
-        stderr=os.path.join(config["log_dir"], f"{current_rule}_{{organism}}.log"),
-        stdout=os.path.join(config["log_dir"], f"{current_rule}_{{organism}}.log"),
+        stderr=os.path.join(config["log_dir"], "{organism}", f"{current_rule}.log"),
+        stdout=os.path.join(config["log_dir"], "{organism}", f"{current_rule}.log"),
     shell:
         "(gffread \
         -w {output.transcriptome} \
@@ -489,7 +531,6 @@ rule extract_transcriptome:
 
 
 current_rule = "concatenate_transcriptome_and_genome"
-
 
 rule concatenate_transcriptome_and_genome:
     """
@@ -519,7 +560,7 @@ rule concatenate_transcriptome_and_genome:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], f"{current_rule}_{{organism}}.stderr.log"
+            config["log_dir"], "{organism}", f"{current_rule}.stderr.log"
         ),
     shell:
         "(cat {input.transcriptome} {input.genome} \
@@ -543,7 +584,7 @@ rule create_index_salmon:
         ),
         chr_names=lambda wildcards: os.path.join(
             config["star_indexes"],
-            get_sample("organism"),
+            "{organism}",
             get_sample("index_size"),
             "STAR_index",
             "chrName.txt",
@@ -576,10 +617,10 @@ rule create_index_salmon:
         mem_mb=lambda wildcards, attempt: 32000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], f"{current_rule}_{{organism}}_{{kmer}}.stderr.log"
+            config["log_dir"], "{organism}", f"{current_rule}_{{kmer}}.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], f"{current_rule}_{{organism}}_{{kmer}}.stdout.log"
+            config["log_dir"],  "{organism}", f"{current_rule}_{{kmer}}.stdout.log"
         ),
     shell:
         "(salmon index \
@@ -619,10 +660,10 @@ rule create_index_kallisto:
         mem_mb=lambda wildcards, attempt: 8192 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], f"{current_rule}_{{organism}}.stderr.log"
+            config["log_dir"], "{organism}", f"{current_rule}_.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], f"{current_rule}_{{organism}}.stdout.log"
+            config["log_dir"],  "{organism}", f"{current_rule}_.stdout.log"
         ),
     shell:
         "(mkdir -p {params.output_dir}; \
@@ -644,12 +685,12 @@ rule extract_transcripts_as_bed12:
     input:
         gtf=lambda wildcards: os.path.join(
             config["star_indexes"],
-            get_sample("organism"),
+            wildcards.organism,
             "sorted_genome.gtf",
         ),
     output:
         bed12=temp(
-            os.path.join(config["output_dir"], "full_transcripts_protein_coding.bed")
+            os.path.join(config["output_dir"], "{organism}", "full_transcripts_protein_coding.bed")
         ),
     params:
         cluster_log_path=config["cluster_log_dir"],
@@ -669,8 +710,8 @@ rule extract_transcripts_as_bed12:
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
-        stdout=os.path.join(config["log_dir"], f"{current_rule}.stdout.log"),
-        stderr=os.path.join(config["log_dir"], f"{current_rule}.stderr.log"),
+        stdout=os.path.join(config["log_dir"], "{organism}", f"{current_rule}.stdout.log"),
+        stderr=os.path.join(config["log_dir"], "{organism}", f"{current_rule}.stderr.log"),
     shell:
         "(gtf2bed12 \
         --gtf {input.gtf} \
@@ -689,6 +730,7 @@ rule sort_genomic_alignment_samtools:
     input:
         bam=os.path.join(
             config["output_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             "map_genome",
@@ -697,6 +739,7 @@ rule sort_genomic_alignment_samtools:
     output:
         bam=os.path.join(
             config["output_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             "map_genome",
@@ -717,12 +760,14 @@ rule sort_genomic_alignment_samtools:
     log:
         stderr=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}.{{seqmode}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}.{{seqmode}}.stdout.log",
@@ -746,6 +791,7 @@ rule index_genomic_alignment_samtools:
     input:
         bam=os.path.join(
             config["output_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             "map_genome",
@@ -754,6 +800,7 @@ rule index_genomic_alignment_samtools:
     output:
         bai=os.path.join(
             config["output_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             "map_genome",
@@ -774,12 +821,14 @@ rule index_genomic_alignment_samtools:
     log:
         stderr=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}.{{seqmode}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}.{{seqmode}}.stdout.log",
@@ -802,10 +851,14 @@ rule calculate_TIN_scores:
         bam=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "map_genome",
                 "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam",
+            ),
+            organism=get_sample(
+                "organism", search_id="index", search_value=wildcards.sample
             ),
             sample=wildcards.sample,
             seqmode=get_sample(
@@ -815,10 +868,14 @@ rule calculate_TIN_scores:
         bai=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "map_genome",
                 "{sample}.{seqmode}.Aligned.sortedByCoord.out.bam.bai",
+            ),
+            organism=get_sample(
+                "organism", search_id="index", search_value=wildcards.sample
             ),
             sample=wildcards.sample,
             seqmode=get_sample(
@@ -826,12 +883,12 @@ rule calculate_TIN_scores:
             ),
         ),
         transcripts_bed12=os.path.join(
-            config["output_dir"], "full_transcripts_protein_coding.bed"
+            config["output_dir"], "{organism}", "full_transcripts_protein_coding.bed"
         ),
     output:
         TIN_score=temp(
             os.path.join(
-                config["output_dir"], "samples", "{sample}", "TIN", "TIN_score.tsv"
+                config["output_dir"], "{organism}", "samples", "{sample}", "TIN", "TIN_score.tsv"
             )
         ),
     params:
@@ -855,7 +912,7 @@ rule calculate_TIN_scores:
         mem_mb=lambda wildcards, attempt, input: len(input.bam) * 1024 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], "samples", "{sample}", f"{current_rule}.log"
+            config["log_dir"], "{organism}", "samples", "{sample}", f"{current_rule}.log"
         ),
     shell:
         "(calculate-tin.py \
@@ -875,47 +932,61 @@ rule salmon_quantmerge_genes:
         Merge gene quantifications into a single file
     """
     input:
-        salmon_in=expand(
+        salmon_in=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
                 "{sample}.salmon.{seqmode}",
-                "quant.sf",
+                "quant.sf"
             ),
             zip,
-            sample=pd.unique(samples_table.index.values),
+            sample=get_all_samples(
+                search_id="organism",
+                search_value=wildcards.organism),
             seqmode=[
                 get_sample("seqmode", search_id="index", search_value=i)
-                for i in pd.unique(samples_table.index.values)
+                for i in get_all_samples(
+                    search_id="organism",
+                    search_value=wildcards.organism)
             ],
         ),
     output:
         salmon_out=os.path.join(
             config["output_dir"],
+            "{organism}",
             "summary_salmon",
             "quantmerge",
             "genes_{salmon_merge_on}.tsv",
         ),
     params:
         cluster_log_path=config["cluster_log_dir"],
-        salmon_in=expand(
+        salmon_in=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
                 "{sample}.salmon.{seqmode}",
             ),
             zip,
-            sample=[i for i in pd.unique(samples_table.index.values)],
+            sample=get_all_samples(
+                search_id="organism",
+                search_value=wildcards.organism),
             seqmode=[
                 get_sample("seqmode", search_id="index", search_value=i)
-                for i in pd.unique(samples_table.index.values)
+                for i in get_all_samples(
+                    search_id="organism",
+                    search_value=wildcards.organism)
             ],
         ),
-        sample_name_list=expand(
-            "{sample}", sample=pd.unique(samples_table.index.values)
-        ),
+
+        sample_name_list=lambda wildcards: 
+            get_all_samples(
+                search_id="organism",
+                search_value=wildcards.organism
+            ),
         salmon_merge_on="{salmon_merge_on}",
         additional_params=parse_rule_config(
             rule_config,
@@ -938,10 +1009,10 @@ rule salmon_quantmerge_genes:
         mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1024 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], f"{current_rule}_{{salmon_merge_on}}.stderr.log"
+            config["log_dir"],"{organism}", f"{current_rule}_{{salmon_merge_on}}.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], f"{current_rule}_{{salmon_merge_on}}.stdout.log"
+            config["log_dir"], "{organism}", f"{current_rule}_{{salmon_merge_on}}.stdout.log"
         ),
     shell:
         "(salmon quantmerge \
@@ -962,46 +1033,57 @@ rule salmon_quantmerge_transcripts:
         Merge transcript quantifications into a single file
     """
     input:
-        salmon_in=expand(
+        salmon_in=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
                 "{sample}.salmon.{seqmode}",
                 "quant.sf",
             ),
             zip,
-            sample=[i for i in pd.unique(samples_table.index.values)],
+            sample=get_all_samples(
+                search_id="organism",
+                search_value=wildcards.organism),
             seqmode=[
                 get_sample("seqmode", search_id="index", search_value=i)
-                for i in pd.unique(samples_table.index.values)
-            ],
+                for i in get_all_samples(
+                    search_id="organism",
+                    search_value=wildcards.organism)],
         ),
     output:
         salmon_out=os.path.join(
             config["output_dir"],
+            "{organism}",
             "summary_salmon",
             "quantmerge",
             "transcripts_{salmon_merge_on}.tsv",
         ),
     params:
         cluster_log_path=config["cluster_log_dir"],
-        salmon_in=expand(
+        salmon_in=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
-                "{sample}.salmon.{seqmode}",
+                "{sample}.salmon.{seqmode}"
             ),
             zip,
-            sample=[i for i in pd.unique(samples_table.index.values)],
+            sample=get_all_samples(
+                search_id="organism",
+                search_value=wildcards.organism),
             seqmode=[
                 get_sample("seqmode", search_id="index", search_value=i)
-                for i in pd.unique(samples_table.index.values)
-            ],
+                for i in get_all_samples(
+                    search_id="organism",
+                    search_value=wildcards.organism)],
         ),
-        sample_name_list=expand(
-            "{sample}", sample=pd.unique(samples_table.index.values)
+        sample_name_list=lambda wildcards: expand(
+            "{sample}", sample=get_all_samples(
+                search_id="organism",
+                search_value=wildcards.organism),
         ),
         salmon_merge_on="{salmon_merge_on}",
         additional_params=parse_rule_config(
@@ -1025,10 +1107,10 @@ rule salmon_quantmerge_transcripts:
         mem_mb=lambda wildcards, attempt, input: len(input.salmon_in) * 1000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], f"{current_rule}_{{salmon_merge_on}}.stderr.log"
+            config["log_dir"], "{organism}", f"{current_rule}_{{salmon_merge_on}}.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], f"{current_rule}_{{salmon_merge_on}}.stdout.log"
+            config["log_dir"], "{organism}", f"{current_rule}_{{salmon_merge_on}}.stdout.log"
         ),
     shell:
         "(salmon quantmerge \
@@ -1048,49 +1130,59 @@ rule kallisto_merge_genes:
         Merge gene quantifications into single file
     """
     input:
-        pseudoalignment=expand(
+        pseudoalignment=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
                 "quant_kallisto",
                 "{sample}.{seqmode}.kallisto.pseudo.sam",
             ),
             zip,
-            sample=[i for i in pd.unique(samples_table.index.values)],
+            sample=get_all_samples(
+                search_id="organism",
+                search_value=wildcards.organism),
             seqmode=[
                 get_sample("seqmode", search_id="index", search_value=i)
-                for i in pd.unique(samples_table.index.values)
+                for i in get_all_samples(
+                    search_id="organism",
+                    search_value=wildcards.organism)
             ],
         ),
         gtf=lambda wildcards: os.path.join(
             config["star_indexes"],
-            get_sample("organism"),
+            wildcards.organism,
             "sorted_genome.gtf",
         ),
     output:
-        gn_tpm=os.path.join(config["output_dir"], "summary_kallisto", "genes_tpm.tsv"),
+        gn_tpm=os.path.join(config["output_dir"], "{organism}", "summary_kallisto", "genes_tpm.tsv"),
         gn_counts=os.path.join(
-            config["output_dir"], "summary_kallisto", "genes_counts.tsv"
+            config["output_dir"], "{organism}", "summary_kallisto", "genes_counts.tsv"
         ),
     params:
         cluster_log_path=config["cluster_log_dir"],
         dir_out=lambda wildcards, output: os.path.dirname(output.gn_counts),
-        tables=",".join(
+        tables=lambda wildcards:",".join(
             expand(
                 os.path.join(
                     config["output_dir"],
+                    wildcards.organism,
                     "samples",
                     "{sample}",
                     "quant_kallisto",
                     "abundance.h5",
                 ),
-                sample=[i for i in pd.unique(samples_table.index.values)],
+                sample=get_all_samples(
+                    search_id="organism",
+                    search_value=wildcards.organism),
             )
         ),
-        sample_name_list=",".join(
-            expand("{sample}", sample=pd.unique(samples_table.index.values))
-        ),
+        sample_name_list=lambda wildcards:",".join(
+            get_all_samples(
+                search_id="organism",
+                search_value=wildcards.organism),
+                ),
         additional_params=parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -1112,8 +1204,8 @@ rule kallisto_merge_genes:
         * 1000
         * attempt,
     log:
-        stderr=os.path.join(config["log_dir"], f"{current_rule}.stderr.log"),
-        stdout=os.path.join(config["log_dir"], f"{current_rule}.stdout.log"),
+        stderr=os.path.join(config["log_dir"],"{organism}", f"{current_rule}.stderr.log"),
+        stdout=os.path.join(config["log_dir"],"{organism}", f"{current_rule}.stdout.log"),
     shell:
         "(merge_kallisto.R \
         --input {params.tables} \
@@ -1133,45 +1225,58 @@ rule kallisto_merge_transcripts:
         Merge transcript quantifications into a single files
     """
     input:
-        pseudoalignment=expand(
+        pseudoalignment=lambda wildcards:expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
                 "quant_kallisto",
                 "{sample}.{seqmode}.kallisto.pseudo.sam",
             ),
             zip,
-            sample=[i for i in pd.unique(samples_table.index.values)],
+            sample=get_all_samples(
+                    search_id="organism",
+                    search_value=wildcards.organism
+                    ),
             seqmode=[
                 get_sample("seqmode", search_id="index", search_value=i)
-                for i in pd.unique(samples_table.index.values)
+                for i in get_all_samples(
+                    search_id="organism",
+                    search_value=wildcards.organism)
             ],
         ),
     output:
         tx_tpm=os.path.join(
-            config["output_dir"], "summary_kallisto", "transcripts_tpm.tsv"
+            config["output_dir"], "{organism}", "summary_kallisto", "transcripts_tpm.tsv"
         ),
         tx_counts=os.path.join(
-            config["output_dir"], "summary_kallisto", "transcripts_counts.tsv"
+            config["output_dir"],"{organism}", "summary_kallisto", "transcripts_counts.tsv"
         ),
     params:
         cluster_log_path=config["cluster_log_dir"],
         dir_out=lambda wildcards, output: os.path.dirname(output.tx_counts),
-        tables=",".join(
+        tables=lambda wildcards: ",".join(
             expand(
                 os.path.join(
                     config["output_dir"],
+                    wildcards.organism,
                     "samples",
                     "{sample}",
                     "quant_kallisto",
-                    "abundance.h5",
-                ),
-                sample=[i for i in pd.unique(samples_table.index.values)],
-            )
+                    "abundance.h5"
+                    ),
+                    sample=get_all_samples(
+                        search_id="organism",
+                        search_value=wildcards.organism
+                        )
+                )
         ),
-        sample_name_list=",".join(
-            expand("{sample}", sample=pd.unique(samples_table.index.values))
+        sample_name_list=lambda wildcards: ",".join(
+            get_all_samples(
+                search_id="organism",
+                search_value=wildcards.organism
+                )
         ),
         additional_params=parse_rule_config(
             rule_config,
@@ -1193,8 +1298,8 @@ rule kallisto_merge_transcripts:
         * 1024
         * attempt,
     log:
-        stderr=os.path.join(config["log_dir"], f"{current_rule}.stderr.log"),
-        stdout=os.path.join(config["log_dir"], f"{current_rule}.stdout.log"),
+        stderr=os.path.join(config["log_dir"], "{organism}", f"{current_rule}.stderr.log"),
+        stdout=os.path.join(config["log_dir"], "{organism}", f"{current_rule}.stdout.log"),
     shell:
         "(merge_kallisto.R \
         --input {params.tables} \
@@ -1210,11 +1315,11 @@ current_rule = "pca_salmon"
 rule pca_salmon:
     input:
         tpm=os.path.join(
-            config["output_dir"], "summary_salmon", "quantmerge", "{molecule}_tpm.tsv"
+            config["output_dir"], "{organism}", "summary_salmon", "quantmerge", "{molecule}_tpm.tsv"
         ),
     output:
         out=directory(
-            os.path.join(config["output_dir"], "zpca", "pca_salmon_{molecule}")
+            os.path.join(config["output_dir"], "{organism}", "zpca", "pca_salmon_{molecule}")
         ),
     params:
         cluster_log_path=config["cluster_log_dir"],
@@ -1235,10 +1340,10 @@ rule pca_salmon:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], f"{current_rule}_{{molecule}}.stderr.log"
+            config["log_dir"], "{organism}", f"{current_rule}_{{molecule}}.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], f"{current_rule}_{{molecule}}.stdout.log"
+            config["log_dir"], "{organism}", f"{current_rule}_{{molecule}}.stdout.log"
         ),
     shell:
         "(zpca-tpm  \
@@ -1253,10 +1358,10 @@ current_rule = "pca_kallisto"
 
 rule pca_kallisto:
     input:
-        tpm=os.path.join(config["output_dir"], "summary_kallisto", "{molecule}_tpm.tsv"),
+        tpm=os.path.join(config["output_dir"], "{organism}", "summary_kallisto", "{molecule}_tpm.tsv"),
     output:
         out=directory(
-            os.path.join(config["output_dir"], "zpca", "pca_kallisto_{molecule}")
+            os.path.join(config["output_dir"], "{organism}", "zpca", "pca_kallisto_{molecule}")
         ),
     params:
         cluster_log_path=config["cluster_log_dir"],
@@ -1277,10 +1382,10 @@ rule pca_kallisto:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], f"{current_rule}_{{molecule}}.stderr.log"
+            config["log_dir"],"{organism}", f"{current_rule}_{{molecule}}.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], f"{current_rule}_{{molecule}}.stdout.log"
+            config["log_dir"],"{organism}", f"{current_rule}_{{molecule}}.stdout.log"
         ),
     shell:
         "(zpca-tpm  \
@@ -1301,6 +1406,7 @@ rule star_rpm:
         bam=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
                 "map_genome",
@@ -1314,6 +1420,7 @@ rule star_rpm:
         bai=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
                 "map_genome",
@@ -1328,6 +1435,7 @@ rule star_rpm:
         str1=temp(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "STAR_coverage",
@@ -1337,6 +1445,7 @@ rule star_rpm:
         str2=temp(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "STAR_coverage",
@@ -1346,6 +1455,7 @@ rule star_rpm:
         str3=temp(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "STAR_coverage",
@@ -1355,6 +1465,7 @@ rule star_rpm:
         str4=temp(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "STAR_coverage",
@@ -1388,10 +1499,10 @@ rule star_rpm:
         mem_mb=lambda wildcards, attempt: 8192 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], "samples", "{sample}", f"{current_rule}_.stderr.log"
+            config["log_dir"],"{organism}", "samples", "{sample}", f"{current_rule}_.stderr.log"
         ),
         stdout=os.path.join(
-            config["log_dir"], "samples", "{sample}", f"{current_rule}_.stdout.log"
+            config["log_dir"], "{organism}", "samples", "{sample}", f"{current_rule}_.stdout.log"
         ),
     shell:
         "(mkdir -p {params.out_dir}; \
@@ -1414,6 +1525,7 @@ rule rename_star_rpm_for_alfa:
         plus=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
                 "STAR_coverage",
@@ -1431,6 +1543,7 @@ rule rename_star_rpm_for_alfa:
         minus=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
                 "STAR_coverage",
@@ -1449,6 +1562,7 @@ rule rename_star_rpm_for_alfa:
         plus=temp(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "ALFA",
@@ -1459,6 +1573,7 @@ rule rename_star_rpm_for_alfa:
         minus=temp(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "ALFA",
@@ -1473,12 +1588,14 @@ rule rename_star_rpm_for_alfa:
     log:
         stderr=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}_{{renamed_unique}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}_{{renamed_unique}}.stdout.log",
@@ -1551,7 +1668,7 @@ rule generate_alfa_index:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
         os.path.join(
-            config["log_dir"], f"{current_rule}_{{organism}}_{{index_size}}.log"
+            config["log_dir"], "{organism}", f"{current_rule}_{{index_size}}.log"
         ),
     shell:
         "(mkdir -p {output.temp_dir}; \
@@ -1575,23 +1692,25 @@ rule alfa_qc:
     input:
         plus=lambda wildcards: os.path.join(
             config["output_dir"],
+            wildcards.organism,
             "samples",
             wildcards.sample,
             "ALFA",
             wildcards.renamed_unique,
-            f"{wildcards.sample}.{wildcards.renamed_unique}.plus.bg",
+            wildcards.sample + "." + wildcards.renamed_unique+ ".plus.bg",
         ),
         minus=lambda wildcards: os.path.join(
             config["output_dir"],
+            wildcards.organism,
             "samples",
             wildcards.sample,
             "ALFA",
             wildcards.renamed_unique,
-            f"{wildcards.sample}.{wildcards.renamed_unique}.minus.bg",
+            wildcards.sample +"." + wildcards.renamed_unique + ".minus.bg",
         ),
         gtf=lambda wildcards: os.path.join(
             config["alfa_indexes"],
-            get_sample("organism", search_id="index", search_value=wildcards.sample),
+            wildcards.organism,
             get_sample("index_size", search_id="index", search_value=wildcards.sample),
             "ALFA",
             "sorted_genes.stranded.ALFA_index",
@@ -1600,6 +1719,7 @@ rule alfa_qc:
         biotypes=temp(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "ALFA",
@@ -1610,6 +1730,7 @@ rule alfa_qc:
         categories=temp(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "ALFA",
@@ -1619,6 +1740,7 @@ rule alfa_qc:
         ),
         table=os.path.join(
             config["output_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             "ALFA",
@@ -1629,6 +1751,7 @@ rule alfa_qc:
             directory(
                 os.path.join(
                     config["output_dir"],
+                    "{organism}",
                     "samples",
                     "{sample}",
                     "ALFA",
@@ -1671,6 +1794,7 @@ rule alfa_qc:
     log:
         os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}.{{renamed_unique}}.log",
@@ -1744,43 +1868,64 @@ rule multiqc_report:
         Create report with MultiQC
     """
     input:
-        fastqc_se=expand(
+        fastqc_se=lambda wildcards: expand(
             os.path.join(
-                config["output_dir"], "samples", "{sample}", "fastqc", "{mate}"
+                config["output_dir"],
+                wildcards.organism,
+                "samples",
+                "{sample}",
+                "fastqc",
+                "{mate}"
             ),
-            sample=pd.unique(samples_table.index.values),
+            sample=get_all_samples(
+                    search_id="organism",
+                    search_value=wildcards.organism
+                    ),
             mate="fq1",
         ),
-        fastqc_pe=expand(
+        fastqc_pe=lambda wildcards: expand(
             os.path.join(
-                config["output_dir"], "samples", "{sample}", "fastqc", "{mate}"
+                config["output_dir"],
+                wildcards.organism,
+                "samples",
+                "{sample}",
+                "fastqc",
+                "{mate}"
             ),
             sample=[
                 i
                 for i in pd.unique(
-                    samples_table[samples_table["seqmode"] == "pe"].index.values
+                    samples_table[(samples_table["seqmode"] == "pe") & (samples_table["organism"] == wildcards.organism)].index.values
                 )
             ],
             mate="fq2",
         ),
-        fastqc_trimmed_se=expand(
+        fastqc_trimmed_se=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
                 "fastqc_trimmed",
                 "fq1_{seqmode}",
             ),
             zip,
-            sample=pd.unique(samples_table.index.values),
+            sample=get_all_samples(
+                search_id="organism",
+                search_value=wildcards.organism
+            ),
             seqmode=[
                 get_sample("seqmode", search_id="index", search_value=i)
-                for i in pd.unique(samples_table.index.values)
+                for i in get_all_samples(
+                    search_id="organism",
+                    search_value=wildcards.organism
+                )
             ],
         ),
-        fastqc_trimmed_pe=expand(
+        fastqc_trimmed_pe=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
                 "fastqc_trimmed",
@@ -1789,59 +1934,78 @@ rule multiqc_report:
             sample=[
                 i
                 for i in pd.unique(
-                    samples_table[samples_table["seqmode"] == "pe"].index.values
+                    samples_table[(samples_table["seqmode"] == "pe") & (samples_table["organism"] == wildcards.organism)].index.values
                 )
             ],
             mate="fq2",
         ),
-        pseudoalignment=expand(
+        pseudoalignment=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
                 "quant_kallisto",
                 "{sample}.{seqmode}.kallisto.pseudo.sam",
             ),
             zip,
-            sample=[i for i in pd.unique(samples_table.index.values)],
+            sample=get_all_samples(
+                search_id="organism",
+                search_value=wildcards.organism
+            ),
             seqmode=[
                 get_sample("seqmode", search_id="index", search_value=i)
-                for i in pd.unique(samples_table.index.values)
+                for i in get_all_samples(
+                    search_id="organism",
+                    search_value=wildcards.organism
+                )
             ],
         ),
-        TIN_score=expand(
+        TIN_score=lambda wildcards: expand(
             os.path.join(
-                config["output_dir"], "samples", "{sample}", "TIN", "TIN_score.tsv"
+                config["output_dir"],
+                wildcards.organism, 
+                "samples",
+                "{sample}",
+                "TIN",
+                "TIN_score.tsv"
             ),
-            sample=pd.unique(samples_table.index.values),
+            sample=get_all_samples(
+                search_id="organism",
+                search_value=wildcards.organism
+            ),
         ),
         tables=lambda wildcards: expand(
             os.path.join(
                 config["output_dir"],
+                wildcards.organism,
                 "samples",
                 "{sample}",
                 "ALFA",
                 "{renamed_unique}",
                 "{sample}.ALFA_feature_counts.tsv",
             ),
-            sample=pd.unique(samples_table.index.values),
+            sample=get_all_samples(
+                search_id="organism",
+                search_value=wildcards.organism
+            ),
             renamed_unique=alfa_dict.keys(),
         ),
-        zpca_salmon=expand(
-            os.path.join(config["output_dir"], "zpca", "pca_salmon_{molecule}"),
+        zpca_salmon=lambda wildcards: expand(
+            os.path.join(config["output_dir"], wildcards.organism, "zpca", "pca_salmon_{molecule}"),
             molecule=["genes", "transcripts"],
         ),
-        zpca_kallisto=expand(
-            os.path.join(config["output_dir"], "zpca", "pca_kallisto_{molecule}"),
+        zpca_kallisto=lambda wildcards: expand(
+            os.path.join(config["output_dir"], wildcards.organism, "zpca", "pca_kallisto_{molecule}"),
             molecule=["genes", "transcripts"],
         ),
         multiqc_config=os.path.join(config["output_dir"], "multiqc_config.yaml"),
     output:
-        multiqc_report=directory(os.path.join(config["output_dir"], "multiqc_summary")),
+        multiqc_report=directory(os.path.join(config["output_dir"], "{organism}", "multiqc_summary")),
     params:
         cluster_log_path=config["cluster_log_dir"],
         results_dir=lambda wildcards, output: os.path.split(output.multiqc_report)[0],
-        log_dir=config["log_dir"],
+        log_dir=os.path.join(config["log_dir"], "{organism}"),
         additional_params=parse_rule_config(
             rule_config,
             current_rule=current_rule,
@@ -1857,8 +2021,8 @@ rule multiqc_report:
     resources:
         mem_mb=lambda wildcards, attempt: 4096 * attempt,
     log:
-        stderr=os.path.join(config["log_dir"], f"{current_rule}.stderr.log"),
-        stdout=os.path.join(config["log_dir"], f"{current_rule}.stdout.log"),
+        stderr=os.path.join(config["log_dir"], "{organism}", f"{current_rule}.stderr.log"),
+        stdout=os.path.join(config["log_dir"], "{organism}", f"{current_rule}.stdout.log"),
     shell:
         "(multiqc \
         --outdir {output.multiqc_report} \
@@ -1879,6 +2043,7 @@ rule sort_bed_4_big:
     input:
         bg=os.path.join(
             config["output_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             "ALFA",
@@ -1889,6 +2054,7 @@ rule sort_bed_4_big:
         sorted_bg=temp(
             os.path.join(
                 config["output_dir"],
+                "{organism}",
                 "samples",
                 "{sample}",
                 "bigWig",
@@ -1910,6 +2076,7 @@ rule sort_bed_4_big:
     log:
         stderr=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}_{{renamed_unique}}_{{strand}}.stderr.log",
@@ -1931,6 +2098,7 @@ rule prepare_bigWig:
     input:
         sorted_bg=os.path.join(
             config["output_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             "bigWig",
@@ -1939,7 +2107,7 @@ rule prepare_bigWig:
         ),
         chr_sizes=lambda wildcards: os.path.join(
             config["star_indexes"],
-            get_sample("organism", search_id="index", search_value=wildcards.sample),
+            wildcards.organism,
             get_sample("index_size", search_id="index", search_value=wildcards.sample),
             "STAR_index",
             "chrNameLength.txt",
@@ -1947,6 +2115,7 @@ rule prepare_bigWig:
     output:
         bigWig=os.path.join(
             config["output_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             "bigWig",
@@ -1967,12 +2136,14 @@ rule prepare_bigWig:
     log:
         stderr=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}_{{renamed_unique}}_{{strand}}.stderr.log",
         ),
         stdout=os.path.join(
             config["log_dir"],
+            "{organism}",
             "samples",
             "{sample}",
             f"{current_rule}_{{renamed_unique}}_{{strand}}.stdout.log",

@@ -13,9 +13,17 @@ def get_sample(column_id, search_id=None, search_value=None):
                 samples_table.loc[
                     samples_table[search_id] == search_value, column_id
                 ].iloc[0]
-            )
+                )
     else:
         return str(samples_table[column_id].iloc[0])
+
+
+def get_all_samples(search_id=None, search_value=None):
+    return list(set(
+        samples_table.index[
+            samples_table[search_id] == search_value
+        ].values
+    ))
 
 
 def get_directionality(libtype, tool):
