@@ -76,10 +76,18 @@ rule pe_remove_adapters_cutadapt:
         mem_mb=lambda wildcards, attempt: 5000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"],"{organism}", "samples", "{sample}", current_rule + ".stderr.log"
+            config["log_dir"],
+            "{organism}",
+            "samples",
+            "{sample}",
+            current_rule + ".stderr.log",
         ),
         stdout=os.path.join(
-            config["log_dir"], "{organism}", "samples", "{sample}", current_rule + ".stdout.log"
+            config["log_dir"],
+            "{organism}",
+            "samples",
+            "{sample}",
+            current_rule + ".stdout.log",
         ),
     shell:
         "(cutadapt \
@@ -173,10 +181,18 @@ rule pe_remove_polya_cutadapt:
         mem_mb=lambda wildcards, attempt: 5000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], "{organism}", "samples", "{sample}", current_rule + ".stderr.log"
+            config["log_dir"],
+            "{organism}",
+            "samples",
+            "{sample}",
+            current_rule + ".stderr.log",
         ),
         stdout=os.path.join(
-            config["log_dir"], "{organism}", "samples", "{sample}", current_rule + ".stdout.log"
+            config["log_dir"],
+            "{organism}",
+            "samples",
+            "{sample}",
+            current_rule + ".stdout.log",
         ),
     shell:
         "(cutadapt \
@@ -281,7 +297,11 @@ rule pe_map_genome_star:
         mem_mb=lambda wildcards, attempt: 32000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], "{organism}", "samples", "{sample}", current_rule + ".stderr.log"
+            config["log_dir"],
+            "{organism}",
+            "samples",
+            "{sample}",
+            current_rule + ".stderr.log",
         ),
     shell:
         "(STAR \
@@ -398,10 +418,18 @@ rule pe_quantification_salmon:
         mem_mb=lambda wildcards, attempt: 32000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"], "{organism}", "samples", "{sample}", current_rule + ".stderr.log"
+            config["log_dir"],
+            "{organism}",
+            "samples",
+            "{sample}",
+            current_rule + ".stderr.log",
         ),
         stdout=os.path.join(
-            config["log_dir"], "{organism}", "samples", "{sample}", current_rule + ".stdout.log"
+            config["log_dir"],
+            "{organism}",
+            "samples",
+            "{sample}",
+            current_rule + ".stdout.log",
         ),
     shell:
         "(salmon quant \
@@ -492,7 +520,11 @@ rule pe_genome_quantification_kallisto:
         mem_mb=lambda wildcards, attempt: 6000 * attempt,
     log:
         stderr=os.path.join(
-            config["log_dir"],"{organism}", "samples", "{sample}", current_rule + ".stderr.log"
+            config["log_dir"],
+            "{organism}",
+            "samples",
+            "{sample}",
+            current_rule + ".stderr.log",
         ),
     shell:
         "(kallisto quant \
