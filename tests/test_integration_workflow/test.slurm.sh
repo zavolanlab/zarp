@@ -38,16 +38,16 @@ snakemake \
     --report="snakemake_report.html"
 
 # Check md5 sum of some output files
-find results/ -type f -name \*\.gz -exec gunzip '{}' \;
-find results/ -type f -name \*\.zip -exec sh -c 'unzip -o {} -d $(dirname {})' \;
+find results/homo_sapiens/ -type f -name \*\.gz -exec gunzip '{}' \;
+find results/homo_sapiens/ -type f -name \*\.zip -exec sh -c 'unzip -o {} -d $(dirname {})' \;
 md5sum --check "expected_output.md5"
 
 # Checksum file generated with
-# find results/ \
+# find results/homo_sapiens/ \
 #     -type f \
 #     -name \*\.gz \
 #     -exec gunzip '{}' \;
-# find results/ \
+# find results/homo_sapiens/ \
 #     -type f \
 #     -name \*\.zip \
 #     -exec sh -c 'unzip -o {} -d $(dirname {})' \;
@@ -60,7 +60,7 @@ md5sum --check "expected_output.md5"
 echo "Verifying STAR output"
 result=$(bedtools intersect -F 1 -v -bed \
     -a ../input_files/synthetic.mate_1.bed \
-    -b results/samples/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1/map_genome/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1.se.Aligned.sortedByCoord.out.bam \
+    -b results/homo_sapiens/samples/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1/map_genome/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1.se.Aligned.sortedByCoord.out.bam \
     | wc -l)
 if [ $result != "0" ]; then
     echo "Alignments for mate 1 reads are not consistent with ground truth"
@@ -68,7 +68,7 @@ if [ $result != "0" ]; then
 fi
 result=$(bedtools intersect -F 1 -v -bed \
     -a <(cat ../input_files/synthetic.mate_1.bed ../input_files/synthetic.mate_2.bed) \
-    -b results/samples/synthetic_10_reads_paired_synthetic_10_reads_paired/map_genome/synthetic_10_reads_paired_synthetic_10_reads_paired.pe.Aligned.sortedByCoord.out.bam \
+    -b results/homo_sapiens/samples/synthetic_10_reads_paired_synthetic_10_reads_paired/map_genome/synthetic_10_reads_paired_synthetic_10_reads_paired.pe.Aligned.sortedByCoord.out.bam \
     | wc -l)
 if [ $result != "0" ]; then
     echo "Alignments for mate 1 reads are not consistent with ground truth"
@@ -78,8 +78,8 @@ fi
 # Check whether Salmon assigns reads to expected genes
 echo "Verifying Salmon output"
 diff \
-    <(cat results/samples/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1.salmon.se/quant.genes.sf | cut -f1,5 | tail -n +2 | sort -k1,1) \
+    <(cat results/homo_sapiens/samples/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1/synthetic_10_reads_mate_1_synthetic_10_reads_mate_1.salmon.se/quant.genes.sf | cut -f1,5 | tail -n +2 | sort -k1,1) \
     <(cat ../input_files/synthetic.mate_1.bed | cut -f7 | sort | uniq -c | sort -k2nr | awk '{printf($2"\t"$1"\n")}')
 diff \
-    <(cat results/samples/synthetic_10_reads_paired_synthetic_10_reads_paired/synthetic_10_reads_paired_synthetic_10_reads_paired.salmon.pe/quant.genes.sf | cut -f1,5 | tail -n +2 | sort -k1,1) \
+    <(cat results/homo_sapiens/samples/synthetic_10_reads_paired_synthetic_10_reads_paired/synthetic_10_reads_paired_synthetic_10_reads_paired.salmon.pe/quant.genes.sf | cut -f1,5 | tail -n +2 | sort -k1,1) \
     <(cat ../input_files/synthetic.mate_1.bed | cut -f7 | sort | uniq -c | sort -k2nr | awk '{printf($2"\t"$1"\n")}')

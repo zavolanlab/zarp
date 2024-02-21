@@ -18,6 +18,12 @@ def get_sample(column_id, search_id=None, search_value=None):
         return str(samples_table[column_id].iloc[0])
 
 
+def get_all_samples(search_id=None, search_value=None):
+    return list(
+        pd.unique(samples_table.index[samples_table[search_id] == search_value].values)
+    )
+
+
 def get_directionality(libtype, tool):
     """Get directionality value for different tools"""
     directionality = ""
