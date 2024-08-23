@@ -1,0 +1,68 @@
+copyright: '&copy; <a href="https://www.biozentrum.unibas.ch/research/research-groups/research-groups-a-z/overview/unit/research-group-mihaela-zavolan">2019 Zavolab, University of Basel</a>'
+
+site_name: ZARP documentation
+site_url: https://zavolanlab.github.io/zarp
+site_author: Zavolab <zavolab-biozentrum@unibas.ch>
+
+repo_name: zarp
+repo_url: https://github.com/zavolanlab/zarp
+edit_uri: edit/dev/docs
+docs_dir: docs
+
+theme:
+  name: material
+  favicon: images/zarp_logo.32px.png
+  icon:
+    repo: fontawesome/brands/github
+  language: en
+  logo: images/zarp_logo.256px.png
+  custom_dir: docs/overrides
+  features:
+    - content.code.copy
+    - navigation.footer
+    - navigation.instant
+    - navigation.top
+    - navigation.tracking
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      options:
+        custom_icons:
+          - docs/overrides/.icons
+  - pymdownx.snippets:
+      auto_append:
+        - docs/includes/abbreviations.md
+        - docs/includes/references.md
+  - pymdownx.superfences
+  - toc:
+      permalink: ¶
+
+plugins:
+  - search
+
+extra:
+  generator: false
+  social:
+    - icon: github
+      link: https://github.com/zavolanlab
+      name: Zavolab GitHub organization
+    - icon: twitter
+      link: https://twitter.com/ZavolanLab
+      name: Zavolab Twitter profile
+    - icon: forum
+      link: https://github.com/zavolanlab/zarp/discussions
+      name: ZARP Q&A forum
+    - icon: email
+      link: mailto:zavolab-biozentrum@unibas.ch
+
+nav:
+  - Home: README.md
+  - Installation: guides/installation.md
+  # ADD ADDITIONAL PAGES HERE

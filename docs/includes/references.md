@@ -1,0 +1,12 @@
+[conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
+[contact]: <mailto:zavolab-biozentrum@unibas.ch>
+[github-signup]: <https://github.com/signup>
+[mamba]: <https://github.com/mamba-org/mamba>
+[singularity]: <https://sylabs.io/singularity/>
+[snakemake]: <https://github.com/snakemake/snakemake>
+[zarp]: <https://github.com/zavolanlab/zarp>
+[zarp-cli]: <https://github.com/zavolanlab/zarp-cli>
+[zarp-cli-issue-tracker]: <https://github.com/zavolanlab/zarp-cli/issues>
+[zarp-issue-tracker]: <https://github.com/zavolanlab/zarp/issues>
+[zarp-qa]: <https://github.com/zavolanlab/zarp/discussions>
+[zavolab-gh]: <https://github.com/zavolanlab>

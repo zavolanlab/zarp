@@ -1,0 +1,53 @@
+name: Docs
+
+on:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+
+jobs:
+
+  docs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout zarp repository
+        uses: actions/checkout@v4
+
+      - name: Setup miniconda & zarp env
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: "3.10"
+          mamba-version: "*"
+          channels: conda-forge
+          channel-priority: true
+          auto-update-conda: false
+          activate-environment: zarp
+          environment-file: install/environment.yml
+          auto-activate-base: false
+
+      - name: Update zarp env with root. packages
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
+
+      - name: Update zarp env with dev. packages
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
+
+      - name: Display all miniconda & env info
+        run: |
+          conda info -a
+          conda list
+
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          key: ${{ github.ref }}
+          path: .cache
+
+      - name: Install doc requirements
+        run: pip install -r docs/requirements.txt
+
+      - name: Publish docs
+        run: mkdocs gh-deploy --force --clean --verbose
