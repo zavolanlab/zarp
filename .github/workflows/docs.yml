@@ -1,9 +1,10 @@
 name: Docs
 
 on:
-  pull: '*'  # delete line
   push:
-    branches: '*'  # replace with [main, dev]
+    branches:
+      - '*'
+    # replace with [main, dev]
   workflow_dispatch:
 
 jobs:
