@@ -8,21 +8,23 @@
 
 _ZARP_ is a [Snakemake][snakemake] workflow ...
 
-TODO: Complete intro/summary section
+**TODO:** Complete intro/summary section
 
-NOTE: Include references in `/includes/references.md`
-NOTE: Include abbreviations in `includes/abbreviations.md` (example: EAWNKWIMPR)
-NOTE: Include emojis (example: :rocket:)
-NOTE: Check out the [ZARP-cli docs pages](https://zavolab.github.io/zarp-cli/)
+**NOTES TO SELF:**
+
+- Include references in `/includes/references.md`
+- Include abbreviations in `includes/abbreviations.md` (example: EAWNKWIMPR)
+- Include emojis (example: :rocket:)
+- Check out the [ZARP-cli docs pages](https://zavolab.github.io/zarp-cli/)
 for inspiration.
-NOTE: Check out [MKDocs](https://www.mkdocs.org/) and [Material for
+- Check out [MKDocs](https://www.mkdocs.org/) and [Material for
 MkDocs](https://squidfunk.github.io/mkdocs-material/) docs for more info
 
 ## How does it work?
 
 Briefly, when a _ZARP_ run is triggered, ...
 
-TODO: Complete section
+**TODO:** Complete section
 
 ## How to cite
 
@@ -48,8 +50,8 @@ Coming soon...
 
 There are several ways to get in touch with us:
 
-- For ZARP usage questions, please use the [_ZARP_ Q&A forum][zarp-qa]  
-  (requires [GitHub registration][github-signup])
+- For ZARP usage questions, please use the [_ZARP_ Q&A forum][zarp-qa] (requires
+  [GitHub registration][github-signup])
 - For feature suggestions and bug reports, please use either the
   [ZARP][zarp-issue-tracker] or [ZARP-cli][zarp-cli-issue-tracker] issue
   tracker (requires [GitHub registration][github-signup])
