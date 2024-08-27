@@ -44,7 +44,11 @@ Coming soon...
 
 ## Info materials
 
-Coming soon...
+### Poster
+
+<p float="left">
+  <a href="https://f1000research.com/posters/13-968"><img alt="ZARP poster" src="./images/poster_ZARP_latest.jpg" width="100" /></a>
+</p>
 
 ## Reach out
 
