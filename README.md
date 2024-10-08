@@ -303,6 +303,8 @@ A descrpition of the different directories is shown below:
         - `summary_salmon`: Summary files for Salmon quantifications.
         - `zpca`: Output files for ZARP's principal component analysis.
 
+### QC outputs
+
 Within the `multiqc_summary` directory, you will find an interactive HTML file (`multiqc_report.html`) with various QC metrics that can help you interpret your results. An example file is shown below
 
 <div align="center">
@@ -374,11 +376,32 @@ On the left you can find a navigation bar that takes you into different sections
     <img width="80%" src=images/output_files/zarp_multiqc_kallisto_alignment.png>
 </div>
 
-- Finally the `zpca` salmon and kallisto sections PCA plots for expression levels of genes and transcripts.
+- Finally the `zpca` salmon and kallisto sections show PCA plots for expression levels of genes and transcripts.
 
 <div align="center">
     <img width="80%" src=images/output_files/zarp_multiqc_zpca.png>
 </div>
+
+### Gene and transcript estimate outputs
+
+Within the `summary_kallisto` directory, you can find the following files:
+- `genes_counts.tsv`: Matrix with the gene counts. The first column (index) contains the gene names and the first row (column) contains the sample names. This file can later be used for downstream differential expression analysis. 
+- `genes_tpm.tsv`: Matrix with the gene TPM estimates.
+- `transcripts_counts.tsv`: Matrix with the transcript counts. The first column (index) contains the transcript names and the first row (column) contains the sample names. This file can later be used for downstream differential transcript analysis.
+- `transcripts_tpm.tsv`: Matrix with the transcript TPM estimates.
+- `tx2geneID.tsv`: A table mapping transcript IDs to gene IDs.
+
+Within the `summary_salmon/quantmerge` directory, you can find the following files:
+- `genes_numreads.tsv`: Matrix with the gene counts. The first column (index) contains the gene names and the first row (column) contains the sample names. This file can later be used for downstream differential expression analysis. 
+- `genes_tpm.tsv`: Matrix with the gene TPM estimates. 
+- `transcripts_numreads.tsv`: Matrix with the transcript counts. The first column (index) contains the transcript names and the first row (column) contains the sample names. This file can later be used for downstream differential transcript analysis.
+- `transcripts_tpm.tsv`: Matrix with the transcript TPM estimates.
+
+### Alignment outputs
+
+Within the `samples` directory, you can find a directory for each sample, and within these directories you can find the output files of the individual steps. Some alignment files can be easily used to open in a genome browser for other downstream analysis:
+- In the `map_genome` directory you can find a file with the suffix `.Aligned.sortedByCoord.out.bam` and the corresponding indexed (`.bai`) file. This is the output of the STAR aligner. 
+- In the `bigWig` directory you can find two folders. `UniqueMappers` and `MultimappersIncluded`. Within these files you find the bigWig files for the plus and minus strand. These files are convenient to load in a genome browser (like igv) to view the genome coverage of the mappings.
 
 
 # Sample downloads from SRA
