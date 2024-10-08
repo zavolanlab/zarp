@@ -272,13 +272,12 @@ your run.
 
  After running the ZARP workflow, you will find several output files in the specified output directory. The output directory is defined in the `config.yaml` file and it is normally called `results`. Here are some of the key output files:
 
+ - **Quality control**: ZARP generates comprehensive quality control reports that provide insights into the quality and composition of the sequencing experiments. These reports include metrics such as read quality, alignment statistics, and gene expression summaries.
+ 
+ - **Quantification files**: These files contain the gene and transcript level expression values for each sample. They provide information about the abundance of each gene / transcript in the RNA-seq data.
+
 - **Alignment files**: These files contain the aligned reads for each sample in BAM format. They provide information about the mapping of the reads to the reference genome.
 
-- **Quantification files**: These files contain the gene and transcript level expression values for each sample. They provide information about the abundance of each gene / transcript in the RNA-seq data.
-
-- **Quality control reports**: ZARP generates comprehensive quality control reports that provide insights into the quality and composition of the sequencing experiments. These reports include metrics such as read quality, alignment statistics, and gene expression summaries.
-
-- **Visualization files**: ZARP also generates visualizations to help you interpret the results. These visualizations include plots, statistics and interactive browser-based reports.
 
 After a run you will find the following structure within the `results` directory:
 
@@ -303,7 +302,7 @@ A descrpition of the different directories is shown below:
         - `summary_salmon`: Summary files for Salmon quantifications.
         - `zpca`: Output files for ZARP's principal component analysis.
 
-### QC outputs
+### Quality Control (QC) outputs
 
 Within the `multiqc_summary` directory, you will find an interactive HTML file (`multiqc_report.html`) with various QC metrics that can help you interpret your results. An example file is shown below
 
@@ -382,7 +381,7 @@ On the left you can find a navigation bar that takes you into different sections
     <img width="80%" src=images/output_files/zarp_multiqc_zpca.png>
 </div>
 
-### Gene and transcript estimate outputs
+### Quantification (Gene and transcript estimate) outputs
 
 Within the `summary_kallisto` directory, you can find the following files:
 - `genes_counts.tsv`: Matrix with the gene counts. The first column (index) contains the gene names and the first row (column) contains the sample names. This file can later be used for downstream differential expression analysis. 
