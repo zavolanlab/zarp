@@ -338,13 +338,47 @@ On the left you can find a navigation bar that takes you into different sections
 </div>
 
 
-- The `FastQC: trimmed reads` section contains plots and quality statistics of the fastq files after adapter trimming
-- The `STAR` section shows the number and percentage of reads that are mapped using the STAR aligner
+- The `FastQC: trimmed reads` section contains plots and quality statistics of the fastq files after adapter trimming. The plots are similar to the section `FastQC: raw reads`.
+
+- The `STAR` section shows the number and percentage of reads that are mapped using the STAR aligner.
+
+<div align="center">
+    <img width="80%" src=images/output_files/zarp_multiqc_star_alignment_plot.png>
+</div>
+
 - The `ALFA` section shows the number of reads mapped to genomic categories (stop codon, 5'-UTR, CDS, intergenic, etc.) and gene biotypes (protein coding genes, miRNA , tRNA, etc.) for unique reads and multimappers.
-- The `TIN` section shows the Transcript Integrity Number of the samples
+
+<div align="center">
+    <img width="80%" src=images/output_files/zarp_multiqc_alfa_categories.png>
+</div>
+
+<div align="center">
+    <img width="80%" src=images/output_files/zarp_multiqc_alfa_biotypes.png>
+</div>
+
+- The `TIN` section shows the Transcript Integrity Number of the samples.
+
+<div align="center">
+    <img width="80%" src=images/output_files/zarp_multiqc_tin_score.png>
+</div>
+
 - The `Salmon` section shows the fragment length distribution of the reads
+
+<div align="center">
+    <img width="80%" src=images/output_files/zarp_multiqc_salmon_plot.png>
+</div>
+
 - The `Kallisto` section shows the number of reads that were aligned
+
+<div align="center">
+    <img width="80%" src=images/output_files/zarp_multiqc_kallisto_alignmemnt.png>
+</div>
+
 - Finally the `zpca` salmon and kallisto sections PCA plots for expression levels of genes and transcripts.
+
+<div align="center">
+    <img width="80%" src=images/output_files/zarp_multiqc_zpca.png>
+</div>
 
 
 # Sample downloads from SRA
