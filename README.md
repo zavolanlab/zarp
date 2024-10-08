@@ -371,7 +371,7 @@ On the left you can find a navigation bar that takes you into different sections
 - The `Kallisto` section shows the number of reads that were aligned
 
 <div align="center">
-    <img width="80%" src=images/output_files/zarp_multiqc_kallisto_alignmemnt.png>
+    <img width="80%" src=images/output_files/zarp_multiqc_kallisto_alignment.png>
 </div>
 
 - Finally the `zpca` salmon and kallisto sections PCA plots for expression levels of genes and transcripts.
