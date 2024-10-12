@@ -37,7 +37,7 @@ A descrpition of the different directories is shown below:
 Within the `multiqc_summary` directory, you will find an interactive HTML file (`multiqc_report.html`) with various QC metrics that can help you interpret your results. An example file is shown below
 
 <div align="center">
-    <img width="80%" src=./../images/output_files/zarp_multiqc.png>
+    <img width="80%" src=images/zarp_multiqc.png>
 </div>
 
 On the left you can find a navigation bar that takes you into different sections and subsections of the tools.
@@ -45,27 +45,27 @@ On the left you can find a navigation bar that takes you into different sections
 - The `General Statistics` section contains a summary of most tools and you can find statistics on mapped reads, percent of duplicate reads, percent of adapters trimmed for various tools.
 
 <div align="center">
-    <img width="80%" src=./../images/output_files/zarp_multiqc_general_statistics.png>
+    <img width="80%" src=images/zarp_multiqc_general_statistics.png>
 </div>
 
 - The `FastQC: raw reads` section contains plots and quality statistics of the fastq files. Some examples are shown below like the number of duplicate reads in an experiment, the average quality of the fastq files per position, or the percent of GC content.
 
 <div align="center">
-    <img width="80%" src=./../images/output_files/zarp_multiqc_fastqc_sequence_counts_plot.png>
+    <img width="80%" src=images/zarp_multiqc_fastqc_sequence_counts_plot.png>
 </div>
 
 <div align="center">
-    <img width="80%" src=./../images/output_files/zarp_multiqc_fastqc_per_base_sequence_quality_plot.png>
+    <img width="80%" src=images/zarp_multiqc_fastqc_per_base_sequence_quality_plot.png>
 </div>
 
 <div align="center">
-    <img width="80%" src=./../images/output_files/zarp_multiqc_fastqc_per_sequence_gc_content_plot.png>
+    <img width="80%" src=images/zarp_multiqc_fastqc_per_sequence_gc_content_plot.png>
 </div>
 
 - The `Cutadapt: adapter removal` and `Cutadapt: polyA tails removal` shows the number or the percentage of the reads trimmed
 
 <div align="center">
-    <img width="80%" src=./../images/output_files/zarp_multiqc_cutadapt_filtered_reads_plot.png>
+    <img width="80%" src=images/zarp_multiqc_cutadapt_filtered_reads_plot.png>
 </div>
 
 
@@ -74,41 +74,41 @@ On the left you can find a navigation bar that takes you into different sections
 - The `STAR` section shows the number and percentage of reads that are mapped using the STAR aligner.
 
 <div align="center">
-    <img width="80%" src=./../images/output_files/zarp_multiqc_star_alignment_plot.png>
+    <img width="80%" src=images/zarp_multiqc_star_alignment_plot.png>
 </div>
 
 - The `ALFA` section shows the number of reads mapped to genomic categories (stop codon, 5'-UTR, CDS, intergenic, etc.) and gene biotypes (protein coding genes, miRNA , tRNA, etc.) for unique reads and multimappers.
 
 <div align="center">
-    <img width="80%" src=./../images/output_files/zarp_multiqc_alfa_categories.png>
+    <img width="80%" src=images/zarp_multiqc_alfa_categories.png>
 </div>
 
 <div align="center">
-    <img width="80%" src=./../images/output_files/zarp_multiqc_alfa_biotypes.png>
+    <img width="80%" src=images/zarp_multiqc_alfa_biotypes.png>
 </div>
 
 - The `TIN` section shows the Transcript Integrity Number of the samples.
 
 <div align="center">
-    <img width="80%" src=./../images/output_files/zarp_multiqc_tin_score.png>
+    <img width="80%" src=images/zarp_multiqc_tin_score.png>
 </div>
 
 - The `Salmon` section shows the fragment length distribution of the reads
 
 <div align="center">
-    <img width="80%" src=./../images/output_files/zarp_multiqc_salmon_plot.png>
+    <img width="80%" src=images/zarp_multiqc_salmon_plot.png>
 </div>
 
 - The `Kallisto` section shows the number of reads that were aligned
 
 <div align="center">
-    <img width="80%" src=./../images/output_files/zarp_multiqc_kallisto_alignment.png>
+    <img width="80%" src=images/zarp_multiqc_kallisto_alignment.png>
 </div>
 
 - Finally the `zpca` salmon and kallisto sections show PCA plots for expression levels of genes and transcripts.
 
 <div align="center">
-    <img width="80%" src=./../images/output_files/zarp_multiqc_zpca.png>
+    <img width="80%" src=images/zarp_multiqc_zpca.png>
 </div>
 
 ## Quantification (Gene and transcript estimate) outputs
