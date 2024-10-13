@@ -182,3 +182,24 @@ SRR18549672     results/sra_downloads/compress/SRR18549672/SRR18549672_1.fastq.g
 ERR2248142      results/sra_downloads/compress/ERR2248142/ERR2248142.fastq.gz 
 ```
 Some of the filenames indicate if the experiment was sequnced with `SINGLE (se)` or `PAIRED (pe)` end mode.
+
+## Outputs of HTSinfer
+
+Once you run the pipeline that infers metadata you can find the following file structure:
+
+```tsv
+results/
+|-- FVKEQ
+|   |-- library_source_testpath1.1.fastq.json
+|   |-- library_source_testpath1.2.fastq.json
+|   |-- read_layout_testpath1.1.fastq.json
+|   `-- read_layout_testpath1.2.fastq.json
+|-- HGLR5
+|   |-- library_source_testpath2.1.fastq.json
+|   `-- read_layout_testpath2.1.fastq.json
+|-- htsinfer_SRR1.json
+|-- htsinfer_SRR2.json
+`-- samples_htsinfer.tsv
+```
+
+All results are stored under the output directory you have specified in your config.yaml file (`results` in this case). A json file with the `htsinfer_` prefix is generated containing the infered metadata for each of the samples. All information that could be determined are stored in the file `samples_htsinfer.tsv` that can be later used in the main ZARP pipeline.

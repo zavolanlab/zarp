@@ -1,6 +1,9 @@
 # Execution of pipelines
 
-ZARP consists of three different pipelines. The main pipeline that processes the data, the second allows you to download the sequencing libraries from the Sequence Read Archive (SRA), and the third that populates a file with the samples and determines sample specific parameters.
+ZARP consists of three different pipelines. The main pipeline that processes the data, the second allows you to download the sequencing libraries from the Sequence Read Archive (SRA), and the third that populates a file with the samples and determines sample specific parameters. <p> <p>
+
+If you can create a `samples.tsv` file and fill in the metadata for the different sequencing experiments then the main pipeline can analyze your data.
+
 
 ## How to run ZARP
 
@@ -122,7 +125,7 @@ ERR2248142      results/sra_downloads/compress/ERR2248142/ERR2248142.fastq.gz
 ```
 
 
-## How to determine sample information?
+## How to determine sample information (HTSinfer)?
 
 An independent Snakemake workflow `workflow/rules/htsinfer.smk` that populates the `samples.tsv` required by ZARP with the sample specific parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size`. Those parameters are inferred from the provided `fastq.gz` files by [HTSinfer](https://github.com/zavolanlab/htsinfer).
 
@@ -144,10 +147,12 @@ cd tests/test_htsinfer_workflow
 snakemake \
     --snakefile="../../workflow/rules/htsinfer.smk" \
     --restart-times=0 \
-    --profile="../../profiles/local-singularity" \
+    --profile="../../profiles/local-conda" \
     --config outdir="results" \
              samples="../input_files/htsinfer_samples.tsv" \
              samples_out="samples_htsinfer.tsv" \
+             log_dir="logs" \
+             cluster_log_dir="logs/cluster_log" \
     --notemp \
     --keep-incomplete
 ```
