@@ -31,7 +31,7 @@ Each step (rule) of ZARP can be executed either with conda, or with apptainer (s
     <img width="80%" src=../images/bioconda_cutadapt.png>
 </div>
 
-The latest version at the moment is 4.9.
+    The latest version at the moment is 4.9.
 
 3. Find the corresponding version from biocontainers. You can do that by searching something like "biocontainers cutadapt" in the [quay.io](https://quay.io/) website. Select the tags and use one of the available versions.
 
