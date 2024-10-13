@@ -23,10 +23,8 @@ create a directory for your workflow run and move into it with:
 values. Have a look at the examples in the `tests/` directory to see what the
 files should look like, specifically:
 
-    - [samples.tsv](tests/input_files/samples.tsv)
-    - [config.yaml](tests/input_files/config.yaml)
-
-    - For more details and explanations, refer to the [pipeline-documentation]
+    - [samples.tsv](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/samples.tsv)
+    - [config.yaml](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/config.yaml)
 
 
 4. Create a runner script. Pick one of the following choices for either local
@@ -78,6 +76,8 @@ your run.
     bash run.sh
     ```
 
+6. To find out more information on the output files please go to the [output files](https://zavolanlab.github.io/zarp/guides/outputs/) section
+
 
 ## How to download data from SRA?
 
@@ -87,13 +87,8 @@ conversion into FASTQ.
 
 The workflow expects the following parameters in the configuration file:
 * `samples`, a sample table (tsv) with column *sample* containing *SRR*
-  identifiers (ERR and DRR are also supported), as following
-  ```
-  sample    fq1    fq2
-  SRR18552868
-  SRR18549672
-  ERR2248142
-  ```
+  identifiers (ERR and DRR are also supported), as in this example 
+  [samples.tsv](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/sra_samples.tsv) file.
 * `outdir`, an output directory
 * `samples_out`, a pointer to a modified sample table with the locations of
   the corresponding FASTQ files
@@ -129,7 +124,7 @@ ERR2248142      results/sra_downloads/compress/ERR2248142/ERR2248142.fastq.gz
 
 ## How to determine sample information?
 
-An independent Snakemake workflow `workflow/rules/htsinfer.smk` that populates the `samples.tsv` required by ZARP with the sample specific parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size`. Those parameters are inferred from the provided `fastq.gz` files by [HTSinfer][hts-infer].
+An independent Snakemake workflow `workflow/rules/htsinfer.smk` that populates the `samples.tsv` required by ZARP with the sample specific parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size`. Those parameters are inferred from the provided `fastq.gz` files by [HTSinfer](https://github.com/zavolanlab/htsinfer).
 
 > Note: The workflow uses the implicit temporary directory 
 from snakemake, which is called with [resources.tmpdir].
@@ -137,7 +132,7 @@ from snakemake, which is called with [resources.tmpdir].
 
 The workflow expects the following config:
 * `samples`, a sample table (tsv) with column *sample* containing sample identifiers, as well as columns *fq1* and *fq2* containing the paths to the input fastq files
-see example [here](tests/input_files/sra_samples.tsv). If the table contains further ZARP compatible columns (see [pipeline documentation][sample-doc]), the values specified there by the user are given priority over htsinfer's results. 
+see example [here](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/samples_htsinfer.tsv). If the table contains further ZARP compatible columns (see [pipeline documentation](https://github.com/zavolanlab/zarp/blob/dev/pipeline_documentation.md)), the values specified there by the user are given priority over htsinfer's results. 
 * `outdir`, an output directory
 * `samples_out`, path to a modified sample table with inferred parameters
 * `records`, set to 100000 per default
@@ -159,4 +154,4 @@ snakemake \
 
 However, this call will exit with an error, as not all parameters can be inferred from the example files. The argument `--keep-incomplete` makes sure the `samples_htsinfer.tsv` file can nevertheless be inspected. 
 
-After successful execution - if all parameters could be either inferred or were specified by the user - `[OUTDIR]/[SAMPLES_OUT]` should contain a populated table with parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size` for all input samples as described in the [pipeline documentation][sample-doc].
+After successful execution - if all parameters could be either inferred or were specified by the user - `[OUTDIR]/[SAMPLES_OUT]` should contain a populated table with parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size`.

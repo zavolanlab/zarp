@@ -1,5 +1,9 @@
 # Output files
 
+Here you can find an overview of the output files for the different workflows.
+
+## Outputs of ZARP
+
  After running the ZARP workflow, you will find several output files in the specified output directory. The output directory is defined in the `config.yaml` file and it is normally called `results`. Here are some of the key output files:
 
  - **Quality control**: ZARP generates comprehensive quality control reports that provide insights into the quality and composition of the sequencing experiments. These reports include metrics such as read quality, alignment statistics, and gene expression summaries.
@@ -32,7 +36,7 @@ A descrpition of the different directories is shown below:
         - `summary_salmon`: Summary files for Salmon quantifications.
         - `zpca`: Output files for ZARP's principal component analysis.
 
-## Quality Control (QC) outputs
+### Quality Control (QC) outputs
 
 Within the `multiqc_summary` directory, you will find an interactive HTML file (`multiqc_report.html`) with various QC metrics that can help you interpret your results. An example file is shown below
 
@@ -111,7 +115,7 @@ On the left you can find a navigation bar that takes you into different sections
     <img width="80%" src=../images/zarp_multiqc_zpca.png>
 </div>
 
-## Quantification (Gene and transcript estimate) outputs
+### Quantification (Gene and transcript estimate) outputs
 
 Within the `summary_kallisto` directory, you can find the following files:
 - `genes_counts.tsv`: Matrix with the gene counts. The first column (index) contains the gene names and the first row (column) contains the sample names. This file can later be used for downstream differential expression analysis. 
@@ -126,8 +130,55 @@ Within the `summary_salmon/quantmerge` directory, you can find the following fil
 - `transcripts_numreads.tsv`: Matrix with the transcript counts. The first column (index) contains the transcript names and the first row (column) contains the sample names. This file can later be used for downstream differential transcript analysis.
 - `transcripts_tpm.tsv`: Matrix with the transcript TPM estimates.
 
-## Alignment outputs
+### Alignment outputs
 
 Within the `samples` directory, you can find a directory for each sample, and within these directories you can find the output files of the individual steps. Some alignment files can be easily used to open in a genome browser for other downstream analysis:
 - In the `map_genome` directory you can find a file with the suffix `.Aligned.sortedByCoord.out.bam` and the corresponding indexed (`.bai`) file. This is the output of the STAR aligner. 
 - In the `bigWig` directory you can find two folders. `UniqueMappers` and `MultimappersIncluded`. Within these files you find the bigWig files for the plus and minus strand. These files are convenient to load in a genome browser (like igv) to view the genome coverage of the mappings.
+
+
+## Outputs of downnload SRA data
+
+Once you run the pipeline that downloads data from the Sequence Read Archive (SRA) you can find the following file structure:
+
+```
+results/
+`-- sra_downloads
+    |-- compress
+    |   |-- ERR2248142
+    |   |   |-- ERR2248142.fastq.gz
+    |   |   `-- ERR2248142.se.tsv
+    |   |-- SRR18549672
+    |   |   |-- SRR18549672.pe.tsv
+    |   |   |-- SRR18549672_1.fastq.gz
+    |   |   `-- SRR18549672_2.fastq.gz
+    |   `-- SRR18552868
+    |       |-- SRR18552868.fastq.gz
+    |       `-- SRR18552868.se.tsv
+    |-- fasterq_dump
+    |   `-- tmpdir
+    |-- get_layout
+    |   |-- ERR2248142
+    |   |   `-- SINGLE.info
+    |   |-- SRR18549672
+    |   |   `-- PAIRED.info
+    |   `-- SRR18552868
+    |       `-- SINGLE.info
+    |-- prefetch
+    |   |-- ERR2248142
+    |   |   `-- ERR2248142.sra
+    |   |-- SRR18549672
+    |   |   `-- SRR18549672.sra
+    |   `-- SRR18552868
+    |       `-- SRR18552868.sra
+    `-- sra_samples.out.tsv
+```
+
+All results are stored under the output directory you have specified in your config.yaml file (`results` in this case). The `sra_samples.out.tsv` summarizes all the experiments that were fetched from SRA. The file contains the SRR experiment and the path to fastq file(s). An example output file looks like the following:
+```tsv
+sample  fq1     fq2
+SRR18552868     results/sra_downloads/compress/SRR18552868/SRR18552868.fastq.gz 
+SRR18549672     results/sra_downloads/compress/SRR18549672/SRR18549672_1.fastq.gz       results/sra_downloads/compress/SRR18549672/SRR18549672_2.fastq.gz
+ERR2248142      results/sra_downloads/compress/ERR2248142/ERR2248142.fastq.gz 
+```
+Some of the filenames indicate if the experiment was sequnced with `SINGLE (se)` or `PAIRED (pe)` end mode.
