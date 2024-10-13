@@ -202,4 +202,4 @@ results/
 `-- samples_htsinfer.tsv
 ```
 
-All results are stored under the output directory you have specified in your config.yaml file (`results` in this case). A json file with the `htsinfer_` prefix is generated containing the infered metadata for each of the samples. All information that could be determined are stored in the file `samples_htsinfer.tsv` that can be later used in the main ZARP pipeline.
+All results are stored under the output directory you have specified in your config.yaml file (`results` in this case). A json file with the `htsinfer_` prefix is generated containing the inferred metadata for each of the samples. All information that could be determined are stored in the file `samples_htsinfer.tsv` that can be later used in the main ZARP pipeline.
