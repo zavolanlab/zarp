@@ -65,4 +65,5 @@ extra:
 nav:
   - Home: README.md
   - Installation: guides/installation.md
+  - Usage: guides/usage.md
   - Output Files: guides/outputs.md
