@@ -1,6 +1,33 @@
-# Contribute
+# Parameterization
 
-Open source contributors are always welcome, for [_ZARP_][zarp], [_ZARP-cli_][zarp-cli] or any other of the [Zavolab projects][zavolab-gh]. Simply reach out by [email][contact] to schedule an onboarding call.
+## Parameter adjustment for rules
+
+ZARP runs on default parameters that were chosen based on the majority of samples being analyzed. To simplify adding non-default parameters of the tools, we created a config file, which enables the user to use any of the extra parameters offered by any of the tools. These options override the default ones, unless they are essential to the correct use of the rule in which case they are considered "immutable" and will not be changed. This extra `rule_config.yaml` file enables the user to easily manipulate the parameters, without having to deal with making changes in the workflow.
+
+The entries look like the following example. The rule name is specified the parameters to customize are give.
+
+```bash
+remove_adapters_cutadapt:
+    # Search for all the given adapter sequences repeatedly, either until no
+    # adapter match was found or until n rounds have been performed (default 1,
+    # ZARP recommends 2)
+    -n: '2'
+    # Discard processed reads that are shorter than m; note that cutadapt uses
+    # a default value of m=0, causing reads without any nucleotides remaining
+    # after proessing to be retained; as "empty reads" will cause errors in
+    # downstream applications in ZARP, we have changed the default to m=1,
+    # meaning that only read fragments of at least 1 nt will be retained after
+    # processing. The default will be overridden by the value specified here,
+    # but for the reason stated above, we strongly recommend NOT to set m=0;
+    # cf. https://cutadapt.readthedocs.io/en/stable/guide.html#filtering-reads
+    -m: '10'
+```
+
+You can find the path to the `rule_config.yaml` file as a parameter in the standard `config.yaml` file.
+
+```bash
+rule_config: "../input_files/rule_config.yaml"
+```
 
 ## Update the version of a tool
 
@@ -25,19 +52,17 @@ Each step (rule) of ZARP can be executed either with conda, or with apptainer (s
     ...
     ```
     
-2. Find the version you want to use by searching the package in the anaconda website. The specific package is available [here](https://anaconda.org/bioconda/cutadapt).
+2. Find the version you want to use by searching the package in the anaconda website. The specific package is available [here](https://anaconda.org/bioconda/cutadapt). The latest version at the moment is 4.9.
 
-<div align="center">
-    <img width="80%" src=../images/bioconda_cutadapt.png>
-</div>
-
-    The latest version at the moment is 4.9.
+    <div align="center">
+        <img width="80%" src=../images/bioconda_cutadapt.png>
+    </div>
 
 3. Find the corresponding version from biocontainers. You can do that by searching something like "biocontainers cutadapt" in the [quay.io](https://quay.io/) website. Select the tags and use one of the available versions.
 
-<div align="center">
-    <img width="80%" src=../images/biocontainers_cutadapt.png>
-</div>
+    <div align="center">
+        <img width="80%" src=../images/biocontainers_cutadapt.png>
+    </div>
 
 4. You can replace the dependencies with the new versions.
 
