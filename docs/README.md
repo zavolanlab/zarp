@@ -26,21 +26,13 @@ sequencing experiments - fast and simple. Whether you are an experimentalist
 struggling with large scale data analysis or an experienced bioinformatician,
 when there's RNA-seq data to analyze, just _zarp 'em_!
 
-**NOTES TO SELF:**
-
-- Include references in `/includes/references.md`
-- Include abbreviations in `includes/abbreviations.md` (example: EAWNKWIMPR)
-- Include emojis (example: :rocket:)
-- Check out the [ZARP-cli docs pages](https://zavolab.github.io/zarp-cli/)
-for inspiration.
-- Check out [MKDocs](https://www.mkdocs.org/) and [Material for
-MkDocs](https://squidfunk.github.io/mkdocs-material/) docs for more info
-
 ## How does it work?
 
-Briefly, when a _ZARP_ run is triggered, ...
+ZARP requires conda or mamba to install the basic dependencies. Each individual step of the workflow run either in its own Apptainer (Singularity) container or in its own Conda virtual environemnt.
 
-**TODO:** Complete section
+Once the installation is complete, you fill in a [config.yaml](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/config.yaml) file with parameters and a [samples.tsv](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/samples.tsv) file with sample specific installation. You can easily trigger ZARP by making a call to snakemake with the appropriate parameters.
+
+The pipeline can be executed in different systems or HPC clusters. ZARP generates multiple output files that help you QC your data and proceed with downstream analyses. Apart from running the main ZARP workflow, you can also run a second pipeline that downloads data from SRA, and a third pipeline that populates a file with the samples and determines sample specific parameters.
 
 ## How to cite
 

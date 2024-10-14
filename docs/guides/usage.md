@@ -1,9 +1,12 @@
 # Execution of pipelines
 
-ZARP consists of three different pipelines. The main pipeline that processes the data, the second allows you to download the sequencing libraries from the Sequence Read Archive (SRA), and the third that populates a file with the samples and determines sample specific parameters. <p> <p>
+ZARP consists of three different pipelines. The main pipeline that processes the data, the second allows you to download the sequencing libraries from the Sequence Read Archive (SRA), and the third that populates a file with the samples and determines sample specific parameters.
 
 If you can create a `samples.tsv` file and fill in the metadata for the different sequencing experiments then the main pipeline can analyze your data.
 
+!!! info "Prerequisites"
+    
+    The code below assume that you have already [installed](./installation.md) ZARP.
 
 ## How to run ZARP
 
@@ -79,7 +82,7 @@ your run.
     bash run.sh
     ```
 
-6. To find out more information on the output files please go to the [output files](https://zavolanlab.github.io/zarp/guides/outputs/) section
+6. To find out more information on the output files please go to the [output files](./outputs.md) section.
 
 
 ## How to download data from SRA?

@@ -4,7 +4,7 @@
 
 ZARP runs on default parameters that were chosen based on the majority of samples being analyzed. To simplify adding non-default parameters of the tools, we created a config file, which enables the user to use any of the extra parameters offered by any of the tools. These options override the default ones, unless they are essential to the correct use of the rule in which case they are considered "immutable" and will not be changed. This extra `rule_config.yaml` file enables the user to easily manipulate the parameters, without having to deal with making changes in the workflow.
 
-The entries look like the following example. The rule name is specified the parameters to customize are give.
+An example of a `rule_config.yaml` is shown below:
 
 ```bash
 remove_adapters_cutadapt:
