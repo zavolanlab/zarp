@@ -1,0 +1,18 @@
+---
+  # Required fields
+  samples: "data/samples_docker.tsv"
+  output_dir: "data/results"
+  log_dir: "data/logs"
+  cluster_log_dir: "data/logs/cluster"
+  kallisto_indexes: "data/results/kallisto_indexes"
+  salmon_indexes: "data/results/salmon_indexes"
+  star_indexes: "data/results/star_indexes"
+  alfa_indexes: "data/results/alfa_indexes"
+  # Optional fields
+  rule_config: "data/rule_config.yaml"
+  report_description: "No description provided by user"
+  report_logo: "../../images/logo.128px.png"
+  report_url: "https://zavolan.biozentrum.unibas.ch/"
+  author_name: "NA"
+  author_email: "NA"
+...
