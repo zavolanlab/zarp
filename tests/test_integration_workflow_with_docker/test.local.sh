@@ -44,3 +44,5 @@ docker run \
     --snakefile /workflow/Snakefile \
     --configfile data/config_docker.yaml \
     --cores 4 --use-conda --verbose
+
+ls -ltr data
