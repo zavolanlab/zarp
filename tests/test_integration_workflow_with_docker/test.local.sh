@@ -38,7 +38,7 @@ docker pull zavolab/zarp:1.0.0-rc.1
 docker run \
     --platform linux/x86_64 \
     --mount type=bind,source=$script_dir/data,target=/data \
-    -it zavolab/zarp:1.0.0-rc.1 \
+    zavolab/zarp:1.0.0-rc.1 \
     snakemake \
     -p \
     --snakefile /workflow/Snakefile \
