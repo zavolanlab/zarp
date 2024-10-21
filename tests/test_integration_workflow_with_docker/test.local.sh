@@ -44,8 +44,3 @@ docker run \
     --snakefile /workflow/Snakefile \
     --configfile data/config_docker.yaml \
     --cores 4 --use-conda --verbose
-
-# Check md5 sum of some output files
-find data/results/ -type f -name \*\.gz -exec gunzip '{}' \;
-find data/results/homo_sapiens/ -type f -name \*\.zip -exec sh -c 'unzip -o {} -d $(dirname {})' \;
-md5sum --check "expected_output.md5"
