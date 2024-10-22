@@ -8,7 +8,6 @@ cleanup () {
     rm -rf .fontconfig/
     rm -rf .java/
     rm -rf .snakemake/
-    rm -rf data/
     cd $user_dir
     echo "Exit status: $rc"
 }
@@ -44,5 +43,3 @@ docker run \
     --snakefile /workflow/Snakefile \
     --configfile data/config_docker.yaml \
     --cores 4 --use-conda --verbose
-
-ls -ltr data

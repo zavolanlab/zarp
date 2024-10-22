@@ -243,3 +243,6 @@ jobs:
         
         - name: Run test script
           run: bash tests/test_integration_workflow_with_docker/test.local.sh
+
+        - name: Clean up
+          run: rm -rf data
