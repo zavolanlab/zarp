@@ -1,6 +1,6 @@
 # Execution of pipelines
 
-ZARP consists of three different pipelines. The main pipeline that processes the data, the second allows you to download the sequencing libraries from the Sequence Read Archive (SRA), and the third that populates a file with the samples and determines sample specific parameters.
+ZARP consists of three different pipelines. The main pipeline processes the data, the second allows you to download the sequencing libraries from the Sequence Read Archive (SRA), and the third populates a file with the samples and determines sample specific parameters.
 
 If you can create a `samples.tsv` file and fill in the metadata for the different sequencing experiments then the main pipeline can analyze your data.
 
@@ -71,7 +71,7 @@ your run.
     EOF
     ```
 
-    > Note: When running the pipeline with *conda* you should use `local-conda` and
+    > Note: When running the pipeline with *Conda* you should use `local-conda` and
     `slurm-conda` profiles instead.
 
     > Note: The slurm profiles are adapted to a cluster that uses the quality-of-service (QOS) keyword. If QOS is not supported by your slurm instance, you have to remove all the lines with "qos" in `profiles/slurm-config.json`.
@@ -163,3 +163,58 @@ snakemake \
 However, this call will exit with an error, as not all parameters can be inferred from the example files. The argument `--keep-incomplete` makes sure the `samples_htsinfer.tsv` file can nevertheless be inspected. 
 
 After successful execution - if all parameters could be either inferred or were specified by the user - `[OUTDIR]/[SAMPLES_OUT]` should contain a populated table with parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size`.
+
+# Execution with docker
+
+ZARP is optimised for Linux users as all packages are available via Conda or Apptainer (Singularity). For other systems like Mac OS X, they don't work especially due to the current transition from Intel to ARM processors (M series). Nevertheless we built a Docker container that can be used to run ZARP in such environments.
+
+1. Install Docker following the instructions [here](https://docs.docker.com/desktop/install/mac-install/)
+
+2. Pull the Docker image the contains the necessary dependencies
+```sh
+docker pull zavolab/zarp:1.0.0-rc.1
+```
+
+3. Create a directoty (e.g. `data`) and store all the files required for a run:
+    - The genome sequence fasta file
+    - The annotation gtf file
+    - The fastq files of your experiments
+    - The `rule_config.yaml` for the parameters
+    - The `samples.tsv` containing the metadata of your samples
+    - The `config.yaml` file with parameters. Below you can find an example file where you can see that it points to files in the `data` directory.
+        ```yaml
+        ---
+          # Required fields
+          samples: "data/samples_docker.tsv"
+          output_dir: "data/results"
+          log_dir: "data/logs"
+          cluster_log_dir: "data/logs/cluster"
+          kallisto_indexes: "data/results/kallisto_indexes"
+          salmon_indexes: "data/results/salmon_indexes"
+          star_indexes: "data/results/star_indexes"
+          alfa_indexes: "data/results/alfa_indexes"
+          # Optional fields
+          rule_config: "data/rule_config.yaml"
+          report_description: "No description provided by user"
+          report_logo: "../../images/logo.128px.png"
+          report_url: "https://zavolan.biozentrum.unibas.ch/"
+          author_name: "NA"
+          author_email: "NA"
+        ...
+        ```
+
+4. Execute ZARP as following:
+    ```sh
+    docker run \
+        --platform linux/x86_64 \
+        --mount type=bind,source=$PWD/data,target=/data \
+        zavolab/zarp:1.0.0-rc.1 \
+        snakemake \
+        -p \
+        --snakefile /workflow/Snakefile \
+        --configfile data/config.yaml \
+        --cores 4 \
+        --use-conda \
+        --verbose
+    ```
+    The command runs the Docker container `zavolab/zarp:1.0.0-rc.1` that we have pulled. It executes it as it would be done on a Linux platform `--platform linux/x86_64`. We use the `--mount` option to bind the local `data` directory that contains the input files with the `data` directory in the container. The pipeline is stored in the container in the path `/workflow/Snakefile`. Once ZARP is complete, the results will be stored in the `data/results` directory.

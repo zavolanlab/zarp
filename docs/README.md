@@ -30,7 +30,7 @@ when there's RNA-seq data to analyze, just _zarp 'em_!
 
 ZARP requires conda or mamba to install the basic dependencies. Each individual step of the workflow run either in its own Apptainer (Singularity) container or in its own Conda virtual environemnt.
 
-Once the installation is complete, you fill in a [config.yaml](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/config.yaml) file with parameters and a [samples.tsv](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/samples.tsv) file with sample specific installation. You can easily trigger ZARP by making a call to snakemake with the appropriate parameters.
+Once the installation is complete, you fill in a [config.yaml](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/config.yaml) file with parameters and a [samples.tsv](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/samples.tsv) file with sample specific information. You can easily trigger ZARP by making a call to snakemake with the appropriate parameters.
 
 The pipeline can be executed in different systems or HPC clusters. ZARP generates multiple output files that help you QC your data and proceed with downstream analyses. Apart from running the main ZARP workflow, you can also run a second pipeline that downloads data from SRA, and a third pipeline that populates a file with the samples and determines sample specific parameters.
 
@@ -45,10 +45,6 @@ Schlusser, Youngbin Moon, Aleksei Mironov, Anastasiya Börsch, Mihaela Zavolan,
 Alexander Kanitz_  
 F1000Research 2024, 13:533  
 <https://doi.org/10.12688/f1000research.149237.1>
-
-## Training materials
-
-Coming soon...
 
 ## Info materials
 

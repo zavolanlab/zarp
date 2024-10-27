@@ -24,8 +24,7 @@ Installation requires the following:
 Clone the [ZARP workflow repository][zarp] with:
 
 ```sh
-git clone git@github.com:zavolanlab/zarp
-# or: git clone https://github.com/zavolanlab/zarp.git
+git clone https://github.com/zavolanlab/zarp.git
 ```
 
 ### 2. Set up Conda environment
