@@ -165,7 +165,7 @@ However, this call will exit with an error, as not all parameters can be inferre
 After successful execution - if all parameters could be either inferred or were specified by the user - `[OUTDIR]/[SAMPLES_OUT]` should contain a populated table with parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size`.
 
 
-# Execution with docker
+## Execution with Docker
 
 ZARP is optimised for Linux users as all packages are available via Conda or Apptainer (Singularity). For other systems like Mac OS X, they don't work especially due to the current transition from Intel to ARM processors (M series). Nevertheless we built a Docker container that can be used to run ZARP in such environments.
 
