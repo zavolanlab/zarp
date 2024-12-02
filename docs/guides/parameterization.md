@@ -66,6 +66,10 @@ Each step (rule) of ZARP can be executed either with conda, or with apptainer (s
 
 4. You can replace the dependencies with the new versions.
 
+## Expand zarp with a new package
+
+In other cases, you might have developed a package and want to expand ZARP with it. In that case, we highly recommend packaging the tool properly and making it available on Bioconda. You can find the guidelines [here](https://bioconda.github.io/contributor/index.html). This is how we also publish custom tools developed in the lab. The advantage of this approach is that it allows you to share your tool with the broader scientific community, ensuring that it is easily accessible and installable by others. Once your package is available on Bioconda, you will also get a Docker container that contains your package. This is automatically built by the Biocontainers team and will become available on [quay.io](https://quay.io/) as shown in the previous section.
+
 ## Update the tool resources
 
 ZARP has been tested with many samples and we provided default parameters to allow optimal performance of the tools (e.g., a tool can run on multiple threads). Regarding the required maximum memory usage required, there is a field in the snakemake rule called resources where the maximum memory per rule can be specified using the variable mem_mb. In the case of ZARP we go one step further and use dynamic resources, which means we estimate the required memory based on the size of the input file using scaling factors that we have obtained from analysis of multiple samples. An extra dynamic modification is that if the rule fails, we allow three reruns of the rule during which we multiply the provided memory by the attempt. That means that if the rule fails, in the rerun the memory will be doubled or tripled. This is done as following:
