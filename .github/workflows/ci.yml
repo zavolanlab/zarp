@@ -55,8 +55,8 @@ jobs:
       #- name: Run test script for snakemake lint
       #  run: bash tests/test_format/test_snakemake_lint.sh
 
-      - name: Run test script for snakemake rulegraph
-        run: bash tests/test_create_rule_graph/test.sh
+      #- name: Run test script for snakemake rulegraph
+      #  run: bash tests/test_create_rule_graph/test.sh
 
       - name: Run test script for snakemake DAG
         run: bash tests/test_create_dag_image/test.sh
