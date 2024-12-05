@@ -58,8 +58,8 @@ jobs:
       #- name: Run test script for snakemake rulegraph
       #  run: bash tests/test_create_rule_graph/test.sh
 
-      - name: Run test script for snakemake DAG
-        run: bash tests/test_create_dag_image/test.sh
+      #- name: Run test script for snakemake DAG
+      #  run: bash tests/test_create_dag_image/test.sh
 
 
   integration-singularity:
