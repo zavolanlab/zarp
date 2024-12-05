@@ -73,7 +73,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.10"
-          mamba-version: "1.*"
+          mamba-version: "1"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -118,7 +118,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.10"
-          mamba-version: "*"
+          mamba-version: "1"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -155,7 +155,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.10"
-          mamba-version: "*"
+          mamba-version: "1"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -192,7 +192,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.10"
-          mamba-version: "*"
+          mamba-version: "1"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -232,7 +232,7 @@ jobs:
           uses: conda-incubator/setup-miniconda@v3
           with:
             python-version: "3.10"
-            mamba-version: "*"
+            mamba-version: "1"
             channels: conda-forge
             channel-priority: true
             auto-update-conda: false
