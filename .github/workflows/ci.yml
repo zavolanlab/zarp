@@ -82,7 +82,9 @@ jobs:
           auto-activate-base: false
 
       - name: Update zarp env with root. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
+        run: |
+          mamba --version
+          mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
 
       - name: Update zarp env with dev. packages
         run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
