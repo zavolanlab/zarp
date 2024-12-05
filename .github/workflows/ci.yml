@@ -21,6 +21,11 @@ jobs:
       - name: Checkout zarp repository
         uses: actions/checkout@v4
 
+      - name: Setup OpenSSL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssl
+
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v3
         with:
