@@ -92,13 +92,14 @@ for the download of sequencing libraries from the Sequence Read Archive and
 conversion into FASTQ.
 
 The workflow expects the following parameters in the configuration file:
-* `samples`, a sample table (tsv) with column *sample* containing *SRR*
+
+- `samples`, a sample table (tsv) with column *sample* containing *SRR*
   identifiers (ERR and DRR are also supported), as in this example 
   [samples.tsv](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/sra_samples.tsv) file.
-* `outdir`, an output directory
-* `samples_out`, a pointer to a modified sample table with the locations of
+- `outdir`, an output directory
+- `samples_out`, a pointer to a modified sample table with the locations of
   the corresponding FASTQ files
-* `cluster_log_dir`, the cluster log directory.
+- `cluster_log_dir`, the cluster log directory.
 
 For executing the example with Conda environments, one can use the following
 command (from within the activated `zarp` Conda environment):
@@ -137,11 +138,12 @@ from snakemake, which is called with [resources.tmpdir].
 
 
 The workflow expects the following config:
-* `samples`, a sample table (tsv) with column *sample* containing sample identifiers, as well as columns *fq1* and *fq2* containing the paths to the input fastq files
+
+- `samples`, a sample table (tsv) with column *sample* containing sample identifiers, as well as columns *fq1* and *fq2* containing the paths to the input fastq files
 see example [here](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/samples_htsinfer.tsv). If the table contains further ZARP compatible columns (see [pipeline documentation](https://github.com/zavolanlab/zarp/blob/dev/pipeline_documentation.md)), the values specified there by the user are given priority over htsinfer's results. 
-* `outdir`, an output directory
-* `samples_out`, path to a modified sample table with inferred parameters
-* `records`, set to 100000 per default
+- `outdir`, an output directory
+- `samples_out`, path to a modified sample table with inferred parameters
+- `records`, set to 100000 per default
   
 For executing the example one can use the following
 (with activated *zarp* environment):
