@@ -75,11 +75,11 @@ The workflow was built and tested with `miniconda 4.7.12`.
 Other versions are not guaranteed to work as expected.
 
 Given that Miniconda has been installed and is available in the current shell the first
-dependency for ZARP is the [Mamba][mamba] package manager, which needs to be installed in
+dependency for ZARP is the [Mamba][mamba] package manager (version 1), which needs to be installed in
 the `base` conda environment with:
 
 ```bash
-conda install mamba -n base -c conda-forge
+conda install mamba=1 -n base -c conda-forge
 ```
 
 ## 3. Dependencies installation
