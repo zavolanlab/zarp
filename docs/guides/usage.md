@@ -1,14 +1,12 @@
 # Execution of pipelines
 
-ZARP consists of three different pipelines. The main pipeline processes the data, the second allows you to download the sequencing libraries from the Sequence Read Archive (SRA), and the third populates a file with the samples and determines sample specific parameters.
-
-If you can create a `samples.tsv` file and fill in the metadata for the different sequencing experiments then the main pipeline can analyze your data.
+Next to the ZARP workflow for RNA-Seq analysis, this project comes with two auxiliary workflows for fetching samples from the Sequence Read Archive and populating a sparse sample table with inferred sample metadata. This section describes how to run each of these workflows.
 
 !!! info "Prerequisites"
     
-    The code below assume that you have already [installed](./installation.md) ZARP.
+    All usage examples in this section assume that you have already [installed](./installation.md) ZARP.
 
-## How to run ZARP
+## How to analyze your RNA-Seq samples?
 
 1. Assuming that your current directory is the workflow repository's root directory,
 create a directory for your workflow run and move into it with:
@@ -85,7 +83,7 @@ your run.
 6. To find out more information on the output files please go to the [output files](./outputs.md) section.
 
 
-## How to download data from SRA?
+## How to fetch sequencing samples from SRA?
 
 An independent Snakemake workflow `workflow/rules/sra_download.smk` is included
 for the download of sequencing libraries from the Sequence Read Archive and
@@ -129,7 +127,7 @@ ERR2248142      results/sra_downloads/compress/ERR2248142/ERR2248142.fastq.gz
 ```
 
 
-## How to determine sample information (HTSinfer)?
+## How to infer sample metadata?
 
 An independent Snakemake workflow `workflow/rules/htsinfer.smk` that populates the `samples.tsv` required by ZARP with the sample specific parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size`. Those parameters are inferred from the provided `fastq.gz` files by [HTSinfer](https://github.com/zavolanlab/htsinfer).
 
