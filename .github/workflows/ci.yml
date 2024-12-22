@@ -215,3 +215,36 @@ jobs:
 
       - name: Run SRA downloads workflow
         run: bash tests/test_sra_download_with_conda/test.local.sh
+
+  integration-docker:
+    needs:
+      - snakemake-graphs-format
+    runs-on: ubuntu-20.04
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+
+        - name: Checkout zarp repository
+          uses: actions/checkout@v4
+
+        - name: Setup miniconda & zarp env
+          uses: conda-incubator/setup-miniconda@v3
+          with:
+            python-version: "3.10"
+            mamba-version: "1"
+            channels: conda-forge
+            channel-priority: true
+            auto-update-conda: false
+            activate-environment: zarp
+            environment-file: install/environment.yml
+            auto-activate-base: false
+      
+        - name: Update zarp env with dev. packages
+          run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
+        
+        - name: Run test script
+          run: bash tests/test_integration_workflow_with_docker/test.local.sh
+
+        - name: Clean up
+          run: rm -rf data%                                                                         
