@@ -32,6 +32,7 @@ jobs:
           activate-environment: zarp
           environment-file: install/environment.yml
           auto-activate-base: false
+          conda-remove-defaults: true
 
       - name: Update zarp env with root. packages
         run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
@@ -80,6 +81,7 @@ jobs:
           activate-environment: zarp
           environment-file: install/environment.yml
           auto-activate-base: false
+          conda-remove-defaults: true
 
       - name: Update zarp env with root. packages
         run: |
@@ -125,6 +127,7 @@ jobs:
           activate-environment: zarp
           environment-file: install/environment.yml
           auto-activate-base: false
+          conda-remove-defaults: true
 
       - name: Update zarp env with root. packages
         run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
@@ -162,6 +165,7 @@ jobs:
           activate-environment: zarp
           environment-file: install/environment.yml
           auto-activate-base: false
+          conda-remove-defaults: true
 
       - name: Update zarp env with root. packages
         run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
@@ -199,6 +203,7 @@ jobs:
           activate-environment: zarp
           environment-file: install/environment.yml
           auto-activate-base: false
+          conda-remove-defaults: true
 
       - name: Update zarp env with dev. packages
         run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
