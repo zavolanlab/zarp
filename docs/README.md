@@ -14,11 +14,11 @@ The workflow is developed in [Snakemake][snakemake], a widely used workflow mana
 
 ## How does it work?
 
-ZARP requires conda or mamba to install the basic dependencies. Each individual step of the workflow run either in its own Apptainer (Singularity) container or in its own Conda virtual environment.
+ZARP requires Conda or Mamba to install the basic dependencies. Each individual step of the workflow runs either in its own Apptainer (Singularity) container or in its own Conda virtual environment.
 
 Once the installation is complete, you fill in a [config.yaml](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/config.yaml) file with parameters and a [samples.tsv](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/samples.tsv) file with sample specific information. You can easily trigger ZARP by making a call to snakemake with the appropriate parameters.
 
-The pipeline can be executed in different systems or HPC clusters. ZARP generates multiple output files that help you Quality Control (QC) your data and proceed with downstream analyses. Apart from running the main ZARP workflow, you can also run a second pipeline that pulls sequencing sample data from the Sequence Read Archive (SRA), and a third pipeline that populates a file with the samples and infers missing metadata.
+The pipeline can be executed in different systems or High Performance Computing (HPC) clusters. ZARP generates multiple output files that help you Quality Control (QC) your data and proceed with downstream analyses. Apart from running the main ZARP workflow, you can also run a second pipeline that pulls sequencing sample data from the Sequence Read Archive (SRA), and a third pipeline that populates a file with the samples and infers missing metadata.
 
 ## How to cite
 

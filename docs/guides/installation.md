@@ -125,7 +125,7 @@ After installing Singularity, install the remaining dependencies with:
 mamba env create -f install/environment.yml
 ```
 
-### As root user on Linux
+**As root user on Linux**
 
 If you have a Linux machine, as well as root privileges, (e.g., if you plan to
 run the workflow on your own computer), you can execute the following command
@@ -135,7 +135,7 @@ to include Singularity in the Conda environment:
 mamba env update -f install/environment.root.yml
 ```
 
-## 5. Activate ZARP environment
+### 5. Activate ZARP environment
 
 Activate the Conda environment with:
 
@@ -143,9 +143,9 @@ Activate the Conda environment with:
 conda activate zarp
 ```
 
-## 6. Optional installation steps
+### 6. Optional installation steps
 
-### Install test dependencies
+#### Install test dependencies
 
 Most tests have additional dependencies. If you are planning to run tests, you
 will need to install these by executing the following command _in your active
@@ -155,7 +155,7 @@ Conda environment_:
 mamba env update -f install/environment.dev.yml
 ```
 
-### Run installation tests
+#### Run installation tests
 
 We have prepared several tests to check the integrity of the workflow and its
 components. These can be found in subdirectories of the `tests/` directory. 
@@ -167,24 +167,27 @@ Execute one of the following commands to run the test workflow
 on your local machine:
 
 
-#### Test workflow on local machine with **Singularity**:
+##### Test workflow on local machine with **Singularity**:
+
 ```bash
 bash tests/test_integration_workflow/test.local.sh
 ```
-#### Test workflow on local machine with **Conda**:
+
+##### Test workflow on local machine with **Conda**:
+
 ```bash
 bash tests/test_integration_workflow_with_conda/test.local.sh
 ```
 Execute one of the following commands to run the test workflow 
 on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
 
- #### Test workflow with **Singularity**:
+##### Test workflow with **Singularity**:
 
 ```bash
 bash tests/test_integration_workflow/test.slurm.sh
 ```
 
-#### Test workflow with **Conda**:
+##### Test workflow with **Conda**:
 
 ```bash
 bash tests/test_integration_workflow_with_conda/test.slurm.sh
