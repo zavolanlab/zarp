@@ -7,15 +7,13 @@ On this page, you will find out how to install _ZARP_ on your system.
 Installation requires the following:
 
 - Linux (tested with Ubuntu 20.04; macOS has not been tested yet)
-- [Conda][conda] (tested with `conda 22.11.1`)
-- [Mamba][mamba] (tested with `mamba 1.3.0`)
-- [Singularity][singularity] (tested with `singularity 3.8.6`; not required
+- [Conda][conda] (tested with `Conda 22.11.1`)
+- [Mamba][mamba] (tested with `Mamba 1.3.0`)
+- [Singularity][singularity] (tested with `Singularity 3.8.6`; not required
   if you have root permissions on the machine you would like to install _ZARP_
   on; in that case, see [below](#2-set-up-conda-environment))
 
 > Other versions, especially older ones, are not guaranteed to work.
-
-**TODO:** Add/replace requirements/versions and check that everything is correct
 
 ## Installation steps
 
@@ -42,8 +40,9 @@ conda 22.11.1
 ```
 If it is not installed, you will see a <code style="color: red;">command not found error.</code>
 
-### Conda installation
-If Conda is not installed, you can install Miniconda by following these steps:
+#### Conda installation
+
+There are different ways to install Conda. We recommend to use [Miniconda][miniconda] to install it. Please refer to the official documentation for the latest installation. Alternatively you can follow these steps:
 
 **1. Download the Miniconda installer:**
 
@@ -68,7 +67,7 @@ conda install conda=22.11.1
 ```
 >This update includes a step to install a specific version of Conda, ensuring that users have a version tested to be compatible with ZARP.
 
-### Conda installation if you already have Conda and do NOT want to change its version
+#### Conda installation if you already have Conda and do NOT want to change its version
 
 If you already have a specific conda version on your system which is not compatible with ZARP and do not want to change it, no worries. You can have more than two conda versions:
 
@@ -144,9 +143,9 @@ Activate the Conda environment with:
 conda activate zarp
 ```
 
-# Extra installation steps (optional)
+## 6. Optional installation steps
 
-## 6. Non-essential dependencies installation
+### Install test dependencies
 
 Most tests have additional dependencies. If you are planning to run tests, you
 will need to install these by executing the following command _in your active
@@ -156,7 +155,7 @@ Conda environment_:
 mamba env update -f install/environment.dev.yml
 ```
 
-## 6a. Successful installation tests
+### Run installation tests
 
 We have prepared several tests to check the integrity of the workflow and its
 components. These can be found in subdirectories of the `tests/` directory. 
@@ -166,23 +165,26 @@ successfully, [additional dependencies](#installing-non-essential-dependencies)
 need to be installed. 
 Execute one of the following commands to run the test workflow 
 on your local machine:
-* Test workflow on local machine with **Singularity**:
+
+
+#### Test workflow on local machine with **Singularity**:
 ```bash
 bash tests/test_integration_workflow/test.local.sh
 ```
-* Test workflow on local machine with **Conda**:
+#### Test workflow on local machine with **Conda**:
 ```bash
 bash tests/test_integration_workflow_with_conda/test.local.sh
 ```
 Execute one of the following commands to run the test workflow 
 on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
 
-* Test workflow with **Singularity**:
+ #### Test workflow with **Singularity**:
 
 ```bash
 bash tests/test_integration_workflow/test.slurm.sh
 ```
-* Test workflow with **Conda**:
+
+#### Test workflow with **Conda**:
 
 ```bash
 bash tests/test_integration_workflow_with_conda/test.slurm.sh

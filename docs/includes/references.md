@@ -10,3 +10,4 @@
 [zarp-issue-tracker]: <https://github.com/zavolanlab/zarp/issues>
 [zarp-qa]: <https://github.com/zavolanlab/zarp/discussions>
 [zavolab-gh]: <https://github.com/zavolanlab>
+[miniconda]: <https://docs.anaconda.com/miniconda/>

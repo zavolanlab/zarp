@@ -26,7 +26,7 @@ After a run you will find the following structure within the `results` directory
     └── zpca
 ```
 
-A descrpition of the different directories is shown below:
+A description of the different directories is shown below:
 
 - `results`: The main output directory for the ZARP workflow.
     - `mus_musculus`: A subdirectory for the organism-specific results.
@@ -109,7 +109,7 @@ On the left you can find a navigation bar that takes you into different sections
     <img width="80%" src=../images/zarp_multiqc_kallisto_alignment.png>
 </div>
 
-- Finally the `zpca` salmon and kallisto sections show PCA plots for expression levels of genes and transcripts.
+- Finally the `zpca` Salmon and Kallisto sections show PCA plots for expression levels of genes and transcripts.
 
 <div align="center">
     <img width="80%" src=../images/zarp_multiqc_zpca.png>
@@ -137,7 +137,7 @@ Within the `samples` directory, you can find a directory for each sample, and wi
 - In the `bigWig` directory you can find two folders. `UniqueMappers` and `MultimappersIncluded`. Within these files you find the bigWig files for the plus and minus strand. These files are convenient to load in a genome browser (like igv) to view the genome coverage of the mappings.
 
 
-## Outputs of downnload SRA data
+## Outputs of download SRA data
 
 Once you run the pipeline that downloads data from the Sequence Read Archive (SRA) you can find the following file structure:
 
@@ -181,7 +181,7 @@ SRR18552868     results/sra_downloads/compress/SRR18552868/SRR18552868.fastq.gz
 SRR18549672     results/sra_downloads/compress/SRR18549672/SRR18549672_1.fastq.gz       results/sra_downloads/compress/SRR18549672/SRR18549672_2.fastq.gz
 ERR2248142      results/sra_downloads/compress/ERR2248142/ERR2248142.fastq.gz 
 ```
-Some of the filenames indicate if the experiment was sequnced with `SINGLE (se)` or `PAIRED (pe)` end mode.
+Some of the filenames indicate if the experiment was sequenced with `SINGLE (se)` or `PAIRED (pe)` end mode.
 
 ## Outputs of HTSinfer
 

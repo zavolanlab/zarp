@@ -12,9 +12,7 @@
 
 _RNA-seq analysis doesn't get simpler than that!_
 
-ZARP relies on publicly available bioinformatics tools and currently handles single or paired-end stranded bulk RNA-seq data. The workflow is developed in [Snakemake][snakemake], a widely used workflow management system in the bioinformatics community.
-
-ZARP will pre-process, align and quantify your single- or paired-end stranded bulk RNA-seq sequencing libraries with publicly available state-of-the-art bioinformatics tools. ZARP's browser-based rich reports and visualitations will give you meaningful initial insights in the quality and composition of your sequencing experiments - fast and simple. Whether you are an experimentalist struggling with large scale data analysis or an experienced bioinformatician, when there's RNA-seq data to analyze, just _ZARP 'em_!
+The workflow is developed in [Snakemake][snakemake], a widely used workflow management system in the bioinformatics community. ZARP will pre-process, align and quantify your single- or paired-end stranded bulk RNA-seq sequencing libraries with publicly available state-of-the-art bioinformatics tools. ZARP's browser-based rich reports and visualizations will give you meaningful initial insights in the quality and composition of your sequencing experiments - fast and simple. Whether you are an experimentalist struggling with large scale data analysis or an experienced bioinformatician, when there's RNA-seq data to analyze, just _zarp 'em_!
 
 <div align="center">
     <img width="60%" src=images/zarp_schema.png>
@@ -37,7 +35,7 @@ Quick installation requires the following:
 - Git
 - [Conda][conda] >= 22.11.1
 - [Mamba][mamba] >=1.3.0 <2
-- [Singularity][singularity] >=3.5.2  (Required only if you want to use Singulaarity for the dependencies)
+- [Singularity][singularity] >=3.5.2  (Required only if you want to use Singularity for the dependencies)
 
 ```bash
 git clone https://github.com/zavolanlab/zarp.git
@@ -96,7 +94,7 @@ your run.
 
     **OR**
 
-    Runner script for _Slurm cluster exection_ (note that you may need
+    Runner script for _Slurm cluster execution_ (note that you may need
     to modify the arguments to `--jobs` and `--cores` in the file:
     `profiles/slurm-singularity/config.yaml` depending on your HPC
     and workload manager configuration):

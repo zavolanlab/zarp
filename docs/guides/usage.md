@@ -54,7 +54,7 @@ your run.
 
     **OR**
 
-    Runner script for _Slurm cluster exection_ (note that you may need
+    Runner script for _Slurm cluster execution_ (note that you may need
     to modify the arguments to `--jobs` and `--cores` in the file:
     `profiles/slurm-singularity/config.yaml` depending on your HPC
     and workload manager configuration):

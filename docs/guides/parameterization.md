@@ -14,7 +14,7 @@ remove_adapters_cutadapt:
     -n: '2'
     # Discard processed reads that are shorter than m; note that cutadapt uses
     # a default value of m=0, causing reads without any nucleotides remaining
-    # after proessing to be retained; as "empty reads" will cause errors in
+    # after processing to be retained; as "empty reads" will cause errors in
     # downstream applications in ZARP, we have changed the default to m=1,
     # meaning that only read fragments of at least 1 nt will be retained after
     # processing. The default will be overridden by the value specified here,

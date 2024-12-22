@@ -6,33 +6,19 @@
 
 **Welcome to the _ZARP_ documentation pages!**
 
-_ZARP_ is a generic RNA-Seq analysis workflow that allows users to process and analyze 
-Illumina short-read sequencing libraries with minimum effort. Better yet: With our
-companion [**ZARP-cli**](https://github.com/zavolanlab/zarp-cli) command line
-interface, you can start ZARP runs with the simplest and most intuitive commands.
+_ZARP_ is a generic RNA-Seq analysis workflow that allows users to process and analyze Illumina short-read sequencing libraries with minimum effort. Better yet: With our companion [**ZARP-cli**](https://github.com/zavolanlab/zarp-cli) command line interface, you can start ZARP runs with the simplest and most intuitive commands.
 
 _RNA-seq analysis doesn't get simpler than that!_
 
-ZARP relies on publicly available bioinformatics tools and currently handles
-single or paired-end stranded bulk RNA-seq data. The workflow is developed in
-[Snakemake][snakemake], a widely used workflow management system in the
-bioinformatics community.
-
-ZARP will pre-process, align and quantify your single- or paired-end stranded
-bulk RNA-seq sequencing libraries with publicly available state-of-the-art
-bioinformatics tools. ZARP's browser-based rich reports and visualitations will
-give you meaningful initial insights in the quality and composition of your
-sequencing experiments - fast and simple. Whether you are an experimentalist
-struggling with large scale data analysis or an experienced bioinformatician,
-when there's RNA-seq data to analyze, just _zarp 'em_!
+The workflow is developed in [Snakemake][snakemake], a widely used workflow management system in the bioinformatics community. ZARP will pre-process, align and quantify your single- or paired-end stranded bulk RNA-seq sequencing libraries with publicly available state-of-the-art bioinformatics tools. ZARP's browser-based rich reports and visualizations will give you meaningful initial insights in the quality and composition of your sequencing experiments - fast and simple. Whether you are an experimentalist struggling with large scale data analysis or an experienced bioinformatician, when there's RNA-seq data to analyze, just _zarp 'em_!
 
 ## How does it work?
 
-ZARP requires conda or mamba to install the basic dependencies. Each individual step of the workflow run either in its own Apptainer (Singularity) container or in its own Conda virtual environemnt.
+ZARP requires conda or mamba to install the basic dependencies. Each individual step of the workflow run either in its own Apptainer (Singularity) container or in its own Conda virtual environment.
 
 Once the installation is complete, you fill in a [config.yaml](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/config.yaml) file with parameters and a [samples.tsv](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/samples.tsv) file with sample specific information. You can easily trigger ZARP by making a call to snakemake with the appropriate parameters.
 
-The pipeline can be executed in different systems or HPC clusters. ZARP generates multiple output files that help you QC your data and proceed with downstream analyses. Apart from running the main ZARP workflow, you can also run a second pipeline that downloads data from SRA, and a third pipeline that populates a file with the samples and determines sample specific parameters.
+The pipeline can be executed in different systems or HPC clusters. ZARP generates multiple output files that help you Quality Control (QC) your data and proceed with downstream analyses. Apart from running the main ZARP workflow, you can also run a second pipeline that pulls sequencing sample data from the Sequence Read Archive (SRA), and a third pipeline that populates a file with the samples and infers missing metadata.
 
 ## How to cite
 
