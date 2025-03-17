@@ -167,13 +167,13 @@ Execute one of the following commands to run the test workflow
 on your local machine:
 
 
-##### Test workflow on local machine with **Singularity**:
+##### Test workflow on local machine with **Singularity**
 
 ```bash
 bash tests/test_integration_workflow/test.local.sh
 ```
 
-##### Test workflow on local machine with **Conda**:
+##### Test workflow on local machine with **Conda**
 
 ```bash
 bash tests/test_integration_workflow_with_conda/test.local.sh
@@ -181,13 +181,13 @@ bash tests/test_integration_workflow_with_conda/test.local.sh
 Execute one of the following commands to run the test workflow 
 on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
 
-##### Test workflow with **Singularity**:
+##### Test workflow with **Singularity**
 
 ```bash
 bash tests/test_integration_workflow/test.slurm.sh
 ```
 
-##### Test workflow with **Conda**:
+##### Test workflow with **Conda**
 
 ```bash
 bash tests/test_integration_workflow_with_conda/test.slurm.sh
