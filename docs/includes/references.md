@@ -2,6 +2,7 @@
 [contact]: <mailto:zavolab-biozentrum@unibas.ch>
 [github-signup]: <https://github.com/signup>
 [mamba]: <https://github.com/mamba-org/mamba>
+[miniconda]: <https://docs.anaconda.com/miniconda/>
 [singularity]: <https://sylabs.io/singularity/>
 [snakemake]: <https://github.com/snakemake/snakemake>
 [zarp]: <https://github.com/zavolanlab/zarp>
@@ -10,4 +11,3 @@
 [zarp-issue-tracker]: <https://github.com/zavolanlab/zarp/issues>
 [zarp-qa]: <https://github.com/zavolanlab/zarp/discussions>
 [zavolab-gh]: <https://github.com/zavolanlab>
-[miniconda]: <https://docs.anaconda.com/miniconda/>
