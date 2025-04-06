@@ -22,11 +22,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup miniconda & zarp env
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v3.0.0
         with:
           conda-remove-defaults: true
-          python-version: "3.10"
+          conda-build-version: "22.11.1"
           auto-update-conda: false
+          python-version: "3.10"
           activate-environment: test_env
           auto-activate-base: false
           channel-priority: true
