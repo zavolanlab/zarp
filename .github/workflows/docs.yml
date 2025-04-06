@@ -20,14 +20,15 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.10"
-          mamba-version: "*"
-          channels: conda-forge
-          channel-priority: true
-          auto-update-conda: false
           activate-environment: zarp
-          environment-file: install/environment.yml
           auto-activate-base: false
+          auto-update-conda: false
+          channel-priority: true
+          channels: conda-forge
+          conda-build-version: "22.11.1"
+          environment-file: install/environment.yml
+          mamba-version: "1.3.0"
+          python-version: "3.10"
 
       - name: Update zarp env with root. packages
         run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
