@@ -24,7 +24,7 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v3.0.0
         with:
-          conda-build-version: "22.11.1"
+          conda-build-version: "24.9.0"
           auto-update-conda: false
           python-version: "3.10"
           activate-environment: test_env
