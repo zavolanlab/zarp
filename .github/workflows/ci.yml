@@ -76,6 +76,7 @@ jobs:
           conda-build-version: "24.9.0"
           auto-update-conda: false
           python-version: "3.10"
+          mamba-version: "*"
           activate-environment: zarp
           auto-activate-base: false
           channel-priority: true
@@ -119,6 +120,7 @@ jobs:
           conda-build-version: "24.9.0"
           auto-update-conda: false
           python-version: "3.10"
+          mamba-version: "*"
           activate-environment: zarp
           auto-activate-base: false
           channel-priority: true
@@ -156,6 +158,7 @@ jobs:
           conda-build-version: "24.9.0"
           auto-update-conda: false
           python-version: "3.10"
+          mamba-version: "*"
           activate-environment: zarp
           auto-activate-base: false
           channel-priority: true
@@ -193,6 +196,7 @@ jobs:
           conda-build-version: "24.9.0"
           auto-update-conda: false
           python-version: "3.10"
+          mamba-version: "*"
           activate-environment: zarp
           auto-activate-base: false
           channel-priority: true
