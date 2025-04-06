@@ -24,13 +24,12 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v3.0.0
         with:
-          conda-build-version: "24.7.1"
-          installer-url: https://repo.anaconda.com/miniconda/Miniconda3-py39_24.9.2-0-Linux-x86_64.sh
+          installer-url: https://repo.anaconda.com/miniconda/Miniconda3-py310_24.9.2-0-Linux-x86_64.sh
           allow-softlinks: true
           show-channel-urls: true
           use-only-tar-bz2: true
           python-version: "3.10"
-          mamba-version: "1.3.0"
+          mamba-version: "1"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
