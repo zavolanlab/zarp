@@ -26,7 +26,7 @@ jobs:
         with:
           conda-build-version: "24.9.0"
           python-version: "3.10"
-          mamba-version: "*"
+          mamba-version: "1.5.11"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -75,7 +75,7 @@ jobs:
         with:
           conda-build-version: "24.9.0"
           python-version: "3.10"
-          mamba-version: "*"
+          mamba-version: "1.5.11"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -119,7 +119,7 @@ jobs:
         with:
           conda-build-version: "24.9.0"
           python-version: "3.10"
-          mamba-version: "*"
+          mamba-version: "1.5.11"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -157,7 +157,7 @@ jobs:
         with:
           conda-build-version: "24.9.0"
           python-version: "3.10"
-          mamba-version: "*"
+          mamba-version: "1.5.11"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -195,7 +195,7 @@ jobs:
         with:
           conda-build-version: "24.9.0"
           python-version: "3.10"
-          mamba-version: "*"
+          mamba-version: "1.5.11"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
