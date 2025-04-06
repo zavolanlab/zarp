@@ -20,12 +20,12 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v3
         with:
-          auto-update-conda: false
           activate-environment: zarp
           auto-activate-base: false
+          auto-update-conda: false
           channel-priority: true
           channels: conda-forge
-          conda-build-version: "24.9.0"
+          conda-build-version: "24.1.2"
           environment-file: install/environment.yml
           mamba-version: "1.3.0"
           python-version: "3.10"
