@@ -4,3 +4,5 @@ channels:
   - bioconda
 dependencies:
   - python=3.10
+  - snakemake<8
+  - graphviz
