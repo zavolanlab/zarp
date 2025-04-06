@@ -26,7 +26,6 @@ jobs:
         with:
           conda-remove-defaults: true
           python-version: "3.10"
-          mamba-version: "1.3.0"
           auto-update-conda: false
           activate-environment: test_env
           auto-activate-base: false
