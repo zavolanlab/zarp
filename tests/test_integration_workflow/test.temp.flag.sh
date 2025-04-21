@@ -27,7 +27,7 @@ cd $script_dir
 # Run tests
 snakemake \
     --snakefile="../../workflow/Snakefile" \
-    --profile="../../profiles/local-singularity" \
+    --profile="../../profiles/local-apptainer" \
     --configfile="../input_files/config.yaml"
 
 # Create a Snakemake report after the workflow execution

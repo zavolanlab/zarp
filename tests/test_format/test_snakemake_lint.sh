@@ -22,6 +22,6 @@ cd $script_dir
 # Run tests
 snakemake \
     --snakefile="../../workflow/Snakefile" \
-    --profile="../../profiles/local-singularity" \
+    --profile="../../profiles/local-apptainer" \
     --configfile="../input_files/config.yaml" \
     --lint

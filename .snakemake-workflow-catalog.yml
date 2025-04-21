@@ -1,5 +1,6 @@
 usage:
-  software-stack-deployment: 
-    conda: true 
-    singularity: true 
+  software-stack-deployment:
+    conda: true
+    apptainer: true
+    apptainer+conda: true
   report: true

@@ -24,4 +24,5 @@ snakemake \
     --profile="../../profiles/graphs" \
     --configfile="../input_files/config.yaml" \
     --rulegraph \
+    --quiet="all" \
     | dot -Tsvg > "../../images/rule_graph.svg"

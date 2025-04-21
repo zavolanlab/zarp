@@ -1,5 +1,0 @@
-name: zarp
-channels:
-  - conda-forge
-dependencies:
-  - singularity>=3.5

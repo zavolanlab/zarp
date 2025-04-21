@@ -12,34 +12,28 @@ on:
 jobs:
 
   snakemake-graphs-format:
-    runs-on: ubuntu-20.04
+
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -l {0}
     steps:
 
-      - name: Checkout zarp repository
+      - name: Checkout ZARP repository
         uses: actions/checkout@v4
 
-      - name: Setup miniconda & zarp env
+      - name: Setup Miniforge with ZARP environment
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.10"
-          mamba-version: "*"
-          channels: conda-forge
-          channel-priority: true
-          auto-update-conda: false
-          activate-environment: zarp
-          environment-file: install/environment.yml
+          environment-file: install/environment.dev.yml
+          miniforge-version: latest
+          conda-remove-defaults: true
+          channel-priority: strict
+          auto-update-conda: true
           auto-activate-base: false
+          activate-environment: zarp
 
-      - name: Update zarp env with root. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
-
-      - name: Update zarp env with dev. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
-
-      - name: Display all miniconda & env info
+      - name: Display Conda and environment info
         run: |
           conda info -a
           conda list
@@ -56,155 +50,162 @@ jobs:
       - name: Run test script for snakemake DAG
         run: bash tests/test_create_dag_image/test.sh
 
+  integration-apptainer:
 
-  integration-singularity:
     needs:
       - snakemake-graphs-format
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -l {0}
     steps:
 
-      - name: Checkout zarp repository
+      - name: Checkout ZARP repository
         uses: actions/checkout@v4
 
-      - name: Setup miniconda & zarp env
+      - name: Setup Miniforge with ZARP environment
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.10"
-          mamba-version: "*"
-          channels: conda-forge
-          channel-priority: true
-          auto-update-conda: false
-          activate-environment: zarp
-          environment-file: install/environment.yml
+          environment-file: install/environment.dev.yml
+          miniforge-version: latest
+          conda-remove-defaults: true
+          channel-priority: strict
+          auto-update-conda: true
           auto-activate-base: false
+          activate-environment: zarp
 
-      - name: Update zarp env with root. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
+      - name: Install Apptainer
+        uses: eWaterCycle/setup-apptainer@v2
+        with:
+          apptainer-version: 1.3.6
 
-      - name: Update zarp env with dev. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
-
-      - name: Display all miniconda & env info
+      - name: Display Conda and environment info
         run: |
           conda info -a
           conda list
+
       - name: Run test script
         run: bash tests/test_integration_workflow/test.local.sh
 
       - name: Run htsinfer test script
-        run: bash tests/test_htsinfer_with_singularity/test.local.sh
+        run: bash tests/test_htsinfer_with_apptainer/test.local.sh
 
       - name: Run SRA downloads workflow
-        run: bash tests/test_sra_download_with_singularity/test.local.sh
+        run: bash tests/test_sra_download_with_apptainer/test.local.sh
 
-  integration-singularity-tempflag:
+  integration-apptainer-tempflag:
+
     needs:
       - snakemake-graphs-format
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -l {0}
     steps:
 
-      - name: Checkout zarp repository
+      - name: Checkout ZARP repository
         uses: actions/checkout@v4
 
-      - name: Setup miniconda & zarp env
+      - name: Setup Miniforge with ZARP environment
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.10"
-          mamba-version: "*"
-          channels: conda-forge
-          channel-priority: true
-          auto-update-conda: false
-          activate-environment: zarp
-          environment-file: install/environment.yml
+          environment-file: install/environment.dev.yml
+          miniforge-version: latest
+          conda-remove-defaults: true
+          channel-priority: strict
+          auto-update-conda: true
           auto-activate-base: false
+          activate-environment: zarp
 
-      - name: Update zarp env with root. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
+      - name: Display Conda and environment info
+        run: |
+          conda info -a
+          conda list
 
-      - name: Update zarp env with dev. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
+      - name: Install Apptainer
+        uses: eWaterCycle/setup-apptainer@v2
+        with:
+          apptainer-version: 1.3.6
 
       - name: Display all miniconda & env info
         run: |
           conda info -a
           conda list
+
       - name: Run test script
         run: bash tests/test_integration_workflow/test.temp.flag.sh
 
-  integration-singularity-MultipleLanes:
+  integration-apptainer-MultipleLanes:
+
     needs:
       - snakemake-graphs-format
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -l {0}
     steps:
 
-      - name: Checkout zarp repository
+      - name: Checkout ZARP repository
         uses: actions/checkout@v4
 
-      - name: Setup miniconda & zarp env
+      - name: Setup Miniforge with ZARP environment
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.10"
-          mamba-version: "*"
-          channels: conda-forge
-          channel-priority: true
-          auto-update-conda: false
-          activate-environment: zarp
-          environment-file: install/environment.yml
+          environment-file: install/environment.dev.yml
+          miniforge-version: latest
+          conda-remove-defaults: true
+          channel-priority: strict
+          auto-update-conda: true
           auto-activate-base: false
+          activate-environment: zarp
 
-      - name: Update zarp env with root. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
+      - name: Display Conda and environment info
+        run: |
+          conda info -a
+          conda list
 
-      - name: Update zarp env with dev. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
+      - name: Install Apptainer
+        uses: eWaterCycle/setup-apptainer@v2
+        with:
+          apptainer-version: 1.3.6
 
       - name: Display all miniconda & env info
         run: |
           conda info -a
           conda list
+
       - name: Run test script
         run: bash tests/test_integration_workflow_multiple_lanes/test.local.sh
 
   integration-conda:
+
     needs:
       - snakemake-graphs-format
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -l {0}
     steps:
 
-      - name: Checkout zarp repository
+      - name: Checkout ZARP repository
         uses: actions/checkout@v4
 
-      - name: Setup miniconda & zarp env
+      - name: Setup Miniforge with ZARP environment
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.10"
-          mamba-version: "*"
-          channels: conda-forge
-          channel-priority: true
-          auto-update-conda: false
-          activate-environment: zarp
-          environment-file: install/environment.yml
+          environment-file: install/environment.dev.yml
+          miniforge-version: latest
+          conda-remove-defaults: true
+          channel-priority: strict
+          auto-update-conda: true
           auto-activate-base: false
+          activate-environment: zarp
 
-      - name: Update zarp env with dev. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
-
-      - name: Display all miniconda & env info
+      - name: Display Conda and environment info
         run: |
           conda info -a
           conda list
+
       - name: Run test script
         run: bash tests/test_integration_workflow_with_conda/test.local.sh
 
@@ -213,4 +214,3 @@ jobs:
 
       - name: Run SRA downloads workflow
         run: bash tests/test_sra_download_with_conda/test.local.sh
-

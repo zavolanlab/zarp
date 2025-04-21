@@ -2,8 +2,8 @@ snakefile: "../../workflow/Snakefile"
 cores: 4
 printshellcmds: true
 rerun-incomplete: true
-use-singularity: true
-singularity-args: "--bind $PWD/../../../zarp,$TMPDIR"
+use-apptainer: true
+apptainer-args: "--bind $PWD/../../../zarp,$TMPDIR"
 default-resources: mem_mb=1024
 restart-times: 3
 keep-going: true

@@ -24,4 +24,5 @@ snakemake \
     --profile="../../profiles/graphs" \
     --configfile="../input_files/config.yaml" \
     --dag \
+    --quiet="all" \
     | dot -Tsvg > "../../images/dag_test_workflow.svg"

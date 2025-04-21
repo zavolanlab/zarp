@@ -14,28 +14,21 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      - name: Checkout zarp repository
+      - name: Checkout ZARP repository
         uses: actions/checkout@v4
 
-      - name: Setup miniconda & zarp env
+      - name: Setup Miniforge with ZARP environment
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.10"
-          mamba-version: "*"
-          channels: conda-forge
-          channel-priority: true
-          auto-update-conda: false
-          activate-environment: zarp
-          environment-file: install/environment.yml
+          environment-file: install/environment.dev.yml
+          miniforge-version: latest
+          conda-remove-defaults: true
+          channel-priority: strict
+          auto-update-conda: true
           auto-activate-base: false
+          activate-environment: zarp
 
-      - name: Update zarp env with root. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
-
-      - name: Update zarp env with dev. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
-
-      - name: Display all miniconda & env info
+      - name: Display Conda and environment info
         run: |
           conda info -a
           conda list
