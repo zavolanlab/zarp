@@ -12,7 +12,7 @@ on:
 jobs:
 
   snakemake-graphs-format:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -l {0}
@@ -61,7 +61,7 @@ jobs:
   integration-singularity:
     needs:
       - snakemake-graphs-format
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -l {0}
@@ -93,6 +93,10 @@ jobs:
         run: |
           conda info -a
           conda list
+
+      - name: Clean Snakemake conda cache
+        run: rm -rf tests/*/.snakemake/conda
+
       - name: Run test script
         run: bash tests/test_integration_workflow/test.local.sh
 
@@ -105,7 +109,7 @@ jobs:
   integration-singularity-tempflag:
     needs:
       - snakemake-graphs-format
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -l {0}
@@ -137,13 +141,17 @@ jobs:
         run: |
           conda info -a
           conda list
+
+      - name: Clean Snakemake conda cache
+        run: rm -rf tests/*/.snakemake/conda
+
       - name: Run test script
         run: bash tests/test_integration_workflow/test.temp.flag.sh
 
   integration-singularity-MultipleLanes:
     needs:
       - snakemake-graphs-format
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -l {0}
@@ -175,13 +183,17 @@ jobs:
         run: |
           conda info -a
           conda list
+
+      - name: Clean Snakemake conda cache
+        run: rm -rf tests/*/.snakemake/conda
+
       - name: Run test script
         run: bash tests/test_integration_workflow_multiple_lanes/test.local.sh
 
   integration-conda:
     needs:
       - snakemake-graphs-format
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -l {0}
@@ -210,6 +222,10 @@ jobs:
         run: |
           conda info -a
           conda list
+
+      - name: Clean Snakemake conda cache
+        run: rm -rf tests/*/.snakemake/conda
+
       - name: Run test script
         run: bash tests/test_integration_workflow_with_conda/test.local.sh
 
