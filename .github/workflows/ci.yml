@@ -52,6 +52,8 @@ jobs:
 
   integration-apptainer:
 
+    needs:
+      - snakemake-graphs-format
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -93,6 +95,8 @@ jobs:
 
   integration-apptainer-tempflag:
 
+    needs:
+      - snakemake-graphs-format
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -133,6 +137,8 @@ jobs:
 
   integration-apptainer-MultipleLanes:
 
+    needs:
+      - snakemake-graphs-format
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -173,6 +179,8 @@ jobs:
 
   integration-conda:
 
+    needs:
+      - snakemake-graphs-format
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -206,4 +214,3 @@ jobs:
 
       - name: Run SRA downloads workflow
         run: bash tests/test_sra_download_with_conda/test.local.sh
-
