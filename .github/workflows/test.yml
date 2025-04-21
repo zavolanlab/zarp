@@ -22,18 +22,16 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v3
         with:
-          conda-build-version: "25.3.1"
-          python-version: "3.11"
-          mamba-version: "2.1.0"
-          channels: conda-forge
-          channel-priority: strict
-          auto-update-conda: false
-          activate-environment: zarp
           environment-file: install/environment.yml
+          miniforge-version: latest
+          conda-solver: libmamba
+          channel-priority: strict
+          auto-update-conda: true
           auto-activate-base: false
+          activate-environment: zarp
 
       - name: Install Singularity
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
+        run: conda env update -p $CONDA_PREFIX -f install/environment.root.yml
 
       - name: Test Simple Singularity Exec
         run: |
@@ -55,21 +53,19 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v3
         with:
-          conda-build-version: "25.3.1"
-          python-version: "3.11"
-          mamba-version: "2.1.0"
-          channels: conda-forge
-          channel-priority: strict
-          auto-update-conda: false
-          activate-environment: zarp
           environment-file: install/environment.yml
+          miniforge-version: latest
+          conda-solver: libmamba
+          channel-priority: strict
+          auto-update-conda: true
           auto-activate-base: false
+          activate-environment: zarp
 
       - name: Update zarp env with root. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
+        run: conda env update -p $CONDA_PREFIX -f install/environment.root.yml
 
       - name: Update zarp env with dev. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
+        run: conda env update -p $CONDA_PREFIX -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
         run: |
@@ -102,18 +98,16 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v3
         with:
-          conda-build-version: "25.3.1"
-          python-version: "3.11"
-          mamba-version: "2.1.0"
-          channels: conda-forge
-          channel-priority: strict
-          auto-update-conda: false
-          activate-environment: zarp
           environment-file: install/environment.yml
+          miniforge-version: latest
+          conda-solver: libmamba
+          channel-priority: strict
+          auto-update-conda: true
           auto-activate-base: false
+          activate-environment: zarp
 
       - name: Update zarp env with dev. packages
-        run: mamba env update -p $CONDA_PREFIX -f install/environment.dev.yml
+        run: conda env update -p $CONDA_PREFIX -f install/environment.dev.yml
 
       - name: Display all miniconda & env info
         run: |
