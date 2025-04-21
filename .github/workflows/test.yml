@@ -39,6 +39,37 @@ jobs:
           singularity pull docker://alpine:latest
           singularity exec alpine_latest.sif echo "Hello from Singularity" 
 
+  apptainer-test:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+
+      - name: Checkout zarp repository
+        uses: actions/checkout@v4
+
+      - name: Setup miniconda & zarp env
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: install/environment.yml
+          miniforge-version: latest
+          conda-remove-defaults: true
+          channel-priority: strict
+          auto-update-conda: true
+          auto-activate-base: false
+          activate-environment: zarp
+
+      - name: Install Apptainer
+        run: conda env update -p $CONDA_PREFIX -f install/environment.root2.yml
+
+      - name: Test Simple Apptainer Exec
+        run: |
+          apptainer --version
+          apptainer pull docker://alpine:latest
+          apptainer exec alpine_latest.sif echo "Hello from Apptainer" 
+
   snakemake-graphs-format:
 
     runs-on: ubuntu-latest
