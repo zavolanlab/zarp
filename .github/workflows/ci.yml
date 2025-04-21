@@ -12,7 +12,7 @@ on:
 jobs:
 
   snakemake-graphs-format:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash -l {0}
@@ -61,7 +61,7 @@ jobs:
   integration-singularity:
     needs:
       - snakemake-graphs-format
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash -l {0}
@@ -105,7 +105,7 @@ jobs:
   integration-singularity-tempflag:
     needs:
       - snakemake-graphs-format
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash -l {0}
@@ -143,7 +143,7 @@ jobs:
   integration-singularity-MultipleLanes:
     needs:
       - snakemake-graphs-format
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash -l {0}
@@ -181,7 +181,7 @@ jobs:
   integration-conda:
     needs:
       - snakemake-graphs-format
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     defaults:
       run:
         shell: bash -l {0}
