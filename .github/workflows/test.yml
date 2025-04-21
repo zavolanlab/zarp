@@ -24,6 +24,7 @@ jobs:
         with:
           environment-file: install/environment.yml
           miniforge-version: latest
+          conda-remove-defaults: true
           channel-priority: strict
           auto-update-conda: true
           auto-activate-base: false
@@ -54,7 +55,7 @@ jobs:
         with:
           environment-file: install/environment.yml
           miniforge-version: latest
-          conda-solver: libmamba
+          conda-remove-defaults: true
           channel-priority: strict
           auto-update-conda: true
           auto-activate-base: false
@@ -99,7 +100,7 @@ jobs:
         with:
           environment-file: install/environment.yml
           miniforge-version: latest
-          conda-solver: libmamba
+          conda-remove-defaults: true
           channel-priority: strict
           auto-update-conda: true
           auto-activate-base: false
