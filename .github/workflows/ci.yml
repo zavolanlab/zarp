@@ -209,8 +209,38 @@ jobs:
       - name: Run test script
         run: bash tests/test_integration_workflow_with_conda/test.local.sh
 
-      - name: Run htsinfer test script
+      - name: Run HTSinfer workflow test script
         run: bash tests/test_htsinfer_with_conda/test.local.sh
 
-      - name: Run SRA downloads workflow
+      - name: Run SRA downloads workflow test script
         run: bash tests/test_sra_download_with_conda/test.local.sh
+
+  integration-docker:
+
+    needs:
+      - snakemake-graphs-format
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+
+      - name: Checkout ZARP repository
+        uses: actions/checkout@v4
+
+      - name: Setup Miniforge with ZARP environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: install/environment.dev.yml
+          miniforge-version: latest
+          conda-remove-defaults: true
+          channel-priority: strict
+          auto-update-conda: true
+          auto-activate-base: false
+          activate-environment: zarp
+
+      - name: Run test script
+        run: bash tests/test_integration_workflow_with_docker/test.local.sh
+
+      - name: Clean up
+        run: rm -rf data%
