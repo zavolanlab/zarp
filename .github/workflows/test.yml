@@ -62,7 +62,9 @@ jobs:
           activate-environment: zarp
 
       - name: Install Apptainer
-        run: conda env update -p $CONDA_PREFIX -f install/environment.root2.yml
+        uses: eWaterCycle/setup-apptainer@v2
+        with:
+          apptainer-version: 1.3.6
 
       - name: Test Simple Apptainer Exec
         run: |
