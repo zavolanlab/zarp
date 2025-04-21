@@ -69,7 +69,7 @@ jobs:
       - name: Test Simple Apptainer Exec
         run: |
           apptainer --version
-          apptainer pull docker://alpine:latest
+          apptainer pull --force docker://alpine:latest
           apptainer exec alpine_latest.sif echo "Hello from Apptainer" 
 
   snakemake-graphs-format:
