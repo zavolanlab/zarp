@@ -1,9 +1,9 @@
 name: zarp
 dependencies:
   - bioconda::bedtools
-  - bioconda::biopython
   - bioconda::snakemake>=8
   - bioconda::snakefmt
+  - biopython
   - python>=3.11
   - graphviz
   - unzip
