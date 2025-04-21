@@ -1,8 +1,5 @@
 name: zarp
-channels:
-  - conda-forge
-  - bioconda
 dependencies:
-  - python>=3.10
-  - snakemake>=8
+  - bioconda::snakemake>=8
   - graphviz
+  - python>=3.11

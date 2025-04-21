@@ -24,7 +24,6 @@ jobs:
         with:
           environment-file: install/environment.yml
           miniforge-version: latest
-          conda-solver: libmamba
           channel-priority: strict
           auto-update-conda: true
           auto-activate-base: false
