@@ -24,12 +24,9 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v3.0.0
         with:
-          installer-url: https://repo.anaconda.com/miniconda/Miniconda3-py310_24.9.2-0-Linux-x86_64.sh
-          allow-softlinks: true
-          show-channel-urls: true
-          use-only-tar-bz2: true
+          conda-build-version: "25.3.1"
           python-version: "3.10"
-          mamba-version: "1"
+          mamba-version: "2.1.0"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -76,9 +73,9 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v3.0
         with:
-          conda-build-version: "24.7.1"
+          conda-build-version: "25.3.1"
           python-version: "3.10"
-          mamba-version: "1"
+          mamba-version: "2.1.0"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -120,9 +117,9 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v3.0
         with:
-          conda-build-version: "24.7.1"
+          conda-build-version: "25.3.1"
           python-version: "3.10"
-          mamba-version: "1"
+          mamba-version: "2.1.0"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -158,9 +155,9 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v3.0
         with:
-          conda-build-version: "24.7.1"
+          conda-build-version: "25.3.1"
           python-version: "3.10"
-          mamba-version: "1"
+          mamba-version: "2.1.0"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
@@ -196,9 +193,9 @@ jobs:
       - name: Setup miniconda & zarp env
         uses: conda-incubator/setup-miniconda@v3.0
         with:
-          conda-build-version: "24.7.1"
+          conda-build-version: "25.3.1"
           python-version: "3.10"
-          mamba-version: "1"
+          mamba-version: "2.1.0"
           channels: conda-forge
           channel-priority: true
           auto-update-conda: false
