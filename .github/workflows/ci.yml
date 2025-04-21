@@ -1,0 +1,209 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+
+  snakemake-graphs-format:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+
+      - name: Checkout ZARP repository
+        uses: actions/checkout@v4
+
+      - name: Setup Miniforge with ZARP environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: install/environment.dev.yml
+          miniforge-version: latest
+          conda-remove-defaults: true
+          channel-priority: strict
+          auto-update-conda: true
+          auto-activate-base: false
+          activate-environment: zarp
+
+      - name: Display Conda and environment info
+        run: |
+          conda info -a
+          conda list
+
+      - name: Run test script for snakemake format
+        run: bash tests/test_format/test_snakefmt.sh
+
+      - name: Run test script for snakemake lint
+        run: bash tests/test_format/test_snakemake_lint.sh
+
+      - name: Run test script for snakemake rulegraph
+        run: bash tests/test_create_rule_graph/test.sh
+
+      - name: Run test script for snakemake DAG
+        run: bash tests/test_create_dag_image/test.sh
+
+  integration-apptainer:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+
+      - name: Checkout ZARP repository
+        uses: actions/checkout@v4
+
+      - name: Setup Miniforge with ZARP environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: install/environment.dev.yml
+          miniforge-version: latest
+          conda-remove-defaults: true
+          channel-priority: strict
+          auto-update-conda: true
+          auto-activate-base: false
+          activate-environment: zarp
+
+      - name: Install Apptainer
+        uses: eWaterCycle/setup-apptainer@v2
+        with:
+          apptainer-version: 1.3.6
+
+      - name: Display Conda and environment info
+        run: |
+          conda info -a
+          conda list
+
+      - name: Run test script
+        run: bash tests/test_integration_workflow/test.local.sh
+
+      - name: Run htsinfer test script
+        run: bash tests/test_htsinfer_with_apptainer/test.local.sh
+
+      - name: Run SRA downloads workflow
+        run: bash tests/test_sra_download_with_apptainer/test.local.sh
+
+  integration-apptainer-tempflag:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+
+      - name: Checkout ZARP repository
+        uses: actions/checkout@v4
+
+      - name: Setup Miniforge with ZARP environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: install/environment.dev.yml
+          miniforge-version: latest
+          conda-remove-defaults: true
+          channel-priority: strict
+          auto-update-conda: true
+          auto-activate-base: false
+          activate-environment: zarp
+
+      - name: Display Conda and environment info
+        run: |
+          conda info -a
+          conda list
+
+      - name: Install Apptainer
+        uses: eWaterCycle/setup-apptainer@v2
+        with:
+          apptainer-version: 1.3.6
+
+      - name: Display all miniconda & env info
+        run: |
+          conda info -a
+          conda list
+
+      - name: Run test script
+        run: bash tests/test_integration_workflow/test.temp.flag.sh
+
+  integration-apptainer-MultipleLanes:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+
+      - name: Checkout ZARP repository
+        uses: actions/checkout@v4
+
+      - name: Setup Miniforge with ZARP environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: install/environment.dev.yml
+          miniforge-version: latest
+          conda-remove-defaults: true
+          channel-priority: strict
+          auto-update-conda: true
+          auto-activate-base: false
+          activate-environment: zarp
+
+      - name: Display Conda and environment info
+        run: |
+          conda info -a
+          conda list
+
+      - name: Install Apptainer
+        uses: eWaterCycle/setup-apptainer@v2
+        with:
+          apptainer-version: 1.3.6
+
+      - name: Display all miniconda & env info
+        run: |
+          conda info -a
+          conda list
+
+      - name: Run test script
+        run: bash tests/test_integration_workflow_multiple_lanes/test.local.sh
+
+  integration-conda:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+
+      - name: Checkout ZARP repository
+        uses: actions/checkout@v4
+
+      - name: Setup Miniforge with ZARP environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          environment-file: install/environment.dev.yml
+          miniforge-version: latest
+          conda-remove-defaults: true
+          channel-priority: strict
+          auto-update-conda: true
+          auto-activate-base: false
+          activate-environment: zarp
+
+      - name: Display Conda and environment info
+        run: |
+          conda info -a
+          conda list
+
+      - name: Run test script
+        run: bash tests/test_integration_workflow_with_conda/test.local.sh
+
+      - name: Run htsinfer test script
+        run: bash tests/test_htsinfer_with_conda/test.local.sh
+
+      - name: Run SRA downloads workflow
+        run: bash tests/test_sra_download_with_conda/test.local.sh
+

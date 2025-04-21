@@ -5,6 +5,8 @@ channels:
 dependencies:
   - bedtools
   - biopython
+  - graphviz
+  - python>=3.11
+  - snakemake>=8
   - snakefmt
   - unzip
-  

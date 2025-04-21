@@ -27,7 +27,7 @@ cd $script_dir
 # Run tests
 snakemake \
     --snakefile="../../workflow/Snakefile" \
-    --profile="../../profiles/slurm-singularity" \
+    --profile="../../profiles/slurm-apptainer" \
     --configfile="../input_files/config.mutliple_lanes.yml" \
     --notemp
 

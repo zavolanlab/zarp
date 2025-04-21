@@ -24,7 +24,7 @@ rule fasterq_dump_pe:
     threads: 4
     conda:
         os.path.join(workflow.basedir, "..", "envs", "sra-tools.yaml")
-    singularity:
+    container:
         "docker://quay.io/biocontainers/sra-tools:3.0.10--h9f5acd7_0"
     log:
         stderr=os.path.join(
@@ -67,7 +67,7 @@ rule compress_fastq_pe:
     threads: 6
     conda:
         os.path.join(workflow.basedir, "..", "envs", "pigz.yaml")
-    singularity:
+    container:
         "docker://quay.io/biocontainers/pigz:2.8"
     log:
         stderr=os.path.join(

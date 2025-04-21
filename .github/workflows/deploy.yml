@@ -10,17 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout ZARP repository
         uses: actions/checkout@v4
 
-      - name: Update CHANGELOG
+      - name: Update CHANGELOG.md
         id: changelog
         uses: Requarks/changelog-action@v1
         with:
           token: ${{ github.token }}
           tag: ${{ github.ref_name }}
 
-      - name: Create Release
+      - name: Create release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true

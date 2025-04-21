@@ -1,5 +1,0 @@
-name: zarp
-channels:
-  - conda-forge
-dependencies:
-  - apptainer

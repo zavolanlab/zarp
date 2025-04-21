@@ -25,7 +25,7 @@ cd $script_dir
 
 # Run tests
 snakemake --snakefile="../../workflow/rules/sra_download.smk" \
-          --profile="../../profiles/local-singularity" \
+          --profile="../../profiles/local-apptainer" \
           --config samples="../input_files/sra_samples.tsv" \
                    outdir="results/sra_downloads" \
                    samples_out="results/sra_downloads/sra_samples.out.tsv" \
