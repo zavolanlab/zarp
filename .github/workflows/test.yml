@@ -11,6 +11,39 @@ on:
 
 jobs:
 
+  singularity-test:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+
+      - name: Checkout zarp repository
+        uses: actions/checkout@v4
+
+      - name: Setup miniconda & zarp env
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          conda-build-version: "25.3.1"
+          python-version: "3.11"
+          mamba-version: "2.1.0"
+          channels: conda-forge
+          channel-priority: true
+          auto-update-conda: false
+          activate-environment: zarp
+          environment-file: install/environment.yml
+          auto-activate-base: false
+
+      - name: Install Singularity
+        run: mamba env update -p $CONDA_PREFIX -f install/environment.root.yml
+
+      - name: Test Simple Singularity Exec
+        run: |
+          singularity --version
+          singularity pull docker://alpine:latest
+          singularity exec alpine_latest.sif echo "Hello from Singularity" 
+
   snakemake-graphs-format:
 
     runs-on: ubuntu-latest
