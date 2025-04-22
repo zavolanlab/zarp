@@ -4,138 +4,119 @@ On this page, you will find out how to install _ZARP_ on your system.
 
 ## Requirements
 
-Installation requires the following:
+For improved reproducibility and reusability, each individual workflow step
+runs either inside a dedicated [Conda][conda] environment or an
+([Apptainer][apptainer]) container. As a consequence, running _ZARP_ only has
+very few dependencies, that need to be available on your system:
 
-- Linux (tested with Ubuntu 20.04; macOS has not been tested yet)
-- [Conda][conda] (tested with `Conda 22.11.1`)
-- [Mamba][mamba] (tested with `Mamba 1.3.0`)
-- [Singularity][singularity] (tested with `Singularity 3.8.6`; not required
-  if you have root permissions on the machine you would like to install _ZARP_
-  on; in that case, see [below](#2-set-up-conda-environment))
+- Linux (tested with `Ubuntu 24.04`)
+- [Conda][conda] (tested with `Conda 24.11.3`)
+- **Optional:** [Apptainer][apptainer] (tested with `Apptainer 1.3.6`)
 
-> Other versions, especially older ones, are not guaranteed to work.
+A few additional dependencies are installed via Conda as described further
+below.
+
+!!! warning "Other versions, especially older ones, are not guaranteed to work!"
+
+??? question "Don't have Linux?"
+
+    Please see the "How to use Docker?" instructions in the [usage
+    section](./usage.md).
+
+??? question "How do I install Apptainer?"
+
+    Please follow the [official documentation][apptainer-docs] to install
+    Apptainer (formerly Singularity) globally and configure its permissions.
 
 ## Installation steps
 
-### 1. Clone ZARP
+### 1. Clone _ZARP_
 
-Clone the [ZARP workflow repository][zarp] with:
+Clone the [_ZARP_ workflow repository][zarp] with:
 
 ```sh
 git clone https://github.com/zavolanlab/zarp.git
 ```
 
-### 2. Set up Conda environment
+### 2. Ensure Conda is available
 
-To check if you already have conda installed in your system type:
+To check if you already have Conda installed on your system, type:
 
 ```sh
 conda --version
 ```
 
-Example:
-```sh
-conda --version
-conda 22.11.1
+If Conda is available, you should see output similar to this:
+
+```console
+conda 24.11.3
 ```
-If it is not installed, you will see a <code style="color: red;">command not found error.</code>
+If it is not installed, you will instead see
+<code style="color: red;">command not found: conda</code>.
 
-#### Conda installation
+??? question "What's the best way to install Conda?"
 
-There are different ways to install Conda. We recommend to use [Miniconda][miniconda] to install it. Please refer to the official documentation for the latest installation. Alternatively you can follow these steps:
+    Conda can be installed in multiple ways. We strongly recommend using the
+    [Miniforge][miniforge] distribution, as it is built around the
+    community-supplied `conda-forge` channel that is heavily used by _ZARP_.
+    It also reduces the risk of accidentally violating Conda's licensing
+    restrictions by using the `defaults` channel.
 
-**1. Download the Miniconda installer:**
+    Please refer to the [official documentation][miniforge] for up-to-date
+    installation instructions.
 
-```sh
-wget https://repo.anaconda.com/miniconda/Miniconda3-4.7.12-Linux-x86_64.sh
-```
-**2. Run the installer:**
-```sh
-bash Miniconda3-4.7.12-Linux-x86_64.sh
-```
-**3. Follow the prompts** to complete the installation
+??? tip "My Conda version is not compatible"
 
-**4. Initialize Conda:**
-```sh
-source ~/.bashrc
-```
-After installation, you can verify it again using ```conda --version.```
+    After completing Conda setup, you can install a specific Conda version with
+    the following command:
 
-**5. Update Conda to a specific version (e.g., 22.11.1):**
-```sh
-conda install conda=22.11.1
-```
->This update includes a step to install a specific version of Conda, ensuring that users have a version tested to be compatible with ZARP.
+    ```sh
+    conda install conda=24.11.3
+    ```
 
-#### Conda installation if you already have Conda and do NOT want to change its version
+??? tip "I do not want to change my Conda version"
 
-If you already have a specific conda version on your system which is not compatible with ZARP and do not want to change it, no worries. You can have more than two conda versions:
+    If you already have a specific Conda version on your system that is not
+    compatible with _ZARP_, and you do not want to change it, no worries. Just
+    indicate a different directory when using the interactive Miniforge
+    installer. Then source the appropriate `conda.sh` file to switch between
+    versions, e.g.:
 
-**1. Download the installer for the second version of Conda:**
+    ```sh
+    source $HOME/miniconda3/etc/profile.d/conda.sh  # OR
+    source $HOME/miniconda3_alt/etc/profile.d/conda.sh
+    ```
 
-```sh
-wget https://repo.anaconda.com/miniconda/Miniconda3-py39_4.7.12-Linux-x86_64.sh
-```
-**2.Install it in a different directory:**
-```sh
-bash Miniconda3-py39_4.7.12-Linux-x86_64.sh -b -p $HOME/miniconda3_py39
-```
-**3.Source the appropriate conda.sh file to switch between versions:**
+### 3. Set up your _ZARP_ environment
 
-To use the first version:
-```sh
-source $HOME/miniconda3/etc/profile.d/conda.sh
-```
-To use the second version:
-```sh
-source $HOME/miniconda3_py39/etc/profile.d/conda.sh
-```
-
-**4. Update Conda to a specific version (e.g., 22.11.1):**
-```sh
-conda install conda=22.11.1
-```
-
-### 3. Set up mamba
-Given that Miniconda has been installed and is available in the current shell the first dependency for ZARP is the [Mamba][mamba] package manager, which needs to be installed in the base conda environment with:
-```sh
-conda install mamba=1.3.0 -n base -c conda-forge
-```
-
-### 4. Set up your ZARP environment
-
-For improved reproducibility and reusability of the workflow, each individual step of the workflow runs either in its own Singularity container or in its own Conda virtual environemnt. As a consequence, running this workflow has very few individual dependencies. The container execution requires Singularity to be installed on the system where the workflow is executed. As the functional installation of Singularity requires root privileges, and Conda currently only provides Singularity for Linux architectures, the installation instructions are slightly different depending on your system/setup:
-
-**For most users**
-
-If you do *not* have root privileges on the machine you want
-to run the workflow on *or* if you do not have a Linux machine, please [install
-Singularity][singularity-install] separately and in privileged mode, depending
-on your system. You may have to ask an authorized person (e.g., a systems
-administrator) to do that. This will almost certainly be required if you want
-to run the workflow on a high-performance computing (HPC) cluster. 
-
-> **NOTE:**
-> The workflow has been tested with the following Singularity versions:  
->  * `v2.6.2`
->  * `v3.5.2`
-
-After installing Singularity, install the remaining dependencies with:
-```bash
-mamba env create -f install/environment.yml
-```
-
-**As root user on Linux**
-
-If you have a Linux machine, as well as root privileges, (e.g., if you plan to
-run the workflow on your own computer), you can execute the following command
-to include Singularity in the Conda environment:
+To install the remaining _ZARP_ dependencies, run:
 
 ```bash
-mamba env update -f install/environment.root.yml
+conda env create -f install/environment.yml
 ```
 
-### 5. Activate ZARP environment
+??? tip "Installing development dependencies"
+
+    If you would like to [run tests](#running-installation-tests) or if you
+    are planning to contribute to _ZARP_'s development, run the following
+    command instead to set up your _ZARP_ Conda environment.
+
+    ```bash
+    conda env create -f install/environment.dev.yml
+    ```
+
+    This will ensure that all development dependencies are installed as well.
+
+??? tip "You want to run _ZARP_ on an HPC?"
+
+    When running _ZARP_ on a High-Performance Computing cluster, you will need
+    to make sure that compatible versions of at least one of Conda (when using
+    Snakemake's `--use-conda` option) and Apptainer (when using the
+    `--use-apptainer` option) are installed and properly configured on each
+    machine of the cluster, including the head node. Reach out to your systems
+    administrator to set this up for you.
+
+### 4. Activate the _ZARP_ environment
 
 Activate the Conda environment with:
 
@@ -143,60 +124,66 @@ Activate the Conda environment with:
 conda activate zarp
 ```
 
-### 6. Optional installation steps
-
-#### Install test dependencies
-
-Most tests have additional dependencies. If you are planning to run tests, you
-will need to install these by executing the following command _in your active
-Conda environment_:
-
-```bash
-mamba env update -f install/environment.dev.yml
-```
-
-#### Run installation tests
+## Running installation tests
 
 We have prepared several tests to check the integrity of the workflow and its
-components. These can be found in subdirectories of the `tests/` directory. 
-The most critical of these tests enable you to execute the entire workflow on a 
-set of small example input files. Note that for this and other tests to complete
-successfully, [additional dependencies](#installing-non-essential-dependencies) 
-need to be installed. 
-Execute one of the following commands to run the test workflow 
-on your local machine:
+components. These can be found in subdirectories of the `tests/` directory.
+The most critical of these tests enable you to execute the entire workflow on a
+set of small example input files. Note that for this and other tests to
+complete successfully, additional [development
+dependencies](#3-set-up-your-zarp-environment) need to be installed.
 
+Execute the commands below to run the test workflow on your local machine or
+on your [Slurm][slurm]-managed HPC cluster.
 
-##### Test workflow on local machine with **Singularity**
+??? tip "Failing tests do not necessarily indicate a problem!"
 
-```bash
-bash tests/test_integration_workflow/test.local.sh
-```
+    Our tests were developed to guard against code regression over time or as
+    a result of proposed changes and are therefore very rigorous. In
+    particular, even the minutest changes in outputs, even individual pixels
+    or metadata in the produced output images, will cause a test suite to
+    fail. However, we cannot rule out such minor changes across systems, and
+    therefore, it is quite possible that your test runs may fail, even though
+    the workflow is properly installed and functional. Check the logs to see
+    whether Snakemake completed successfully. If so, it is very likely that
+    everything is fine.
 
-##### Test workflow on local machine with **Conda**
+### Running tests on your local machine
+
+Use the following command to run each step inside a dedicated **Conda
+environment**:
 
 ```bash
 bash tests/test_integration_workflow_with_conda/test.local.sh
 ```
-Execute one of the following commands to run the test workflow 
-on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
 
-##### Test workflow with **Singularity**
-
-```bash
-bash tests/test_integration_workflow/test.slurm.sh
-```
-
-##### Test workflow with **Conda**
+Instead, use the following command to run each step inside an **Apptainer
+container**:
 
 ```bash
 bash tests/test_integration_workflow_with_conda/test.slurm.sh
 ```
 
-> **NOTE:** Depending on the configuration of your Slurm installation you may
-> need to adapt file `slurm-config.json` (located directly under `profiles`
-> directory) and the arguments to options `--cores` and `--jobs`
-> in the file `config.yaml` of a respective profile.
-> Consult the manual of your workload manager as well as the section of the
-> Snakemake manual dealing with [profiles].
+### Running tests on your Slurm cluster
 
+Use the following command to run each step inside a dedicated **Conda
+environment**:
+
+```bash
+bash tests/test_integration_workflow/test.local.sh
+```
+
+Instead, use the following command to run each step inside an **Apptainer
+container**:
+
+```bash
+bash tests/test_integration_workflow/test.slurm.sh
+```
+
+??? tip "The Slurm tests are failing for me!"
+
+    Depending on the configuration of your Slurm installation you may need to
+    adapt file `profiles/slurm-config.json` and the arguments to options
+    `--cores` and `--jobs` in the file `config.yaml` of a respective profile.
+    Consult the manual of your workload manager as well as the section of the
+    Snakemake manual dealing with [profiles][snakemake-profiles].

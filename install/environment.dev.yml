@@ -1,10 +1,10 @@
 name: zarp
-channels:
-  - conda-forge
-  - bioconda
 dependencies:
-  - bedtools
+  - bioconda::bedtools
+  - bioconda::snakemake>=8
+  - bioconda::snakefmt
   - biopython
-  - snakefmt
+  - pyopenssl>=23.2.0
+  - python>=3.11
+  - graphviz
   - unzip
-  

@@ -1,8 +1,25 @@
 # Parameterization
 
-## Parameter adjustment for rules
+## Adjusting tool parameters
 
-ZARP runs on default parameters that were chosen based on the majority of samples being analyzed. To simplify adding non-default parameters of the tools, we created a config file, which enables the user to use any of the extra parameters offered by any of the tools. These options override the default ones, unless they are essential to the correct use of the rule in which case they are considered "immutable" and will not be changed. This extra `rule_config.yaml` file enables the user to easily manipulate the parameters, without having to deal with making changes in the workflow.
+!!! warning "Experimental feature!"
+
+To increase usability and ensure _ZARP_ produces reasonable results for the
+vast majority of RNA-Seq samples that it was built, we have consciously
+limited the set of tool configuration parameters that the workflow exposes
+through Snakemake's `config.yaml`.
+
+However, recognizing that power users would surely like to tweak tool
+parameters (e.g., to allow _ZARP_ to be run against non-standard RNA-Seq
+protocols), we provide an additional, custom config file `rule_config.yaml`,
+which enables the user to modify (almost) any tool parameter. The values
+specified in this configuration override the default ones, unless they are
+deemed essential to the correct "wiring" (in which case they are considered
+"immutable" and will not be changed).
+
+Modifying `rule_config.yaml` thus allows users to fundamentally alter _ZARP_'s
+behavior, while keeping its general wiring, all _without_ having to make
+changes in the workflow definition itself.
 
 An example of a `rule_config.yaml` is shown below:
 
@@ -23,25 +40,47 @@ remove_adapters_cutadapt:
     -m: '10'
 ```
 
-You can find the path to the `rule_config.yaml` file as a parameter in the standard `config.yaml` file.
+You can find the path to the `rule_config.yaml` file as a parameter in the
+standard `config.yaml` file.
 
 ```bash
 rule_config: "../input_files/rule_config.yaml"
 ```
 
-## Update the version of a tool
+## Upgrading tool versions
 
-Each step (rule) of ZARP can be executed either with conda, or with apptainer (singularity). The majority of the tools that we use are hosted by the [Bioconda](https://bioconda.github.io/) and [BioContainers](https://biocontainers.pro/registry) registries. So in case you want to update one of the tools into a later version you need to update both the conda yaml file of the rule and the corresponding container. For example let's say you want to update cutadapt to the latest version.
+As described elsewhere, _ZARP_'s rules can be executed either with
+[Conda][conda] or with [Apptainer][apptainer]. The majority of the tools that
+we use are hosted by the [Bioconda][bioconda] and
+[BioContainers][biocontainers] registries, for Conda environments and container
+images, respectively.
 
-1. Determine the place where `cutadapt` is used. Multiple rules use the following dependencies:
-    ```
-    container:
-        "docker://quay.io/biocontainers/cutadapt:4.6--py310h4b81fae_1"
-    conda:
-        os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
-    ```
+Incase you want to upgrade one of the tools to a later version, all you need
+to do is to update the conda environment "recipe" file in `workflow/envs/` and
+then modify the corresponding container directive in the appropriate Snakemake
+workflow definition files (either in `workflow/Snakefile` or in one of the
+imported "subworkflows" in `workflow/rules`).
 
-    The `cutadapt.yaml` looks like the following:
+??? warning "We do not recommend downgrading tool versions!"
+
+    For security and compatibility reasons, we strongly recommend only to
+    _upgrade_ tool versions!
+
+For example, let's say you want to update `cutadapt` to the latest version:
+
+1. Find the version you want to use by searching for the correspondign
+   tool/package name on the [Anaconda website][anaconda]. For `cutadapt`,
+   the page for the specific Bioconda package is available
+   [here][bioconda-cutadapt]. At the time of writing, the latest version
+   is `4.9`.
+
+    <div align="center">
+        <img width="80%" src=../images/bioconda_cutadapt.png>
+    </div>
+
+2. Find the appropriate Conda enviroment recipe file in `workflow/envs/`. In
+   our example, it is `workflow/envs/cutadapt`, and it contains the following:
+
     ```yaml
     ---
     channels:
@@ -51,40 +90,114 @@ Each step (rule) of ZARP can be executed either with conda, or with apptainer (s
       - cutadapt=4.6
     ...
     ```
-    
-2. Find the version you want to use by searching the package in the anaconda website. The specific package is available [here](https://anaconda.org/bioconda/cutadapt). The latest version at the moment is 4.9.
 
-    <div align="center">
-        <img width="80%" src=../images/bioconda_cutadapt.png>
-    </div>
+    Simply replace `4.6` with the `4.9` you identified in step above.
 
-3. Find the corresponding version from biocontainers. You can do that by searching something like "biocontainers cutadapt" in the [quay.io](https://quay.io/) website. Select the tags and use one of the available versions.
+3. Now find the corresponding BioContainers container image from the [quay.io
+   website][quay]. Select the tags and note down one of the available versions
+   corresponding to `cutadapt 4.9` (note that they are available for multiple
+   Python versions; generally pick the most recent one you are comfortable
+   with). Copy the _entire_ tag name, not just the `4.9` part!
 
     <div align="center">
         <img width="80%" src=../images/biocontainers_cutadapt.png>
     </div>
 
-4. You can replace the dependencies with the new versions.
+4. Finally, determine all the places where `cutadapt` is used in the workflow,
+   by inspecting `workflow/Snakefile` and all of the `.smk` files in
+   `workflow/rules/`. In the case of `cutadapt`, multiple rules use the tool,
+   each with the following `container` and `conda` directives.
 
-## Expand zarp with a new package
+    ```
+    container:
+        "docker://quay.io/biocontainers/cutadapt:4.6--py310h4b81fae_1"
+    conda:
+        os.path.join(workflow.basedir, "envs", "cutadapt.yaml")
+    ```
 
-In other cases, you might have developed a package and want to expand ZARP with it. In that case, we highly recommend packaging the tool properly and making it available on Bioconda. You can find the guidelines [here](https://bioconda.github.io/contributor/index.html). This is how we also publish custom tools developed in the lab. The advantage of this approach is that it allows you to share your tool with the broader scientific community, ensuring that it is easily accessible and installable by others. Once your package is available on Bioconda, you will also get a Docker container that contains your package. This is automatically built by the Biocontainers team and will become available on [quay.io](https://quay.io/) as shown in the previous section.
+    For each of these, replace the final part of the `container` directive
+    (here: `4.6--py310h4b81fae_1`) with the tag name you copied in the step
+    above.
 
-## Update the tool resources
+That's it.
 
-ZARP has been tested with many samples and we provided default parameters to allow optimal performance of the tools (e.g., a tool can run on multiple threads). Regarding the required maximum memory usage required, there is a field in the snakemake rule called resources where the maximum memory per rule can be specified using the variable mem_mb. In the case of ZARP we go one step further and use dynamic resources, which means we estimate the required memory based on the size of the input file using scaling factors that we have obtained from analysis of multiple samples. An extra dynamic modification is that if the rule fails, we allow three reruns of the rule during which we multiply the provided memory by the attempt. That means that if the rule fails, in the rerun the memory will be doubled or tripled. This is done as following:
+## Adding new tools
+
+You may have found or developed a package that you would like to include in
+_ZARP_, so that it is always executed whenever you start a run. In this case,
+we highly recommend packaging the tool properly and making it available on
+Bioconda (see [here][bioconda-contributing] for instructions). The advantage
+of this approach is that it allows you to share your tool with the broader
+scientific community, ensuring that it is easily accessible and installable by
+others. Once your package is available on Bioconda, BioContainers will
+automatically build a Docker image for your package (available via
+[quay.io][quay]) - which you Apptainer will be able to use. With your Bioconda
+package and container image available, you can easily add additional rules to
+the Snakemake definition files, inside your own copy of the _ZARP_ repository.
+
+Or perhaps you are convinced that every _ZARP_ user should always run the tool
+or tools you have added? In that case, create a pull request against the
+upstream/original _ZARP_ repository. We will evaluate your request and - if we
+like it and tests pass - merge it.
+
+Don't know how to do that? Just write us a brief [email][contact]! :relaxed:
+
+## Managing tool resources
+
+_ZARP_ has been tested with many samples, and we set default parameters to
+ensure optimal performance of the tools across a broad range of samples (e.g.,
+a tool can run on multiple threads). With respect to setting the maximum
+memory usage per rule, Snakemake provides a variable `mem_mb` in the directive
+`resources`. But given that the memory usage is strongly sample-dependent
+(sample size, souce organism), in _ZARP_ we use _dynamic memory allocation_.
+
+We estimate the required memory based on the size of the input file using
+scaling factors that we have obtained empirically from the analysis of many
+samples. Should that initial estimate lead to a rule failing, it is re-run
+with an increased memory allocation. This process is repeated up to three
+times.
+
+This is what the _dynamic memory allocation_ looks like in the workflow
+definition file:
 
 ```
 resources:
     mem_mb=lambda wildcards, attempt: 4096 * attempt,
 ```
 
-In some cases the pipeline might still fail. This means that you would need to alter the mem_mb used. The best solution for that is to increase the orginal memory used. In the above example increase it from `4096` MB to something higher. If the user limits the available overall memory when executing snakemake through the resources option, this overrides the per rule specifications. All of this depends on the user system having the required resources. 
+In some cases the workflow might still fail. This means that you would need to
+manually alter the `mem_mb` used. The best solution for that is to increase the
+orginal memory used. In the above example, increase it from `4096` MB to
+a higher value, based on your expectations.
 
-Similarly in each rule the number of cores is specified via the `threads` parameter, however there is a global snakemake specification of cores, which overrides the per rule specifications and might be limiting the efficiency of the workflow.
+??? note "Globally capping resource consumption"
 
-When you submit a workflow to a HPC cluster additional parameters can be customized through `profiles`. By default under the `profiles` directory you can find different options. For example the `slurm-conda` profile is available and as the name suggests submits jobs to a slurm cluster and uses conda for the package dependencies. If you want to increase the default memory used for all the jobs, this can easily happen by altering the following line:
+    Note that Snakemake provides configuration parameters to globally limit
+    resource usage (both for memory and the number of CPUs/threads). If set,
+    these will take precedence over the individual rule settings. This is
+    useful if you are working on a laptop, or another machine with very
+    limited resources. However, if your resources are lower than what the
+    most resource-hungry tool integrated in _ZARP_ requires as a minimum for
+    a given run, you will not be able to complete that run.
+
+When you submit a workflow to an HPC cluster, additional parameters can be
+configured through [Snakemake profiles][snakemake-profiles]. In the
+`profiles/` directory, yo can a few basic options that have proven useful for
+us. For example, the `slurm-conda` profile is available, and, as the name
+suggests, it submits jobs to a [Slurm][slurm]-managed HPC cluster while using
+[Conda][conda] to manage the dependencies for each workflow rule.
+
+Using profiles, you can also set default resources that are applied to all
+jobs, unless explicitly specified. For example, if you want to set the default
+memory used for all rules, add or modify the following line in the profile
+configuration:
+
 ```
 default-resources: mem_mb=1024
 ```
-Other parameters (e.g., time) can be customized in the slurm `slurm-config.json` file.
+
+??? question "Where to configure runtime limits?"
+
+    Some parameters, including runtime limits, can only be set in your
+    workload manager configuration. In the case of Slurm, this is in
+    `slurm-config.json`.

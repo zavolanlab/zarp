@@ -1,6 +1,5 @@
 FROM continuumio/miniconda3:24.7.1-0
 
-
 COPY install/environment.yml /environment.yml
 COPY workflow /workflow
 COPY resources /resources

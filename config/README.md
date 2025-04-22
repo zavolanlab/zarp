@@ -3,7 +3,7 @@
 Install dependencies with:
 
 ```bash
-mamba env create -f install/environment.yml
+conda env create -f install/environment.yml
 ```
 
 # Activate environment

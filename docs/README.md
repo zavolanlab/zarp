@@ -2,23 +2,45 @@
   ![ZARP logo](./images/zarp_logo.384px.png){ width="384" }
 </figure>
 
-# ZARP
+# _ZARP_
 
 **Welcome to the _ZARP_ documentation pages!**
 
-_ZARP_ is a generic RNA-Seq analysis workflow that allows users to process and analyze Illumina short-read sequencing libraries with minimum effort. Better yet: With our companion [**ZARP-cli**](https://github.com/zavolanlab/zarp-cli) command line interface, you can start ZARP runs with the simplest and most intuitive commands.
+_ZARP_ is a generic RNA-Seq analysis workflow that allows users to process and
+analyze Illumina short-read sequencing libraries with minimum effort. Better
+yet: With our companion [**_ZARP-cli_**][zarp-cli] command line interface, you
+can start _ZARP_ runs with the simplest and most intuitive commands.
 
 _RNA-seq analysis doesn't get simpler than that!_
 
-The workflow is developed in [Snakemake][snakemake], a widely used workflow management system in the bioinformatics community. ZARP will pre-process, align and quantify your single- or paired-end stranded bulk RNA-seq sequencing libraries with publicly available state-of-the-art bioinformatics tools. ZARP's browser-based rich reports and visualizations will give you meaningful initial insights in the quality and composition of your sequencing experiments - fast and simple. Whether you are an experimentalist struggling with large scale data analysis or an experienced bioinformatician, when there's RNA-seq data to analyze, just _zarp 'em_!
+The workflow is developed in [Snakemake][snakemake], a widely used workflow
+management system in the bioinformatics community. _ZARP_ will pre-process,
+align and quantify your single- or paired-end stranded bulk RNA-seq sequencing
+libraries with publicly available state-of-the-art bioinformatics tools.
+_ZARP_'s browser-based rich reports and visualizations will give you meaningful
+initial insights in the quality and composition of your sequencing experiments
+- fast and simple. Whether you are an experimentalist struggling with large
+scale data analysis or an experienced bioinformatician, when there's RNA-seq
+data to analyze, just _zarp 'em_!
 
 ## How does it work?
 
-ZARP requires Conda or Mamba to install the basic dependencies. Each individual step of the workflow runs either in its own Apptainer (Singularity) container or in its own Conda virtual environment.
+_ZARP_ requires [Conda][conda] to install the basic dependencies. Each
+individual step of the workflow runs either in its own [Apptainer][apptainer]
+container or in its own [Conda][conda] virtual environment.
 
-Once the installation is complete, you fill in a [config.yaml](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/config.yaml) file with parameters and a [samples.tsv](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/samples.tsv) file with sample specific information. You can easily trigger ZARP by making a call to snakemake with the appropriate parameters.
+Once the installation is complete, you fill in a [`config.yaml`][config-file]
+file with parameters and a [`samples.tsv`][sample-table] file with
+sample-specific information. You can easily trigger _ZARP_ by making a call to
+Snakemake with the appropriate parameters.
 
-The pipeline can be executed in different systems or High Performance Computing (HPC) clusters. ZARP generates multiple output files that help you Quality Control (QC) your data and proceed with downstream analyses. Apart from running the main ZARP workflow, you can also run a second pipeline that pulls sequencing sample data from the Sequence Read Archive (SRA), and a third pipeline that populates a file with the samples and infers missing metadata.
+_ZARP_ can be executed in different systems or High Performance Computing (HPC)
+clusters. _ZARP_ generates multiple output files that help you quality control
+(QC) your data and proceed with downstream analyses. Apart from running the
+main _ZARP_ workflow, we also provide you with two auxiliary workflows for
+fetching sequencing libraries from the [Sequence Read Archive (SRA)][sra] and
+for inferring missing sample metadata straight from the data itself (both of
+which are integrated in [_ZARP-cli_][zarp-cli] for your convenience).
 
 ## How to cite
 
@@ -44,12 +66,12 @@ F1000Research 2024, 13:533
 
 There are several ways to get in touch with us:
 
-- For ZARP usage questions, please use the [_ZARP_ Q&A forum][zarp-qa] (requires
-  [GitHub registration][github-signup])
+- For _ZARP_ usage questions, please use the [_ZARP_ Q&A forum][zarp-qa]
+  (requires [GitHub registration][github-signup]).
 - For feature suggestions and bug reports, please use either the
-  [ZARP][zarp-issue-tracker] or [ZARP-cli][zarp-cli-issue-tracker] issue
-  tracker (requires [GitHub registration][github-signup])
-- For any other requests, please reach out to us via [email][contact]
+  [_ZARP_][zarp-issue-tracker] or [_ZARP-cli_][zarp-cli-issue-tracker] issue
+  tracker (requires [GitHub registration][github-signup]).
+- For any other requests, please reach out to us via [email][contact].
 
 !!! info "Contributors welcome!"
 
