@@ -1,54 +1,28 @@
 [![ci](https://github.com/zavolanlab/zarp/workflows/CI/badge.svg?branch=dev)](https://github.com/zavolanlab/zarp/actions?query=workflow%3Aci)
 [![GitHub license](https://img.shields.io/github/license/zavolanlab/zarp?color=orange)](https://github.com/zavolanlab/zarp/blob/dev/LICENSE)
-[![DOI:biorxiv](https://img.shields.io/badge/bioRxiv-10.1101%2F2021.11.18.469017-informational)](https://doi.org/10.1101/2021.11.18.469017)
-[![DOI:zenodo](https://img.shields.io/badge/Zenodo-10.5281%2Fzenodo.5703358-informational)](https://doi.org/10.5281/zenodo.5703358)
+[![Static Badge](https://img.shields.io/badge/f1000-10.12688/f1000research.149237.1-blue)](https://doi.org/10.12688/f1000research.149237.1)
+[![DOI:zenodo](https://img.shields.io/badge/Zenodo-10.5281%2Fzenodo.10797025-informational)](https://doi.org/10.5281/zenodo.10797025)
 [![DOI:workflowhub](https://img.shields.io/badge/WorkflowHub-10.48546%2Fworkflowhub.workflow.447.1-informational)](https://doi.org/10.48546/workflowhub.workflow.447.1)
 
 <div align="left">
     <img width="20%" align="left" src=images/zarp_logo.svg>
-</div> 
+</div>
 
-**ZARP** ([Zavolab][zavolan-lab] Automated RNA-seq Pipeline) is a generic
-RNA-Seq analysis workflow that allows users to process and analyze Illumina
-short-read sequencing libraries with minimum effort. Better yet: With our
-companion [**ZARP-cli**](https://github.com/zavolanlab/zarp-cli) command line
-interface, you can start ZARP runs with the simplest and most intuitive
-commands.
+**ZARP** ([Zavolab][zavolan-lab] Automated RNA-seq Pipeline) is a generic RNA-Seq analysis workflow that allows users to process and analyze Illumina short-read sequencing libraries with minimum effort. Better yet: With our companion [**ZARP-cli**](https://github.com/zavolanlab/zarp-cli) command line interface, you can start ZARP runs with the simplest and most intuitive commands.
 
 _RNA-seq analysis doesn't get simpler than that!_
 
-ZARP relies on publicly available bioinformatics tools and currently handles
-single or paired-end stranded bulk RNA-seq data. The workflow is developed in
-[Snakemake][snakemake], a widely used workflow management system in the
-bioinformatics community.
-
-ZARP will pre-process, align and quantify your single- or paired-end stranded
-bulk RNA-seq sequencing libraries with publicly available state-of-the-art
-bioinformatics tools. ZARP's browser-based rich reports and visualitations will
-give you meaningful initial insights in the quality and composition of your
-sequencing experiments - fast and simple. Whether you are an experimentalist
-struggling with large scale data analysis or an experienced bioinformatician,
-when there's RNA-seq data to analyze, just _zarp 'em_!
+The workflow is developed in [Snakemake][snakemake], a widely used workflow management system in the bioinformatics community. ZARP will pre-process, align and quantify your single- or paired-end stranded bulk RNA-seq sequencing libraries with publicly available state-of-the-art bioinformatics tools. ZARP's browser-based rich reports and visualizations will give you meaningful initial insights in the quality and composition of your sequencing experiments - fast and simple. Whether you are an experimentalist struggling with large scale data analysis or an experienced bioinformatician, when there's RNA-seq data to analyze, just _zarp 'em_!
 
 <div align="center">
     <img width="60%" src=images/zarp_schema.png>
 </div> 
 
-> **Note:** For a more detailed description of each step, please refer to the [workflow
-> documentation][pipeline-documentation].
+# Documentation
 
-# Requirements
+For the full documentation please visit the [ZARP website](https://zavolanlab.github.io/zarp).
 
-The workflow has been tested on:
-- CentOS 7.5
-- Debian 10
-- Ubuntu 16.04, 18.04
-
-> **NOTE:**
-> Currently, we only support **Linux** execution. 
-
-
-# Installation
+# Quick installation
 
 > **IMPORTANT: Rather than installing the ZARP workflow as described in this section, we
 > recommend installing [ZARP-cli](https://github.com/zavolanlab/zarp-cli) for most use
@@ -56,143 +30,23 @@ The workflow has been tested on:
 > instructions](https://zavolanlab.github.io/zarp-cli/guides/installation/), you can
 > skip the instructions below.
 
-## 1. Clone the repository
-
-Go to the desired directory/folder on your file system, then clone/get the 
-repository and move into the respective directory with:
+Quick installation requires the following:
+- Linux
+- Git
+- [Conda][conda] >= 24.11.3
+- Optional: [Apptainer][apptainer] >=1.3.6  (required only if you want to use containers to manage 
+  tool environments)
 
 ```bash
 git clone https://github.com/zavolanlab/zarp.git
 cd zarp
-```
-
-## 2. Conda and Mamba installation
-
-Workflow dependencies can be conveniently installed with the [Conda][conda]
-package manager. We recommend that you install [Miniconda][miniconda-installation] 
-for your system (Linux). Be sure to select Python 3 option. 
-The workflow was built and tested with `miniconda 4.7.12`.
-Other versions are not guaranteed to work as expected.
-
-Given that Miniconda has been installed and is available in the current shell the first
-dependency for ZARP is the [Mamba][mamba] package manager, which needs to be installed in
-the `base` conda environment with:
-
-```bash
-conda install mamba -n base -c conda-forge
-```
-
-## 3. Dependencies installation
-
-For improved reproducibility and reusability of the workflow,
-each individual step of the workflow runs either in its own [Singularity][singularity]
-container or in its own [Conda][conda] virtual environemnt. 
-As a consequence, running this workflow has very few individual dependencies. 
-The **container execution** requires Singularity to be installed on the system where the workflow is executed. 
-As the functional installation of Singularity requires root privileges, and Conda currently only provides Singularity
-for Linux architectures, the installation instructions are slightly different depending on your system/setup:
-
-### For most users
-
-If you do *not* have root privileges on the machine you want
-to run the workflow on *or* if you do not have a Linux machine, please [install
-Singularity][singularity-install] separately and in privileged mode, depending
-on your system. You may have to ask an authorized person (e.g., a systems
-administrator) to do that. This will almost certainly be required if you want
-to run the workflow on a high-performance computing (HPC) cluster. 
-
-> **NOTE:**
-> The workflow has been tested with the following Singularity versions:  
->  * `v2.6.2`
->  * `v3.5.2`
-
-After installing Singularity, install the remaining dependencies with:
-```bash
-mamba env create -f install/environment.yml
-```
-
-
-### As root user on Linux
-
-If you have a Linux machine, as well as root privileges, (e.g., if you plan to
-run the workflow on your own computer), you can execute the following command
-to include Singularity in the Conda environment:
-
-```bash
-mamba env update -f install/environment.root.yml
-```
-
-## 4. Activate environment
-
-Activate the Conda environment with:
-
-```bash
+conda env create -f install/environment.yml
 conda activate zarp
 ```
 
-# Extra installation steps (optional)
+# Basic usage
 
-## 5. Non-essential dependencies installation
-
-Most tests have additional dependencies. If you are planning to run tests, you
-will need to install these by executing the following command _in your active
-Conda environment_:
-
-```bash
-mamba env update -f install/environment.dev.yml
-```
-
-## 6. Successful installation tests
-
-We have prepared several tests to check the integrity of the workflow and its
-components. These can be found in subdirectories of the `tests/` directory. 
-The most critical of these tests enable you to execute the entire workflow on a 
-set of small example input files. Note that for this and other tests to complete
-successfully, [additional dependencies](#installing-non-essential-dependencies) 
-need to be installed. 
-Execute one of the following commands to run the test workflow 
-on your local machine:
-* Test workflow on local machine with **Singularity**:
-```bash
-bash tests/test_integration_workflow/test.local.sh
-```
-* Test workflow on local machine with **Conda**:
-```bash
-bash tests/test_integration_workflow_with_conda/test.local.sh
-```
-Execute one of the following commands to run the test workflow 
-on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
-
-* Test workflow with **Singularity**:
-
-```bash
-bash tests/test_integration_workflow/test.slurm.sh
-```
-* Test workflow with **Conda**:
-
-```bash
-bash tests/test_integration_workflow_with_conda/test.slurm.sh
-```
-
-> **NOTE:** Depending on the configuration of your Slurm installation you may
-> need to adapt file `slurm-config.json` (located directly under `profiles`
-> directory) and the arguments to options `--cores` and `--jobs`
-> in the file `config.yaml` of a respective profile.
-> Consult the manual of your workload manager as well as the section of the
-> Snakemake manual dealing with [profiles].
-
-# Running the workflow on your own samples
-
-## Running ZARP with ZARP-cli (recommended)
-
-Head over to the [ZARP-cli](https://zavolanlab.github.io/zarp-cli/) to learn how to
-start ZARP runs with very simple commands, like:
-
-```sh
-zarp SRR23590181
-```
-
-## Running ZARP without ZARP-cli
+You can trigger ZARP without ZARP-cli. This is convenient for users who have some experience with Snakemake and don't want to use a CLI to trigger their runs. Extensive documentation of the usage is available in the [usage documentation](https://zavolanlab.github.io/zarp/guides/usage/), while below you can find the basic steps to trigger a run.
 
 1. Assuming that your current directory is the workflow repository's root directory,
 create a directory for your workflow run and move into it with:
@@ -213,15 +67,13 @@ create a directory for your workflow run and move into it with:
 values. Have a look at the examples in the `tests/` directory to see what the
 files should look like, specifically:
 
-    - [samples.tsv](tests/input_files/samples.tsv)
-    - [config.yaml](tests/input_files/config.yaml)
-
-    - For more details and explanations, refer to the [pipeline-documentation]
+    - [samples.tsv](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/samples.tsv)
+    - [config.yaml](https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/config.yaml)
 
 
 4. Create a runner script. Pick one of the following choices for either local
 or cluster execution. Before execution of the respective command, you need to
-remember to update the argument of the `--singularity-args` option of a
+remember to update the argument of the `--apptainer-args` option of a
 respective profile (file: `profiles/{profile}/config.yaml`) so that
 it contains a comma-separated list of _all_ directories
 containing input data files (samples and any annotation files etc) required for
@@ -234,7 +86,7 @@ your run.
     #!/bin/bash
 
     snakemake \
-        --profile="../../profiles/local-singularity" \
+        --profile="../../profiles/local-apptainer" \
         --configfile="config.yaml"
 
     EOF
@@ -242,9 +94,9 @@ your run.
 
     **OR**
 
-    Runner script for _Slurm cluster exection_ (note that you may need
+    Runner script for _Slurm cluster execution_ (note that you may need
     to modify the arguments to `--jobs` and `--cores` in the file:
-    `profiles/slurm-singularity/config.yaml` depending on your HPC
+    `profiles/slurm-apptainer/config.yaml` depending on your HPC
     and workload manager configuration):
 
     ```bash
@@ -252,12 +104,12 @@ your run.
     #!/bin/bash
     mkdir -p logs/cluster_log
     snakemake \
-        --profile="../profiles/slurm-singularity" \
+        --profile="../profiles/slurm-apptainer" \
         --configfile="config.yaml"
     EOF
     ```
 
-    > Note: When running the pipeline with *conda* you should use `local-conda` and
+    > Note: When running the pipeline with *Conda* you should use `local-conda` and
     `slurm-conda` profiles instead.
 
     > Note: The slurm profiles are adapted to a cluster that uses the quality-of-service (QOS) keyword. If QOS is not supported by your slurm instance, you have to remove all the lines with "qos" in `profiles/slurm-config.json`.
@@ -268,97 +120,36 @@ your run.
     bash run.sh
     ```
 
-# Sample downloads from SRA
+## Contributing
 
-An independent Snakemake workflow `workflow/rules/sra_download.smk` is included
-for the download of sequencing libraries from the Sequence Read Archive and
-conversion into FASTQ.
+This project lives off your contributions, be it in the form of bug reports,
+feature requests, discussions, or fixes and other code changes. Please refer
+to the [contributing guidelines](CONTRIBUTING.md) if you are interested to
+contribute. Please mind the [code of conduct](CODE_OF_CONDUCT.md) for all
+interactions with the community.
 
-The workflow expects the following parameters in the configuration file:
-* `samples`, a sample table (tsv) with column *sample* containing *SRR*
-  identifiers (ERR and DRR are also supported), see
-  [example](tests/input_files/sra_samples.tsv).
-* `outdir`, an output directory
-* `samples_out`, a pointer to a modified sample table with the locations of
-  the corresponding FASTQ files
-* `cluster_log_dir`, the cluster log directory.
+## Contact
 
-For executing the example with Conda environments, one can use the following
-command (from within the activated `zarp` Conda environment):
+For questions or suggestions regarding the code, please use the
+[issue tracker][issue-tracker]. For any other inquiries, please contact us
+by [email][contact].
 
-```bash
-snakemake --snakefile="workflow/rules/sra_download.smk" \
-          --profile="profiles/local-conda" \
-          --config samples="tests/input_files/sra_samples.tsv" \
-                   outdir="results/sra_downloads" \
-                   samples_out="results/sra_downloads/sra_samples.out.tsv" \
-                   log_dir="logs" \
-                   cluster_log_dir="logs/cluster_log"
-```
-
-Alternatively, change the argument to `--profile` from `local-conda` to
-`local-singularity` to execute the workflow steps within Singularity
-containers.
-
-After successful execution, `results/sra_downloads/sra_samples.out.tsv` should
-contain:
-
-```tsv
-sample  fq1     fq2
-SRR18552868     results/sra_downloads/compress/SRR18552868/SRR18552868.fastq.gz 
-SRR18549672     results/sra_downloads/compress/SRR18549672/SRR18549672_1.fastq.gz       results/sra_downloads/compress/SRR18549672/SRR18549672_2.fastq.gz
-ERR2248142      results/sra_downloads/compress/ERR2248142/ERR2248142.fastq.gz 
-```
-
-
-# Metadata completion with HTSinfer
-An independent Snakemake workflow `workflow/rules/htsinfer.smk` that populates the `samples.tsv` required by ZARP with the sample specific parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size`. Those parameters are inferred from the provided `fastq.gz` files by [HTSinfer][hts-infer].
-
-> Note: The workflow uses the implicit temporary directory 
-from snakemake, which is called with [resources.tmpdir].
-
-
-The workflow expects the following config:
-* `samples`, a sample table (tsv) with column *sample* containing sample identifiers, as well as columns *fq1* and *fq2* containing the paths to the input fastq files
-see example [here](tests/input_files/sra_samples.tsv). If the table contains further ZARP compatible columns (see [pipeline documentation][sample-doc]), the values specified there by the user are given priority over htsinfer's results. 
-* `outdir`, an output directory
-* `samples_out`, path to a modified sample table with inferred parameters
-* `records`, set to 100000 per default
-  
-For executing the example one can use the following
-(with activated *zarp* environment):
-```bash
-cd tests/test_htsinfer_workflow
-snakemake \
-    --snakefile="../../workflow/rules/htsinfer.smk" \
-    --restart-times=0 \
-    --profile="../../profiles/local-singularity" \
-    --config outdir="results" \
-             samples="../input_files/htsinfer_samples.tsv" \
-             samples_out="samples_htsinfer.tsv" \
-    --notemp \
-    --keep-incomplete
-```
-
-However, this call will exit with an error, as not all parameters can be inferred from the example files. The argument `--keep-incomplete` makes sure the `samples_htsinfer.tsv` file can nevertheless be inspected. 
-
-After successful execution - if all parameters could be either inferred or were specified by the user - `[OUTDIR]/[SAMPLES_OUT]` should contain a populated table with parameters `seqmode`, `f1_3p`, `f2_3p`, `organism`, `libtype` and `index_size` for all input samples as described in the [pipeline documentation][sample-doc].
-
-
+&copy; 2021 [Zavolab, Biozentrum, University of Basel][zavolab]
 
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
 [hts-infer]: <https://github.com/zavolanlab/htsinfer>
 [profiles]: <https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles>
-[mamba]: <https://github.com/mamba-org/mamba>
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
 [rule-graph]: images/rule_graph.svg
 [zarp-logo]: images/zarp_logo.svg
 [zarp-schema]: images/zarp_schema.svg
 [sample-doc]: pipeline_documentation.md#read-sample-table
 [snakemake]: <https://snakemake.readthedocs.io/en/stable/>
-[singularity]: <https://sylabs.io/singularity/>
-[singularity-install]: <https://sylabs.io/guides/3.5/admin-guide/installation.html>
+[apptainer]: <https://apptainer.org/>
+[apptainer-install]: <https://apptainer.org/documentation/>
 [slurm]: <https://slurm.schedmd.com/documentation.html>
 [zavolan-lab]: <https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/>
 [pipeline-documentation]: pipeline_documentation.md
 [resources.tmpdir]: <https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html?#standard-resources>
+[zavolab]: <https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/>
+[contact]: <mailto:zavolab-biozentrum@unibas.ch>

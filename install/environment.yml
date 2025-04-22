@@ -2,4 +2,5 @@ name: zarp
 dependencies:
   - bioconda::snakemake>=8
   - graphviz
+  - pyopenssl>=23.2.0
   - python>=3.11

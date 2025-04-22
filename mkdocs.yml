@@ -65,4 +65,6 @@ extra:
 nav:
   - Home: README.md
   - Installation: guides/installation.md
-  # ADD ADDITIONAL PAGES HERE
+  - Usage: guides/usage.md
+  - Output Files: guides/outputs.md
+  - Parameterization: guides/parameterization.md
