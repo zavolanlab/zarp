@@ -1,0 +1,951 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="Zavolab <zavolab-biozentrum@unibas.ch>">
+      
+      
+        <link rel="canonical" href="https://zavolanlab.github.io/zarp/">
+      
+      
+      
+        <link rel="next" href="guides/installation/">
+      
+      
+      <link rel="icon" href="images/zarp_logo.32px.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>ZARP documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.2afb09e1.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#zarp" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="ZARP documentation" class="md-header__button md-logo" aria-label="ZARP documentation" data-md-component="logo">
+      
+  <img src="images/zarp_logo.256px.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ZARP documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Home
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zavolanlab/zarp" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    zarp
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="ZARP documentation" class="md-nav__button md-logo" aria-label="ZARP documentation" data-md-component="logo">
+      
+  <img src="images/zarp_logo.256px.png" alt="logo">
+
+    </a>
+    ZARP documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zavolanlab/zarp" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    zarp
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-does-it-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      How does it work?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-cite" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to cite
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#info-materials" class="md-nav__link">
+    <span class="md-ellipsis">
+      Info materials
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Info materials">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#poster" class="md-nav__link">
+    <span class="md-ellipsis">
+      Poster
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reach-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reach out
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contributing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acknowledgements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Acknowledgements
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Usage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Output Files
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="guides/parameterization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parameterization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-does-it-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      How does it work?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-cite" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to cite
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#info-materials" class="md-nav__link">
+    <span class="md-ellipsis">
+      Info materials
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Info materials">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#poster" class="md-nav__link">
+    <span class="md-ellipsis">
+      Poster
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reach-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reach out
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contributing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acknowledgements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Acknowledgements
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<figure>
+<p><img alt="ZARP logo" src="images/zarp_logo.384px.png" width="384" /></p>
+</figure>
+<h1 id="zarp"><em>ZARP</em><a class="headerlink" href="#zarp" title="Permanent link">¶</a></h1>
+<p><strong>Welcome to the <em>ZARP</em> documentation pages!</strong></p>
+<p><em>ZARP</em> is a generic RNA-Seq analysis workflow that allows users to process and
+analyze Illumina short-read sequencing libraries with minimum effort. Better
+yet: With our companion <a href="https://github.com/zavolanlab/zarp-cli"><strong><em>ZARP-cli</em></strong></a> command line interface, you
+can start <em>ZARP</em> runs with the simplest and most intuitive commands.</p>
+<p><em>RNA-seq analysis doesn't get simpler than that!</em></p>
+<p>The workflow is developed in <a href="https://github.com/snakemake/snakemake">Snakemake</a>, a widely used workflow
+management system in the bioinformatics community. <em>ZARP</em> will pre-process,
+align and quantify your single- or paired-end stranded bulk RNA-seq sequencing
+libraries with publicly available state-of-the-art bioinformatics tools.
+<em>ZARP</em>'s browser-based rich reports and visualizations will give you meaningful
+initial insights in the quality and composition of your sequencing experiments
+- fast and simple. Whether you are an experimentalist struggling with large
+scale data analysis or an experienced bioinformatician, when there's RNA-seq
+data to analyze, just <em>zarp 'em</em>!</p>
+<h2 id="how-does-it-work">How does it work?<a class="headerlink" href="#how-does-it-work" title="Permanent link">¶</a></h2>
+<p><em>ZARP</em> requires <a href="https://docs.conda.io/projects/conda/en/latest/index.html">Conda</a> to install the basic dependencies. Each
+individual step of the workflow runs either in its own <a href="https://apptainer.org/">Apptainer</a>
+container or in its own <a href="https://docs.conda.io/projects/conda/en/latest/index.html">Conda</a> virtual environment.</p>
+<p>Once the installation is complete, you fill in a <a href="https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/config.yaml"><code>config.yaml</code></a>
+file with parameters and a <a href="https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/samples.tsv"><code>samples.tsv</code></a> file with
+sample-specific information. You can easily trigger <em>ZARP</em> by making a call to
+Snakemake with the appropriate parameters.</p>
+<p><em>ZARP</em> can be executed in different systems or High Performance Computing (HPC)
+clusters. <em>ZARP</em> generates multiple output files that help you quality control
+(QC) your data and proceed with downstream analyses. Apart from running the
+main <em>ZARP</em> workflow, we also provide you with two auxiliary workflows for
+fetching sequencing libraries from the <a href="https://www.ncbi.nlm.nih.gov/sra">Sequence Read Archive (SRA)</a> and
+for inferring missing sample metadata straight from the data itself (both of
+which are integrated in <a href="https://github.com/zavolanlab/zarp-cli"><em>ZARP-cli</em></a> for your convenience).</p>
+<h2 id="how-to-cite">How to cite<a class="headerlink" href="#how-to-cite" title="Permanent link">¶</a></h2>
+<p>If you use <em>ZARP</em> in your work, please kindly cite the following article:</p>
+<p><strong>ZARP: A user-friendly and versatile RNA-seq analysis workflow</strong><br />
+<em>Maria Katsantoni, Foivos Gypas, Christina J. Herrmann, Dominik Burri, Maciej
+Bak, Paula Iborra, Krish Agarwal, Meric Ataman, Máté Balajti, Noè Pozzan, Niels
+Schlusser, Youngbin Moon, Aleksei Mironov, Anastasiya Börsch, Mihaela Zavolan,
+Alexander Kanitz</em><br />
+F1000Research 2024, 13:533<br />
+<a href="https://doi.org/10.12688/f1000research.149237.1">https://doi.org/10.12688/f1000research.149237.1</a></p>
+<h2 id="info-materials">Info materials<a class="headerlink" href="#info-materials" title="Permanent link">¶</a></h2>
+<h3 id="poster">Poster<a class="headerlink" href="#poster" title="Permanent link">¶</a></h3>
+<p float="left">
+  <a href="https://f1000research.com/posters/13-968"><img alt="ZARP poster" src="./images/poster_ZARP_latest.jpg" width="100" /></a>
+</p>
+
+<h2 id="reach-out">Reach out<a class="headerlink" href="#reach-out" title="Permanent link">¶</a></h2>
+<p>There are several ways to get in touch with us:</p>
+<ul>
+<li>For <em>ZARP</em> usage questions, please use the <a href="https://github.com/zavolanlab/zarp/discussions"><em>ZARP</em> Q&amp;A forum</a>
+  (requires <a href="https://github.com/signup">GitHub registration</a>).</li>
+<li>For feature suggestions and bug reports, please use either the
+  <a href="https://github.com/zavolanlab/zarp/issues"><em>ZARP</em></a> or <a href="https://github.com/zavolanlab/zarp-cli/issues"><em>ZARP-cli</em></a> issue
+  tracker (requires <a href="https://github.com/signup">GitHub registration</a>).</li>
+<li>For any other requests, please reach out to us via <a href="mailto:zavolab-biozentrum@unibas.ch">email</a>.</li>
+</ul>
+<h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">¶</a></h2>
+<p>We always welcome and duly acknowledge open source contributors, for
+<a href="https://github.com/zavolanlab/zarp"><em>ZARP</em></a>, <a href="https://github.com/zavolanlab/zarp-cli"><em>ZARP-cli</em></a> or any other of <a href="https://github.com/zavolanlab">our
+projects</a>. Simply follow our <a href="https://github.com/zavolanlab/zarp/blob/dev/CONTRIBUTING.md">onboarding
+instructions</a> and please mind our <a href="https://github.com/zavolanlab/zarp/blob/dev/CODE_OF_CONDUCT.md">Code of Conduct</a>. If you
+have any questions, do not hesitate to shoot us us an <a href="mailto:zavolab-biozentrum@unibas.ch">email</a>.</p>
+<h2 id="acknowledgements">Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permanent link">¶</a></h2>
+<p><a href="https://www.biozentrum.unibas.ch/research/research-groups/research-groups-a-z/overview/unit/research-group-mihaela-zavolan"><img alt="Zavolab" src="images/zavolab_logo.200px.png" /></a>
+<a href="https://www.biozentrum.unibas.ch/"><img alt="Biozentrum, University of Basel" src="images/biozentrum_logo.200px.png" /></a>
+<a href="https://www.sib.swiss/"><img alt="Swiss Institute of Bioinformatics" src="images/sib_logo.200px.png" /></a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+        
+          
+          <a href="guides/installation/" class="md-footer__link md-footer__link--next" aria-label="Next: Installation">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Installation
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; <a href="https://www.biozentrum.unibas.ch/research/research-groups/research-groups-a-z/overview/unit/research-group-mihaela-zavolan">2019 Zavolab, University of Basel</a>
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/zavolanlab" target="_blank" rel="noopener" title="Zavolab GitHub organization" class="md-social__link">
+      <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="42.606205mm"
+   height="41.55431mm"
+   viewBox="0 0 42.606205 41.55431"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   sodipodi:docname="white.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="45.317061"
+     inkscape:cy="-120.08459"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1848"
+     inkscape:window-height="1016"
+     inkscape:window-x="72"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(41.850258,-77.018548)">
+    <path
+       inkscape:connector-curvature="0"
+       id="path15"
+       d="m -236.24064,67.929517 c -0.0469,0.106109 -0.2136,0.136428 -0.36518,0.06477 -0.15435,-0.07028 -0.24116,-0.213596 -0.19155,-0.321083 0.0455,-0.107487 0.21222,-0.137803 0.36656,-0.06615 0.15571,0.07028 0.24391,0.216352 0.19017,0.32246"
+       style="fill:#191714;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35277775" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path17"
+       d="m -235.37799,68.891389 c -0.10198,0.0937 -0.30041,0.05099 -0.43546,-0.09784 -0.13918,-0.148828 -0.16536,-0.347266 -0.062,-0.44373 0.10473,-0.0937 0.29765,-0.04961 0.43684,0.09922 0.13918,0.150207 0.16674,0.347266 0.0606,0.442352"
+       style="fill:#191714;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35277775" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path19"
+       d="m -234.53739,70.117841 c -0.13091,0.09095 -0.34451,0.0055 -0.4768,-0.183277 -0.13091,-0.190169 -0.13091,-0.416168 0.003,-0.507119 0.13229,-0.09095 0.34313,-0.0097 0.4768,0.177766 0.12954,0.192926 0.12954,0.420304 -0.003,0.51263"
+       style="fill:#191714;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35277775" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path21"
+       d="m -233.38673,71.302958 c -0.11713,0.129532 -0.36655,0.09508 -0.54845,-0.08131 -0.18604,-0.170878 -0.23841,-0.414787 -0.12127,-0.544324 0.11851,-0.128157 0.36931,-0.09233 0.55259,0.0813 0.18466,0.172255 0.24116,0.417545 0.11713,0.544328"
+       style="fill:#191714;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35277775" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path23"
+       d="m -231.79923,71.991975 c -0.0524,0.166743 -0.29214,0.242533 -0.5333,0.172254 -0.24115,-0.07303 -0.39825,-0.268718 -0.35002,-0.438219 0.051,-0.16674 0.29077,-0.246665 0.53468,-0.170873 0.23978,0.07304 0.39825,0.267338 0.34864,0.436838"
+       style="fill:#191714;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35277775" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path25"
+       d="m -230.05601,72.120131 c 0.005,0.175014 -0.19844,0.321085 -0.45199,0.32384 -0.25494,0.0055 -0.46165,-0.136428 -0.4644,-0.308682 0,-0.177768 0.20119,-0.322458 0.45475,-0.326594 0.25356,-0.0055 0.46164,0.136428 0.46164,0.311436"
+       style="fill:#191714;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35277775" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path27"
+       d="m -228.43406,71.843147 c 0.0303,0.172254 -0.14607,0.347265 -0.39687,0.394118 -0.24805,0.04548 -0.4768,-0.06063 -0.5085,-0.230132 -0.0303,-0.17639 0.14883,-0.351398 0.3955,-0.396875 0.25218,-0.0441 0.47818,0.05926 0.50987,0.232889"
+       style="fill:#191714;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.35277775" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path103"
+       d="m -20.547169,77.018548 c -11.76431,0 -21.303089,9.537403 -21.303089,21.303092 0,9.412 6.103331,17.39773 14.568618,20.21444 1.063847,0.19706 1.455208,-0.46164 1.455208,-1.02526 0,-0.50711 -0.0193,-2.18557 -0.02893,-3.96599 -5.926942,1.28847 -7.176823,-2.51354 -7.176823,-2.51354 -0.970138,-2.46256 -2.366091,-3.11713 -2.366091,-3.11713 -1.933388,-1.32153 0.146072,-1.29535 0.146072,-1.29535 2.138715,0.1502 3.265949,2.19522 3.265949,2.19522 1.898939,3.25767 4.982986,2.31648 6.198418,1.77215 0.191544,-1.37666 0.744139,-2.31786 1.353231,-2.84978 -4.732182,-0.53882 -9.706899,-2.36472 -9.706899,-10.528215 0,-2.326128 0.832333,-4.226443 2.195213,-5.717479 -0.220486,-0.537436 -0.949466,-2.703714 0.206706,-5.637555 0,0 1.788693,-0.573264 5.85942,2.182813 1.700499,-0.47129 3.522264,-0.708311 5.333005,-0.71658 1.810745,0.0083 3.63389,0.24529 5.337143,0.71658 4.065215,-2.756077 5.8525278,-2.182813 5.8525278,-2.182813 1.158931,2.933841 0.429948,5.100119 0.208084,5.637555 1.365637,1.491036 2.192459,3.391351 2.192459,5.717479 0,8.182795 -4.9829868,9.983885 -9.7275718,10.511675 0.764812,0.66146 1.445564,1.95819 1.445564,3.94533 0,2.84978 -0.02479,5.14421 -0.02479,5.84563 0,0.56775 0.383093,1.23197 1.463474,1.02251 C -5.3404942,115.71248 0.75594776,107.73088 0.75594776,98.32164 0.75593676,86.555951 -8.7814642,77.018548 -20.547155,77.018548"
+       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.35277775" />
+  </g>
+</svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://twitter.com/ZavolanLab" target="_blank" rel="noopener" title="Zavolab Twitter profile" class="md-social__link">
+      <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 24.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Logo"
+   x="0px"
+   y="0px"
+   viewBox="0 0 246.14999 200.01262"
+   xml:space="preserve"
+   sodipodi:docname="twitter.svg"
+   width="246.14999"
+   height="200.01262"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"><metadata
+   id="metadata11"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs9">
+	
+</defs><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1848"
+   inkscape:window-height="1016"
+   id="namedview7"
+   showgrid="false"
+   fit-margin-top="0"
+   fit-margin-left="0"
+   fit-margin-right="0"
+   fit-margin-bottom="0"
+   inkscape:zoom="1.636051"
+   inkscape:cx="81.128769"
+   inkscape:cy="109.07719"
+   inkscape:window-x="72"
+   inkscape:window-y="27"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Logo" />
+<style
+   type="text/css"
+   id="style2">
+	.st0{fill:#1D9BF0;}
+</style>
+<path
+   style="fill:#1d9bf0"
+   inkscape:connector-curvature="0"
+   d="m 220.95,49.792624 c 0.15,2.17 0.15,4.34 0.15,6.53 0,66.729996 -50.8,143.689996 -143.69,143.689996 v -0.04 c -27.44,0.04 -54.31,-7.82 -77.41,-22.64 3.99,0.48 8,0.72 12.02,0.73 22.74,0.02 44.83,-7.61 62.72,-21.66 -21.61,-0.41 -40.56,-14.5 -47.18,-35.07 7.57,1.46 15.37,1.16 22.8,-0.87 -23.56,-4.76 -40.51,-25.459996 -40.51,-49.499996 0,-0.22 0,-0.43 0,-0.64 7.02,3.91 14.88,6.08 22.92,6.32 -22.19,-14.83 -29.03,-44.35 -15.63,-67.4299996 25.64,31.5499996 63.47,50.7299996 104.08,52.7599996 -4.07,-17.54 1.49,-35.92 14.61,-48.25 20.34,-19.1199996 52.33,-18.1399996 71.45,2.19 11.31,-2.23 22.15,-6.3799996 32.07,-12.2599996 -3.77,11.6899996 -11.66,21.6199996 -22.2,27.9299996 10.01,-1.18 19.79,-3.86 29,-7.95 -6.78,10.16 -15.32,19.01 -25.2,26.16 z"
+   class="st0"
+   id="white_background" />
+</svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://github.com/zavolanlab/zarp/discussions" target="_blank" rel="noopener" title="ZARP Q&amp;A forum" class="md-social__link">
+      <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 120.47 122.88007"
+   xml:space="preserve"
+   sodipodi:docname="forum.svg"
+   width="120.47"
+   height="122.88007"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"><metadata
+     id="metadata13"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title /></cc:Work></rdf:RDF></metadata><defs
+     id="defs11" /><sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1848"
+     inkscape:window-height="1016"
+     id="namedview9"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="1.9205718"
+     inkscape:cx="-125.65211"
+     inkscape:cy="99.449625"
+     inkscape:window-x="72"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="Layer_1" /><style
+     type="text/css"
+     id="style2">.st0{fill-rule:evenodd;clip-rule:evenodd;}</style><path
+     style="clip-rule:evenodd;fill-rule:evenodd;fill:#ffffff"
+     inkscape:connector-curvature="0"
+     id="path4"
+     d="m 17.2,0 h 62.29 c 4.73,0 9.03,1.93 12.15,5.05 3.12,3.12 5.05,7.42 5.05,12.15 v 38.35 c 0,4.73 -1.93,9.03 -5.05,12.15 -3.12,3.12 -7.42,5.05 -12.15,5.05 H 46.92 L 20.81,95.2 c -1.21,1.04 -3.04,0.9 -4.08,-0.32 -0.51,-0.6 -0.74,-1.34 -0.69,-2.07 L 17.43,72.74 H 17.2 C 12.47,72.74 8.17,70.81 5.05,67.69 1.93,64.58 0,60.28 0,55.55 V 17.2 C 0,12.47 1.93,8.17 5.05,5.05 8.16,1.93 12.46,0 17.2,0 Z m 45.92,29.37 c 4.48,0 8.11,3.63 8.11,8.11 0,4.48 -3.63,8.11 -8.11,8.11 -4.48,0 -8.11,-3.63 -8.11,-8.11 0,-4.48 3.63,-8.11 8.11,-8.11 z m -29.43,0 c 4.48,0 8.11,3.63 8.11,8.11 0,4.48 -3.63,8.11 -8.11,8.11 -4.48,0 -8.11,-3.63 -8.11,-8.11 0,-4.48 3.63,-8.11 8.11,-8.11 z m 73.1,-1.39 c 3.37,0.65 6.39,2.31 8.73,4.65 3.05,3.05 4.95,7.26 4.95,11.9 v 38.35 c 0,4.64 -1.89,8.85 -4.95,11.9 -3.05,3.05 -7.26,4.95 -11.9,4.95 h -0.61 l 1.42,20.44 v 0 c 0.04,0.64 -0.15,1.3 -0.6,1.82 -0.91,1.07 -2.52,1.19 -3.58,0.28 L 74.04,99.07 H 39.49 L 56.5,81.77 h 36.04 c 7.86,0 14.3,-6.43 14.3,-14.3 V 29.11 c -0.01,-0.38 -0.02,-0.76 -0.05,-1.13 z M 79.48,5.8 H 17.2 C 14.07,5.8 11.22,7.08 9.15,9.15 7.08,11.22 5.8,14.06 5.8,17.2 v 38.35 c 0,3.13 1.28,5.98 3.35,8.05 2.07,2.07 4.92,3.35 8.05,3.35 h 3.34 v 0.01 l 0.19,0.01 c 1.59,0.11 2.8,1.49 2.69,3.08 L 22.29,86.31 43.83,67.79 c 0.52,-0.52 1.24,-0.84 2.04,-0.84 h 33.61 c 3.13,0 5.98,-1.28 8.05,-3.35 2.07,-2.07 3.35,-4.92 3.35,-8.05 V 17.2 C 90.88,14.07 89.6,11.22 87.53,9.15 85.46,7.08 82.61,5.8 79.48,5.8 Z"
+     class="st0" /></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:zavolab-biozentrum@unibas.ch" target="_blank" rel="noopener" title="" class="md-social__link">
+      <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 88.86"><title>email</title><path d="M7.05,0H115.83a7.07,7.07,0,0,1,7,7.05V81.81a7,7,0,0,1-1.22,4,2.78,2.78,0,0,1-.66,1,2.62,2.62,0,0,1-.66.46,7,7,0,0,1-4.51,1.65H7.05a7.07,7.07,0,0,1-7-7V7.05A7.07,7.07,0,0,1,7.05,0Zm-.3,78.84L43.53,40.62,6.75,9.54v69.3ZM49.07,45.39,9.77,83.45h103L75.22,45.39l-11,9.21h0a2.7,2.7,0,0,1-3.45,0L49.07,45.39Zm31.6-4.84,35.46,38.6V9.2L80.67,40.55ZM10.21,5.41,62.39,47.7,112.27,5.41Z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": ".", "features": ["content.code.copy", "navigation.footer", "navigation.instant", "navigation.top", "navigation.tracking"], "search": "assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
