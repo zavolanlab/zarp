@@ -9,9 +9,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+
     steps:
       - name: Checkout ZARP repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AUTO_COMMIT }}
 
       - name: Update CHANGELOG.md
         id: changelog
@@ -35,3 +42,4 @@ jobs:
           branch: main
           commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
           file_pattern: CHANGELOG.md
+          push_options: --force
