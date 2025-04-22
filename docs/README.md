@@ -73,12 +73,13 @@ There are several ways to get in touch with us:
   tracker (requires [GitHub registration][github-signup]).
 - For any other requests, please reach out to us via [email][contact].
 
-!!! info "Contributors welcome!"
+## Contributing
 
-    Open source contributors are always welcome, for [_ZARP_][zarp],
-    [_ZARP-cli_][zarp-cli] or any other of the [Zavolab
-    projects][zavolab-gh]. Simply reach out by [email][contact] to schedule
-    an onboarding call.
+We always welcome and duly acknowledge open source contributors, for
+[_ZARP_][zarp], [_ZARP-cli_][zarp-cli] or any other of [our
+projects][zavolab-gh]. Simply follow our [onboarding
+instructions][contributing] and please mind our [Code of Conduct][coc]. If you
+have any questions, do not hesitate to shoot us us an [email][contact].
 
 ## Acknowledgements
 

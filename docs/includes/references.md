@@ -5,9 +5,11 @@
 [bioconda-cutadapt]: <https://anaconda.org/bioconda/cutadapt>
 [bioconda-contributing]: <https://bioconda.github.io/contributor/index.html>
 [biocontainers]: <https://biocontainers.pro/registry>
+[coc]: <https://github.com/zavolanlab/zarp/blob/dev/CODE_OF_CONDUCT.md>
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
 [config-file]: <https://github.com/zavolanlab/zarp/blob/dev/tests/input_files/config.yaml>
 [contact]: <mailto:zavolab-biozentrum@unibas.ch>
+[contributing]: <https://github.com/zavolanlab/zarp/blob/dev/CONTRIBUTING.md>
 [docker-docs]: <https://docs.docker.com/desktop/>
 [github-signup]: <https://github.com/signup>
 [htsinfer]: <https://github.com/zavolanlab/htsinfer>
