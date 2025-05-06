@@ -1,10 +1,14 @@
-name: zarp
+name: zarp_test_old
+channels:
+  - conda-forge
+  - bioconda
 dependencies:
   - bioconda::bedtools
-  - bioconda::snakemake>=8
+  - bioconda::snakemake>=9.3.3
   - bioconda::snakefmt
   - biopython
   - pyopenssl>=23.2.0
   - python>=3.11
   - graphviz
   - unzip
+  - conda

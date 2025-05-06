@@ -1,6 +1,10 @@
 name: zarp
+channels:
+  - conda-forge
+  - bioconda
 dependencies:
-  - bioconda::snakemake>=8
+  - bioconda::snakemake>=9.3.3
   - graphviz
   - pyopenssl>=23.2.0
   - python>=3.11
+  - conda
