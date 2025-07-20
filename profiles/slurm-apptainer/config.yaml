@@ -1,8 +1,8 @@
 jobscript: "../slurm-jobscript.sh"
-cluster: "../slurm-submit.py"
-cluster-status: "../slurm-status.py"
-cluster-sidecar: "../slurm-sidecar.py"
-cluster-cancel: "scancel"
+cluster-generic-submit-cmd: "../slurm-submit.py"
+cluster-generic-status-cmd: "../slurm-status.py"
+cluster-generic-sidecar-cmd: "../slurm-sidecar.py"
+cluster-generic-cancel-cmd: "scancel"
 max-jobs-per-second: 1
 max-status-checks-per-second: 10
 snakefile: "../../workflow/Snakefile"

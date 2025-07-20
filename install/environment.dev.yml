@@ -1,8 +1,9 @@
 name: zarp
 dependencies:
   - bioconda::bedtools
-  - bioconda::snakemake>=9.8
   - bioconda::snakefmt
+  - bioconda::snakemake>=9.8
+  - bioconda::snakemake-executor-plugin-cluster-generic
   - conda-forge::biopython
   - conda-forge::graphviz
   - conda-forge::pyopenssl>=23.2.0
